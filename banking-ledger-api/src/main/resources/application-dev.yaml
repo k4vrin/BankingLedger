@@ -1,0 +1,30 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: ${DB_URL:jdbc:oracle:thin:@localhost:1521/FREEPDB1}
+    username: ${DB_USERNAME:ledger_dev}
+    password: ${DB_PASSWORD:ledger_dev_password}
+    driver-class-name: oracle.jdbc.OracleDriver
+  docker:
+    compose:
+      enabled: ${SPRING_DOCKER_COMPOSE_ENABLED:true}
+      file: ${SPRING_DOCKER_COMPOSE_FILE:compose.dev.yaml}
+      lifecycle-management: start-and-stop
+  jpa:
+    show-sql: ${JPA_SHOW_SQL:true}
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    user: ${DB_USERNAME:ledger_dev}
+    password: ${DB_PASSWORD:ledger_dev_password}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+logging:
+  level:
+    dev.kavrin.banking_ledger: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
