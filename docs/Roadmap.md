@@ -19,29 +19,29 @@ Goal: Prepare the repository, runtime configuration, local infrastructure, and b
 - [x] Add `dev` and `prod` Spring profiles.
 - [x] Add environment examples and ignore files.
 - [x] Add root README with setup instructions.
-- [ ] Create base package structure by feature:
-  - [ ] `account`
-  - [ ] `ledger`
-  - [ ] `transfer`
-  - [ ] `reconciliation`
-  - [ ] `audit`
-  - [ ] `outbox`
-  - [ ] `security`
-  - [ ] `shared`
-- [ ] Add global API error response model.
-- [ ] Add global exception handler.
-- [ ] Add correlation ID request filter.
-- [ ] Add basic logging configuration for correlation IDs.
+- [x] Create base package structure by feature:
+    - [x] `account`
+    - [x] `ledger`
+    - [x] `transfer`
+    - [x] `reconciliation`
+    - [x] `audit`
+    - [x] `outbox`
+    - [x] `security`
+    - [x] `shared`
+- [x] Add global API error response model.
+- [x] Add global exception handler.
+- [x] Add correlation ID request filter.
+- [x] Add basic logging configuration for correlation IDs.
 
 ### Acceptance Criteria
 
-- [ ] `docker compose -f compose.dev.yaml up -d` starts Oracle, Kafka, and CloudBeaver.
-- [ ] CloudBeaver can connect to Oracle using the `ledger_dev` user.
-- [ ] `./mvnw -DskipTests validate` succeeds.
-- [ ] `./mvnw test` succeeds.
-- [ ] The API starts locally with the `dev` profile.
-- [ ] `/actuator/health` returns `UP`.
-- [ ] Project setup is documented in `README.md`.
+- [x] `docker compose -f compose.dev.yaml up -d` starts Oracle, Kafka, and CloudBeaver.
+- [x] CloudBeaver can connect to Oracle using the `ledger_dev` user.
+- [x] `./mvnw -DskipTests validate` succeeds.
+- [x] `./mvnw test` succeeds.
+- [x] The API starts locally with the `dev` profile.
+- [x] `/actuator/health` returns `UP`.
+- [x] Project setup is documented in `README.md`.
 
 ## Phase 1: Database Schema And Core Domain Model
 
@@ -50,39 +50,39 @@ Goal: Design the first version of the ledger database and model the most importa
 ### Steps
 
 - [ ] Create Flyway migration folder:
-  - [ ] `src/main/resources/db/migration`
+    - [ ] `src/main/resources/db/migration`
 - [ ] Add initial schema migration:
-  - [ ] `customers`
-  - [ ] `accounts`
-  - [ ] `ledger_transactions`
-  - [ ] `journal_entries`
-  - [ ] `postings`
-  - [ ] `transfer_requests`
-  - [ ] `audit_events`
-  - [ ] `idempotency_records`
-  - [ ] `outbox_events`
+    - [ ] `customers`
+    - [ ] `accounts`
+    - [ ] `ledger_transactions`
+    - [ ] `journal_entries`
+    - [ ] `postings`
+    - [ ] `transfer_requests`
+    - [ ] `audit_events`
+    - [ ] `idempotency_records`
+    - [ ] `outbox_events`
 - [ ] Add required constraints:
-  - [ ] Unique account number.
-  - [ ] Unique idempotency key per operation scope.
-  - [ ] Foreign keys between postings, journal entries, transactions, and accounts.
-  - [ ] Positive amount checks.
-  - [ ] Valid debit/credit direction checks.
-  - [ ] Version column for optimistic locking.
+    - [ ] Unique account number.
+    - [ ] Unique idempotency key per operation scope.
+    - [ ] Foreign keys between postings, journal entries, transactions, and accounts.
+    - [ ] Positive amount checks.
+    - [ ] Valid debit/credit direction checks.
+    - [ ] Version column for optimistic locking.
 - [ ] Add required indexes:
-  - [ ] Account transaction history by account and posted time.
-  - [ ] Transaction lookup by external reference.
-  - [ ] Idempotency key lookup.
-  - [ ] Outbox status and retry lookup.
+    - [ ] Account transaction history by account and posted time.
+    - [ ] Transaction lookup by external reference.
+    - [ ] Idempotency key lookup.
+    - [ ] Outbox status and retry lookup.
 - [ ] Create Java enums:
-  - [ ] `AccountType`
-  - [ ] `AccountStatus`
-  - [ ] `TransactionStatus`
-  - [ ] `PostingDirection`
-  - [ ] `OutboxStatus`
+    - [ ] `AccountType`
+    - [ ] `AccountStatus`
+    - [ ] `TransactionStatus`
+    - [ ] `PostingDirection`
+    - [ ] `OutboxStatus`
 - [ ] Create money representation:
-  - [ ] Use integer minor units or strict `BigDecimal` scale.
-  - [ ] Add validation helpers.
-  - [ ] Add unit tests for invalid money values.
+    - [ ] Use integer minor units or strict `BigDecimal` scale.
+    - [ ] Add validation helpers.
+    - [ ] Add unit tests for invalid money values.
 - [ ] Create JPA entities for the initial schema.
 - [ ] Create Spring Data repositories.
 
@@ -101,18 +101,18 @@ Goal: Implement account creation, account lookup, balance views, and account sta
 ### Steps
 
 - [ ] Add account DTOs:
-  - [ ] Create account request.
-  - [ ] Account response.
-  - [ ] Balance response.
-  - [ ] Account transaction summary response.
+    - [ ] Create account request.
+    - [ ] Account response.
+    - [ ] Balance response.
+    - [ ] Account transaction summary response.
 - [ ] Implement account creation use case.
 - [ ] Implement account lookup by ID and account number.
 - [ ] Implement balance query endpoint.
 - [ ] Implement account transaction history query endpoint.
 - [ ] Add account status rules:
-  - [ ] Active accounts can transact.
-  - [ ] Frozen or closed accounts cannot debit.
-  - [ ] Closed accounts cannot receive credits unless explicitly allowed.
+    - [ ] Active accounts can transact.
+    - [ ] Frozen or closed accounts cannot debit.
+    - [ ] Closed accounts cannot receive credits unless explicitly allowed.
 - [ ] Add validation for currency and account type.
 - [ ] Add audit event creation for account lifecycle operations.
 
@@ -133,15 +133,15 @@ Goal: Implement double-entry journal creation and enforce financial invariants b
 ### Steps
 
 - [ ] Create ledger domain objects:
-  - [ ] `LedgerTransaction`
-  - [ ] `JournalEntry`
-  - [ ] `Posting`
+    - [ ] `LedgerTransaction`
+    - [ ] `JournalEntry`
+    - [ ] `Posting`
 - [ ] Implement journal entry factory.
 - [ ] Enforce balanced postings:
-  - [ ] Total debit equals total credit.
-  - [ ] Currency is consistent across postings.
-  - [ ] At least two postings exist.
-  - [ ] Amounts are positive.
+    - [ ] Total debit equals total credit.
+    - [ ] Currency is consistent across postings.
+    - [ ] At least two postings exist.
+    - [ ] Amounts are positive.
 - [ ] Implement ledger posting service.
 - [ ] Add explicit transaction boundaries with `@Transactional`.
 - [ ] Prevent direct updates to posted records.
@@ -165,13 +165,13 @@ Goal: Implement safe account-to-account transfers using the ledger posting engin
 
 - [ ] Add transfer request and response DTOs.
 - [ ] Add transfer validation:
-  - [ ] Source account exists.
-  - [ ] Destination account exists.
-  - [ ] Source and destination are different.
-  - [ ] Accounts are active.
-  - [ ] Currencies match.
-  - [ ] Amount is valid.
-  - [ ] Source account has sufficient available balance.
+    - [ ] Source account exists.
+    - [ ] Destination account exists.
+    - [ ] Source and destination are different.
+    - [ ] Accounts are active.
+    - [ ] Currencies match.
+    - [ ] Amount is valid.
+    - [ ] Source account has sufficient available balance.
 - [ ] Require an idempotency key for transfer creation.
 - [ ] Store transfer request records.
 - [ ] Implement duplicate request replay.
@@ -196,9 +196,9 @@ Goal: Prove that concurrent transfers preserve correct balances and do not allow
 ### Steps
 
 - [ ] Choose and document locking strategy:
-  - [ ] Optimistic locking with version columns.
-  - [ ] Pessimistic row locks for debit balance checks.
-  - [ ] Or a clearly justified hybrid.
+    - [ ] Optimistic locking with version columns.
+    - [ ] Pessimistic row locks for debit balance checks.
+    - [ ] Or a clearly justified hybrid.
 - [ ] Add repository methods for locked account loading.
 - [ ] Add retry or conflict handling for concurrent updates.
 - [ ] Add concurrent transfer test utilities.
@@ -221,9 +221,9 @@ Goal: Support operational correction without mutating posted financial records.
 ### Steps
 
 - [ ] Add reversal schema:
-  - [ ] `reversals`
-  - [ ] Unique reversal per original transaction.
-  - [ ] Link reversal transaction to original transaction.
+    - [ ] `reversals`
+    - [ ] Unique reversal per original transaction.
+    - [ ] Link reversal transaction to original transaction.
 - [ ] Add reversal request and response DTOs.
 - [ ] Implement full transaction reversal.
 - [ ] Require reversal reason.
@@ -243,33 +243,63 @@ Goal: Support operational correction without mutating posted financial records.
 - [ ] Unauthorized users cannot reverse transactions.
 - [ ] Reversal and adjustment tests cover success and failure paths.
 
-## Phase 7: Security And Authorization
+## Phase 7: Authentication, Authorization, And API Security
 
-Goal: Protect customer, teller, auditor, operations, and service workflows with role-based access.
+Goal: Add a clear authentication model and protect customer, teller, auditor, operations, and service workflows with role-based access.
 
 ### Steps
 
+- [ ] Choose authentication strategy for the portfolio version:
+  - [ ] Use JWT bearer tokens for API authentication.
+  - [ ] Use local signed JWTs for development and tests.
+  - [ ] Keep the design compatible with a future external identity provider.
+- [ ] Add security configuration:
+  - [ ] Stateless session policy.
+  - [ ] CSRF disabled for stateless REST APIs.
+  - [ ] CORS configuration for future frontend access.
+  - [ ] Public endpoints for health and API docs.
+  - [ ] Protected endpoints for business APIs.
+- [ ] Add development authentication support:
+  - [ ] Create a local token issuing endpoint or test-only token helper.
+  - [ ] Add sample users for development.
+  - [ ] Add sample JWT claims for user ID, roles, and customer ID.
 - [ ] Configure JWT resource server.
+- [ ] Map JWT claims to Spring Security authorities.
 - [ ] Define roles:
   - [ ] `CUSTOMER`
   - [ ] `TELLER`
   - [ ] `AUDITOR`
   - [ ] `OPS_ADMIN`
   - [ ] `SERVICE`
+- [ ] Define permission rules:
+  - [ ] Customers can view only their own accounts and transactions.
+  - [ ] Tellers can create and manage customer accounts.
+  - [ ] Auditors can read ledger, reports, and audit events.
+  - [ ] Ops admins can reverse transactions and run reconciliation workflows.
+  - [ ] Service clients can publish or consume internal integration workflows.
 - [ ] Add method-level authorization.
 - [ ] Protect customer account endpoints.
 - [ ] Protect reversal and adjustment endpoints.
 - [ ] Protect reconciliation and ops endpoints.
+- [ ] Add ownership checks for customer-scoped resources.
+- [ ] Add structured authentication and authorization error responses.
 - [ ] Add test JWT support for integration tests.
 - [ ] Ensure sensitive data is not logged.
+- [ ] Add ADR for authentication and authorization design.
 
 ### Acceptance Criteria
 
 - [ ] Unauthenticated requests are rejected.
+- [ ] Invalid or expired JWTs are rejected.
+- [ ] Valid JWTs are converted into the correct authenticated principal.
 - [ ] Customer users can only access permitted customer APIs.
+- [ ] Customer users cannot access another customer's account data.
+- [ ] Tellers can perform teller workflows but cannot perform auditor-only or ops-admin-only actions.
 - [ ] Auditors can query ledger and audit data.
 - [ ] Ops admins can perform reversal and reconciliation workflows.
+- [ ] Service role access is limited to internal service endpoints.
 - [ ] Unauthorized role access returns `403`.
+- [ ] Missing or invalid credentials return `401`.
 - [ ] Security tests cover authentication and authorization rules.
 
 ## Phase 8: Audit Trail And Investigation APIs
@@ -305,10 +335,10 @@ Goal: Publish financial events reliably without losing consistency between datab
 - [ ] Write outbox records inside financial transactions.
 - [ ] Implement outbox publisher worker.
 - [ ] Publish events:
-  - [ ] `LedgerTransactionPosted`
-  - [ ] `LedgerTransactionReversed`
-  - [ ] `AccountBalanceChanged`
-  - [ ] `ReconciliationMismatchFound`
+    - [ ] `LedgerTransactionPosted`
+    - [ ] `LedgerTransactionReversed`
+    - [ ] `AccountBalanceChanged`
+    - [ ] `ReconciliationMismatchFound`
 - [ ] Add retry handling.
 - [ ] Add dead-letter handling strategy.
 - [ ] Add replay strategy.
@@ -331,18 +361,18 @@ Goal: Simulate settlement batch import, compare external settlement data with in
 ### Steps
 
 - [ ] Add reconciliation schema:
-  - [ ] `settlement_batches`
-  - [ ] `settlement_items`
-  - [ ] `reconciliation_results`
+    - [ ] `settlement_batches`
+    - [ ] `settlement_items`
+    - [ ] `reconciliation_results`
 - [ ] Add settlement batch import DTOs.
 - [ ] Implement settlement batch creation endpoint.
 - [ ] Match settlement items to ledger transactions.
 - [ ] Detect mismatches:
-  - [ ] Missing internal transaction.
-  - [ ] Missing external settlement item.
-  - [ ] Amount mismatch.
-  - [ ] Currency mismatch.
-  - [ ] Status mismatch.
+    - [ ] Missing internal transaction.
+    - [ ] Missing external settlement item.
+    - [ ] Amount mismatch.
+    - [ ] Currency mismatch.
+    - [ ] Status mismatch.
 - [ ] Add reconciliation result query endpoint.
 - [ ] Add audit events for reconciliation operations.
 - [ ] Publish mismatch events through outbox.
@@ -394,13 +424,13 @@ Goal: Make the project easy to inspect, run, and review as a portfolio project.
 - [ ] Add architecture diagram.
 - [ ] Add ERD diagram.
 - [ ] Add ADRs:
-  - [ ] Double-entry model.
-  - [ ] Money representation.
-  - [ ] Transaction isolation.
-  - [ ] Locking strategy.
-  - [ ] Immutable ledger and reversal model.
-  - [ ] Idempotency design.
-  - [ ] Outbox/event publishing strategy.
+    - [ ] Double-entry model.
+    - [ ] Money representation.
+    - [ ] Transaction isolation.
+    - [ ] Locking strategy.
+    - [ ] Immutable ledger and reversal model.
+    - [ ] Idempotency design.
+    - [ ] Outbox/event publishing strategy.
 
 ### Acceptance Criteria
 
@@ -442,17 +472,17 @@ Goal: Turn the completed implementation into a strong resume and interview artif
 
 - [ ] Add final README overview with screenshots or diagrams.
 - [ ] Add sample API flow:
-  - [ ] Create customer/account.
-  - [ ] Fund account.
-  - [ ] Transfer money.
-  - [ ] Replay duplicate transfer.
-  - [ ] Reverse transfer.
-  - [ ] Run reconciliation.
-  - [ ] Query audit trail.
+    - [ ] Create customer/account.
+    - [ ] Fund account.
+    - [ ] Transfer money.
+    - [ ] Replay duplicate transfer.
+    - [ ] Reverse transfer.
+    - [ ] Run reconciliation.
+    - [ ] Query audit trail.
 - [ ] Add incident write-up:
-  - [ ] Duplicate request investigation.
-  - [ ] Overdraft race condition.
-  - [ ] Failed reversal investigation.
+    - [ ] Duplicate request investigation.
+    - [ ] Overdraft race condition.
+    - [ ] Failed reversal investigation.
 - [ ] Add final test report and coverage summary.
 - [ ] Add resume bullet points.
 - [ ] Add project description for LinkedIn/GitHub.
@@ -494,4 +524,3 @@ Follow this order unless a dependency forces a small adjustment:
 - [ ] Relevant README or docs are updated.
 - [ ] No secrets are committed.
 - [ ] The implementation follows the banking correctness rules in `docs/Project.md`.
-

@@ -33,3 +33,4 @@ management:
 logging:
   pattern:
     correlation: "[%X{correlationId:-}] "
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %5p ${spring.application.name:} ${logging.pattern.correlation}%t %logger{36} - %msg%n"
