@@ -257,30 +257,121 @@ Goal: Implement double-entry journal creation and enforce financial invariants b
 
 ### Steps
 
+- [ ] Prepare package structure:
+    - [ ] Add `ledger.application.command` for posting input commands.
+    - [ ] Add `ledger.application.service` for ledger posting use cases.
+    - [ ] Add `ledger.domain.factory` for journal and posting construction.
+    - [ ] Add `ledger.domain.policy` for double-entry validation rules.
+    - [ ] Add package-level tests under `ledger.domain` and `ledger.application` as implementation begins.
+- [ ] Create immutable ledger command objects:
+    - [ ] Add `PostLedgerTransactionCommand`.
+    - [ ] Add `PostingLineCommand`.
+    - [ ] Include `externalReference`, `transactionType`, `currencyCode`, `amountMinor`, `description`, `actorType`, and `correlationId`.
+    - [ ] Include account id, posting direction, amount, and currency on each posting line.
+    - [ ] Validate required command fields before domain construction.
 - [ ] Create ledger domain objects:
-    - [ ] `LedgerTransaction`
-    - [ ] `JournalEntry`
-    - [ ] `Posting`
-- [ ] Implement journal entry factory.
-- [ ] Enforce balanced postings:
-    - [ ] Total debit equals total credit.
-    - [ ] Currency is consistent across postings.
-    - [ ] At least two postings exist.
-    - [ ] Amounts are positive.
-- [ ] Implement ledger posting service.
-- [ ] Add explicit transaction boundaries with `@Transactional`.
-- [ ] Prevent direct updates to posted records.
-- [ ] Add audit events for posted transactions.
-- [ ] Add initial outbox event records for posted ledger transactions.
+    - [ ] Add `LedgerTransaction`.
+    - [ ] Add `JournalEntry`.
+    - [ ] Add `Posting`.
+    - [ ] Keep domain objects persistence-free.
+    - [ ] Represent money using integer minor units and explicit currency code.
+    - [ ] Expose read-only posting collections from `JournalEntry`.
+- [ ] Implement posting validation policy:
+    - [ ] Reject fewer than two postings.
+    - [ ] Reject entries without at least one debit and one credit.
+    - [ ] Reject zero or negative posting amounts.
+    - [ ] Reject mixed posting currencies.
+    - [ ] Reject posting currency that differs from the transaction currency.
+    - [ ] Reject total debit that differs from total credit.
+    - [ ] Reject a journal total that differs from the transaction amount.
+- [ ] Implement journal entry factory:
+    - [ ] Accept `PostLedgerTransactionCommand`.
+    - [ ] Normalize currency codes through `CurrencyCode`.
+    - [ ] Build one `LedgerTransaction`.
+    - [ ] Build one `JournalEntry`.
+    - [ ] Build all `Posting` lines.
+    - [ ] Run posting validation before returning the journal entry.
+    - [ ] Return a domain object graph without touching repositories.
+- [ ] Map domain objects to persistence entities:
+    - [ ] Convert `LedgerTransaction` to `LedgerTransactionEntity`.
+    - [ ] Convert `JournalEntry` to `JournalEntryEntity`.
+    - [ ] Convert each `Posting` to `PostingEntity`.
+    - [ ] Resolve `AccountEntity` references for posting accounts.
+    - [ ] Set `postedAt` once and reuse it across transaction, journal entry, and postings.
+- [ ] Implement `PostLedgerTransactionUseCase`:
+    - [ ] Annotate the public handler with `@Transactional`.
+    - [ ] Validate duplicate `externalReference` before insert when present.
+    - [ ] Load all posting accounts.
+    - [ ] Reject missing posting accounts.
+    - [ ] Reject posting accounts whose currency differs from the posting currency.
+    - [ ] Save the ledger transaction.
+    - [ ] Save the journal entry.
+    - [ ] Save all postings.
+    - [ ] Flush before creating side effects that depend on generated ids.
+- [ ] Update cached account balances inside the same transaction:
+    - [ ] Debit customer asset accounts by reducing available and ledger balances.
+    - [ ] Credit customer asset accounts by increasing available and ledger balances.
+    - [ ] Document any internal account balance behavior that is deferred to later phases.
+    - [ ] Keep balance update logic isolated so Phase 4 transfer validation can reuse it.
+- [ ] Prevent destructive updates to posted ledger records:
+    - [ ] Remove normal workflow paths that update posted `LedgerTransactionEntity` fields after posting.
+    - [ ] Remove normal workflow paths that update `JournalEntryEntity` after posting.
+    - [ ] Remove normal workflow paths that update `PostingEntity` after posting.
+    - [ ] Add comments or method names that make append-only intent clear at repository/service boundaries.
+    - [ ] Leave reversals and adjustments as future append-only workflows.
+- [ ] Add audit event creation:
+    - [ ] Create `LEDGER_TRANSACTION_POSTED` audit event.
+    - [ ] Use `LEDGER_TRANSACTION` as the audited entity type.
+    - [ ] Store the posted transaction id as the audited entity id.
+    - [ ] Include actor type and correlation id from the command.
+    - [ ] Keep audit save inside the posting transaction.
+- [ ] Add outbox event creation:
+    - [ ] Create `LedgerTransactionPosted` outbox event.
+    - [ ] Use the ledger transaction id as the aggregate id.
+    - [ ] Include transaction id, currency, amount, transaction type, and posted timestamp in the payload.
+    - [ ] Save the outbox event with `PENDING` status inside the posting transaction.
+- [ ] Add focused domain tests:
+    - [ ] Valid debit and credit postings are accepted.
+    - [ ] Single-sided posting list is rejected.
+    - [ ] Debit-only posting list is rejected.
+    - [ ] Credit-only posting list is rejected.
+    - [ ] Unbalanced totals are rejected.
+    - [ ] Mixed currencies are rejected.
+    - [ ] Zero amount is rejected.
+    - [ ] Negative amount is rejected.
+    - [ ] Transaction amount mismatch is rejected.
+- [ ] Add service integration tests:
+    - [ ] Valid command persists one ledger transaction.
+    - [ ] Valid command persists one journal entry.
+    - [ ] Valid command persists all postings.
+    - [ ] Valid command creates one audit event.
+    - [ ] Valid command creates one pending outbox event.
+    - [ ] Duplicate external reference is rejected.
+    - [ ] Missing posting account is rejected.
+    - [ ] Account currency mismatch is rejected.
+    - [ ] Failure after transaction save rolls back journal entries and postings.
+    - [ ] Failure after journal entry save rolls back ledger transaction and postings.
+    - [ ] Failure after posting save rolls back audit and outbox records.
+- [ ] Add persistence guard tests:
+    - [ ] Posting amount database check rejects non-positive values.
+    - [ ] Journal debit and credit total check rejects unbalanced totals.
+    - [ ] Ledger transaction status and posted timestamp checks reject invalid combinations.
+    - [ ] Composite currency foreign keys reject mismatched ledger, journal, posting, and account currencies.
 
 ### Acceptance Criteria
 
 - [ ] A valid journal entry can be posted.
 - [ ] Unbalanced journal entries are rejected before persistence.
 - [ ] Single-sided journal entries are rejected.
+- [ ] Mixed-currency journal entries are rejected before persistence.
+- [ ] Zero or negative posting amounts are rejected before persistence.
+- [ ] Posting account currency mismatches are rejected before persistence.
 - [ ] Posted ledger records cannot be destructively changed by normal workflows.
 - [ ] Posting creates journal entries, postings, audit events, and outbox records atomically.
 - [ ] Rollback tests prove partial postings are not committed.
+- [ ] Domain tests cover all double-entry invariants.
+- [ ] Service integration tests cover success, duplicate reference, missing account, currency mismatch, and rollback paths.
+- [ ] Persistence tests prove schema constraints reject invalid ledger rows.
 
 ## Phase 4: Internal Transfer API
 

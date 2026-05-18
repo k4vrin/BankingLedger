@@ -65,7 +65,7 @@ public class CreateAccountUseCase {
                 .ledgerBalanceMinor(0L)
                 .build();
 
-        var savedAccount = accountRepository.saveAndFlush(account);
+        var savedAccount = accountRepository.save(account);
 
         auditEventRepository.save(AuditEventEntity.builder()
                 .entityType("ACCOUNT")

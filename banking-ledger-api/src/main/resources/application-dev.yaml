@@ -24,6 +24,9 @@ spring:
   flyway:
     user: ${DB_USERNAME:ledger_dev}
     password: ${DB_PASSWORD:ledger_dev_password}
+    locations:
+      - classpath:db/migration
+      - classpath:db/dev-migration
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 

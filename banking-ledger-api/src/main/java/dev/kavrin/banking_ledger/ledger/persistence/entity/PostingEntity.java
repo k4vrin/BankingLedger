@@ -1,4 +1,4 @@
-package dev.kavrin.banking_ledger.ledger.persistence;
+package dev.kavrin.banking_ledger.ledger.persistence.entity;
 
 import dev.kavrin.banking_ledger.account.persistence.AccountEntity;
 import dev.kavrin.banking_ledger.ledger.domain.model.PostingDirection;

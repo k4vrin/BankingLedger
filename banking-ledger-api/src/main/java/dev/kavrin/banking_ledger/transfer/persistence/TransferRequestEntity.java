@@ -2,7 +2,7 @@ package dev.kavrin.banking_ledger.transfer.persistence;
 
 import dev.kavrin.banking_ledger.account.persistence.AccountEntity;
 import dev.kavrin.banking_ledger.customer.persistence.CustomerEntity;
-import dev.kavrin.banking_ledger.ledger.persistence.LedgerTransactionEntity;
+import dev.kavrin.banking_ledger.ledger.persistence.entity.LedgerTransactionEntity;
 import dev.kavrin.banking_ledger.transfer.domain.model.RequestedByActorType;
 import dev.kavrin.banking_ledger.transfer.domain.model.TransferStatus;
 import dev.kavrin.banking_ledger.transfer.domain.model.TransferType;

@@ -25,10 +25,13 @@ services:
     depends_on:
       oracle:
         condition: service_healthy
+    environment:
+      CLOUDBEAVER_DB_INITIAL_DATA: /opt/cloudbeaver/conf/initial-data.conf
     ports:
       - "${CLOUDBEAVER_PORT:-8978}:8978"
     volumes:
       - cloudbeaver-dev-data:/opt/cloudbeaver/workspace
+      - ./cloudbeaver/conf/initial-data.conf:/opt/cloudbeaver/conf/initial-data.conf:ro
 
   kafka:
     image: apache/kafka:3.9.1

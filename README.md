@@ -79,6 +79,36 @@ Check container status:
 docker compose -f compose.dev.yaml ps
 ```
 
+Open CloudBeaver:
+
+```text
+http://localhost:8978
+```
+
+Development CloudBeaver login:
+
+```text
+Username: cbadmin
+Password: cbadmin_Password1
+```
+
+Create an Oracle connection in CloudBeaver with:
+
+```text
+Host: oracle
+Port: 1521
+Service: FREEPDB1
+Username: ledger_dev
+Password: ledger_dev_password
+```
+
+CloudBeaver only applies the seeded admin login during first workspace initialization. If the CloudBeaver volume was already initialized, reset it before starting again:
+
+```bash
+docker compose -f compose.dev.yaml down -v
+docker compose -f compose.dev.yaml up -d
+```
+
 Stop development infrastructure:
 
 ```bash

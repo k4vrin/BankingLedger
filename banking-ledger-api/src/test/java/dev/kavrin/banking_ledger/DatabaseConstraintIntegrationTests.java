@@ -81,6 +81,70 @@ class DatabaseConstraintIntegrationTests {
         TestTransaction.flagForRollback();
     }
 
+    @Test
+    void rejectsPostedLedgerTransactionWithoutPostedTimestamp() {
+        assertThatThrownBy(() -> jdbcTemplate.update(
+                """
+                insert into ledger_transactions (
+                    id, external_reference, transaction_type, status, currency_code, amount_minor,
+                    posted_at, created_at, updated_at, version
+                ) values (
+                    hextoraw(?), ?, 'TRANSFER', 'POSTED', 'USD', 100,
+                    null, systimestamp, systimestamp, 0
+                )
+                """,
+                raw(UUID.randomUUID()),
+                "posted-without-time-" + UUID.randomUUID()
+        ))
+                .isInstanceOf(DataIntegrityViolationException.class);
+
+        TestTransaction.flagForRollback();
+    }
+
+    @Test
+    void rejectsUnbalancedJournalTotals() {
+        UUID ledgerTransactionId = insertPostedLedgerTransaction("USD");
+
+        assertThatThrownBy(() -> jdbcTemplate.update(
+                """
+                insert into journal_entries (
+                    id, ledger_transaction_id, entry_type, currency_code, total_debit_minor,
+                    total_credit_minor, description, posted_at, created_at, version
+                ) values (
+                    hextoraw(?), hextoraw(?), 'TRANSFER', 'USD', 100,
+                    90, 'unbalanced journal', systimestamp, systimestamp, 0
+                )
+                """,
+                raw(UUID.randomUUID()),
+                raw(ledgerTransactionId)
+        ))
+                .isInstanceOf(DataIntegrityViolationException.class);
+
+        TestTransaction.flagForRollback();
+    }
+
+    @Test
+    void rejectsJournalCurrencyMismatchWithLedgerTransactionCurrency() {
+        UUID ledgerTransactionId = insertPostedLedgerTransaction("USD");
+
+        assertThatThrownBy(() -> jdbcTemplate.update(
+                """
+                insert into journal_entries (
+                    id, ledger_transaction_id, entry_type, currency_code, total_debit_minor,
+                    total_credit_minor, description, posted_at, created_at, version
+                ) values (
+                    hextoraw(?), hextoraw(?), 'TRANSFER', 'EUR', 100,
+                    100, 'mismatched journal currency', systimestamp, systimestamp, 0
+                )
+                """,
+                raw(UUID.randomUUID()),
+                raw(ledgerTransactionId)
+        ))
+                .isInstanceOf(DataIntegrityViolationException.class);
+
+        TestTransaction.flagForRollback();
+    }
+
     private TestIds insertPostedJournal(String journalCurrency, String sourceAccountCurrency) {
         UUID customerId = UUID.randomUUID();
         UUID sourceAccountId = UUID.randomUUID();
@@ -136,6 +200,27 @@ class DatabaseConstraintIntegrationTests {
         );
 
         return new TestIds(sourceAccountId, journalEntryId);
+    }
+
+    private UUID insertPostedLedgerTransaction(String currencyCode) {
+        UUID ledgerTransactionId = UUID.randomUUID();
+
+        jdbcTemplate.update(
+                """
+                insert into ledger_transactions (
+                    id, external_reference, transaction_type, status, currency_code, amount_minor,
+                    posted_at, created_at, updated_at, version
+                ) values (
+                    hextoraw(?), ?, 'TRANSFER', 'POSTED', ?, 100,
+                    systimestamp, systimestamp, systimestamp, 0
+                )
+                """,
+                raw(ledgerTransactionId),
+                "ledger-" + raw(UUID.randomUUID()).substring(0, 24),
+                currencyCode
+        );
+
+        return ledgerTransactionId;
     }
 
     private void insertAccount(UUID accountId, UUID customerId, String accountNumber, String currencyCode) {

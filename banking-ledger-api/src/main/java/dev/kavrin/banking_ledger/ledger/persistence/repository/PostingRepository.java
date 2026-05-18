@@ -1,5 +1,6 @@
-package dev.kavrin.banking_ledger.ledger.persistence;
+package dev.kavrin.banking_ledger.ledger.persistence.repository;
 
+import dev.kavrin.banking_ledger.ledger.persistence.entity.PostingEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,8 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public interface PostingRepository extends JpaRepository<PostingEntity, UUID> {
+    long countByJournalEntry_LedgerTransaction_Id(UUID ledgerTransactionId);
+
     @Query(
             value = """
                     select p
