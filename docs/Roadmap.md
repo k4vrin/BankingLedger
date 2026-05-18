@@ -146,110 +146,110 @@ Goal: Implement account creation, account lookup, balance views, and account sta
     - [x] `account/application/query` for read-side query objects.
     - [x] `account/application/service` for application services.
     - [x] `account/domain/policy` for account business rules.
-- [ ] Add account DTOs:
-    - [ ] Create `CreateAccountRequest`.
-    - [ ] Add bean validation annotations:
-        - [ ] `customerId` is required.
-        - [ ] `accountNumber` is required and at most 34 characters.
-        - [ ] `accountType` is required.
-        - [ ] `currencyCode` is required and exactly 3 uppercase letters.
-    - [ ] Create `AccountResponse`.
-    - [ ] Include `id`, `customerId`, `accountNumber`, `accountType`, `accountCategory`, `status`, `currencyCode`, balances, and timestamps.
-    - [ ] Create `BalanceResponse`.
-    - [ ] Include account id, currency code, available balance minor, and ledger balance minor.
-    - [ ] Create `AccountTransactionSummaryResponse`.
-    - [ ] Include posting id, ledger transaction id, direction, amount minor, currency code, description, and posted time.
-- [ ] Add account command/query objects:
-    - [ ] Create `CreateAccountCommand`.
-    - [ ] Create `GetAccountByIdQuery`.
-    - [ ] Create `GetAccountByNumberQuery`.
-    - [ ] Create `GetAccountBalanceQuery`.
-    - [ ] Create `GetAccountTransactionsQuery`.
-- [ ] Add repository lookup methods:
-    - [ ] `existsByAccountNumber`.
-    - [ ] `findByAccountNumber`.
-    - [ ] Account transaction history query through postings by account id and posted time.
-- [ ] Implement account creation use case:
-    - [ ] Load the owning customer.
-    - [ ] Reject duplicate account numbers.
-    - [ ] Validate account type and account category.
-    - [ ] Validate and normalize currency code using `CurrencyCode`.
-    - [ ] Create accounts with `ACTIVE` status.
-    - [ ] Initialize available and ledger balances to zero.
-    - [ ] Save the account inside a transaction.
-    - [ ] Return `AccountResponse`.
-- [ ] Implement account lookup use cases:
-    - [ ] Lookup by account id.
-    - [ ] Lookup by account number.
-    - [ ] Return not-found errors through the shared exception model.
-- [ ] Implement balance query use case:
-    - [ ] Load account by id.
-    - [ ] Return cached available and ledger balances.
-    - [ ] Preserve minor-unit money representation in the response.
-- [ ] Implement account transaction history use case:
-    - [ ] Query postings for the account ordered by `posted_at` descending.
-    - [ ] Support pagination with `Pageable`.
-    - [ ] Support optional `from` and `to` posted-time filters.
-    - [ ] Return transaction summary DTOs.
-- [ ] Add account status rules:
-    - [ ] Create an account status policy class.
-    - [ ] Active accounts can debit and credit.
-    - [ ] Frozen accounts cannot debit.
-    - [ ] Frozen accounts can receive credits unless the policy explicitly forbids it.
-    - [ ] Closed accounts cannot debit.
-    - [ ] Closed accounts cannot receive credits unless explicitly allowed by a future operational workflow.
-- [ ] Add validation for account creation:
-    - [ ] Reject customer accounts with internal-only account types if that rule is selected.
-    - [ ] Reject invalid currency codes before persistence.
-    - [ ] Reject blank account numbers.
-    - [ ] Reject account numbers longer than the schema limit.
-- [ ] Add audit event creation for account lifecycle operations:
-    - [ ] Write an audit event after account creation.
-    - [ ] Include entity type `ACCOUNT`.
-    - [ ] Include account id as entity id.
-    - [ ] Include actor type and correlation id when available.
-    - [ ] Store audit event in the same transaction as account creation.
-- [ ] Add account REST controller:
-    - [ ] `POST /api/v1/accounts`.
-    - [ ] `GET /api/v1/accounts/{accountId}`.
-    - [ ] `GET /api/v1/accounts/by-number/{accountNumber}`.
-    - [ ] `GET /api/v1/accounts/{accountId}/balance`.
-    - [ ] `GET /api/v1/accounts/{accountId}/transactions`.
-- [ ] Add account service tests:
-    - [ ] Successful account creation.
-    - [ ] Duplicate account number is rejected.
-    - [ ] Missing customer is rejected.
-    - [ ] Invalid currency is rejected.
-    - [ ] Lookup by id returns account.
-    - [ ] Lookup by account number returns account.
-    - [ ] Missing account returns not-found error.
-    - [ ] Balance query returns cached balances.
-    - [ ] Status policy allows active debit and credit.
-    - [ ] Status policy rejects frozen/closed debits.
-- [ ] Add account API tests:
-    - [ ] Create account returns `201`.
-    - [ ] Invalid request returns structured validation error.
-    - [ ] Get account returns account response.
-    - [ ] Get balance returns balance response.
-    - [ ] Get transaction history returns a paginated response.
-- [ ] Add account persistence tests:
-    - [ ] Account number uniqueness is enforced.
-    - [ ] Account currency check rejects invalid currency values.
-    - [ ] Account balance checks reject negative cached balances.
+- [x] Add account DTOs:
+    - [x] Create `CreateAccountRequest`.
+    - [x] Add bean validation annotations:
+        - [x] `customerId` is required.
+        - [x] `accountNumber` is required and at most 34 characters.
+        - [x] `accountType` is required.
+        - [x] `currencyCode` is required and exactly 3 uppercase letters.
+    - [x] Create `AccountResponse`.
+    - [x] Include `id`, `customerId`, `accountNumber`, `accountType`, `accountCategory`, `status`, `currencyCode`, balances, and timestamps.
+    - [x] Create `BalanceResponse`.
+    - [x] Include account id, currency code, available balance minor, and ledger balance minor.
+    - [x] Create `AccountTransactionSummaryResponse`.
+    - [x] Include posting id, ledger transaction id, direction, amount minor, currency code, description, and posted time.
+- [x] Add account command/query objects:
+    - [x] Create `CreateAccountCommand`.
+    - [x] Create `GetAccountByIdQuery`.
+    - [x] Create `GetAccountByNumberQuery`.
+    - [x] Create `GetAccountBalanceQuery`.
+    - [x] Create `GetAccountTransactionsQuery`.
+- [x] Add repository lookup methods:
+    - [x] `existsByAccountNumber`.
+    - [x] `findByAccountNumber`.
+    - [x] Account transaction history query through postings by account id and posted time.
+- [x] Implement account creation use case:
+    - [x] Load the owning customer.
+    - [x] Reject duplicate account numbers.
+    - [x] Validate account type and account category.
+    - [x] Validate and normalize currency code using `CurrencyCode`.
+    - [x] Create accounts with `ACTIVE` status.
+    - [x] Initialize available and ledger balances to zero.
+    - [x] Save the account inside a transaction.
+    - [x] Return `AccountResponse`.
+- [x] Implement account lookup use cases:
+    - [x] Lookup by account id.
+    - [x] Lookup by account number.
+    - [x] Return not-found errors through the shared exception model.
+- [x] Implement balance query use case:
+    - [x] Load account by id.
+    - [x] Return cached available and ledger balances.
+    - [x] Preserve minor-unit money representation in the response.
+- [x] Implement account transaction history use case:
+    - [x] Query postings for the account ordered by `posted_at` descending.
+    - [x] Support pagination with `Pageable`.
+    - [x] Support optional `from` and `to` posted-time filters.
+    - [x] Return transaction summary DTOs.
+- [x] Add account status rules:
+    - [x] Create an account status policy class.
+    - [x] Active accounts can debit and credit.
+    - [x] Frozen accounts cannot debit.
+    - [x] Frozen accounts can receive credits unless the policy explicitly forbids it.
+    - [x] Closed accounts cannot debit.
+    - [x] Closed accounts cannot receive credits unless explicitly allowed by a future operational workflow.
+- [x] Add validation for account creation:
+    - [x] Reject customer accounts with internal-only account types if that rule is selected.
+    - [x] Reject invalid currency codes before persistence.
+    - [x] Reject blank account numbers.
+    - [x] Reject account numbers longer than the schema limit.
+- [x] Add audit event creation for account lifecycle operations:
+    - [x] Write an audit event after account creation.
+    - [x] Include entity type `ACCOUNT`.
+    - [x] Include account id as entity id.
+    - [x] Include actor type and correlation id when available.
+    - [x] Store audit event in the same transaction as account creation.
+- [x] Add account REST controller:
+    - [x] `POST /api/v1/accounts`.
+    - [x] `GET /api/v1/accounts/{accountId}`.
+    - [x] `GET /api/v1/accounts/by-number/{accountNumber}`.
+    - [x] `GET /api/v1/accounts/{accountId}/balance`.
+    - [x] `GET /api/v1/accounts/{accountId}/transactions`.
+- [x] Add account service tests:
+    - [x] Successful account creation.
+    - [x] Duplicate account number is rejected.
+    - [x] Missing customer is rejected.
+    - [x] Invalid currency is rejected.
+    - [x] Lookup by id returns account.
+    - [x] Lookup by account number returns account.
+    - [x] Missing account returns not-found error.
+    - [x] Balance query returns cached balances.
+    - [x] Status policy allows active debit and credit.
+    - [x] Status policy rejects frozen/closed debits.
+- [x] Add account API tests:
+    - [x] Create account returns `201`.
+    - [x] Invalid request returns structured validation error.
+    - [x] Get account returns account response.
+    - [x] Get balance returns balance response.
+    - [x] Get transaction history returns a paginated response.
+- [x] Add account persistence tests:
+    - [x] Account number uniqueness is enforced.
+    - [x] Account currency check rejects invalid currency values.
+    - [x] Account balance checks reject negative cached balances.
 
 ### Acceptance Criteria
 
-- [ ] `POST /api/v1/accounts` creates an account.
-- [ ] Duplicate account creation does not create a second account.
-- [ ] `GET /api/v1/accounts/{accountId}` returns account details.
-- [ ] `GET /api/v1/accounts/by-number/{accountNumber}` returns account details.
-- [ ] `GET /api/v1/accounts/{accountId}/balance` returns current balance.
-- [ ] `GET /api/v1/accounts/{accountId}/transactions` returns paginated history.
-- [ ] Invalid account creation requests return structured validation errors.
-- [ ] Account lifecycle changes create audit events.
-- [ ] Account service tests cover status and validation rules.
-- [ ] Account API tests cover success and validation failure paths.
-- [ ] Account persistence tests prove schema constraints reject invalid account rows.
+- [x] `POST /api/v1/accounts` creates an account.
+- [x] Duplicate account creation does not create a second account.
+- [x] `GET /api/v1/accounts/{accountId}` returns account details.
+- [x] `GET /api/v1/accounts/by-number/{accountNumber}` returns account details.
+- [x] `GET /api/v1/accounts/{accountId}/balance` returns current balance.
+- [x] `GET /api/v1/accounts/{accountId}/transactions` returns paginated history.
+- [x] Invalid account creation requests return structured validation errors.
+- [x] Account lifecycle changes create audit events.
+- [x] Account service tests cover status and validation rules.
+- [x] Account API tests cover success and validation failure paths.
+- [x] Account persistence tests prove schema constraints reject invalid account rows.
 
 ## Phase 3: Ledger Posting Engine
 
