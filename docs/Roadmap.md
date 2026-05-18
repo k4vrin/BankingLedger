@@ -49,50 +49,88 @@ Goal: Design the first version of the ledger database and model the most importa
 
 ### Steps
 
-- [ ] Create Flyway migration folder:
-    - [ ] `src/main/resources/db/migration`
-- [ ] Add initial schema migration:
-    - [ ] `customers`
-    - [ ] `accounts`
-    - [ ] `ledger_transactions`
-    - [ ] `journal_entries`
-    - [ ] `postings`
-    - [ ] `transfer_requests`
-    - [ ] `audit_events`
-    - [ ] `idempotency_records`
-    - [ ] `outbox_events`
-- [ ] Add required constraints:
-    - [ ] Unique account number.
-    - [ ] Unique idempotency key per operation scope.
-    - [ ] Foreign keys between postings, journal entries, transactions, and accounts.
-    - [ ] Positive amount checks.
-    - [ ] Valid debit/credit direction checks.
-    - [ ] Version column for optimistic locking.
-- [ ] Add required indexes:
-    - [ ] Account transaction history by account and posted time.
-    - [ ] Transaction lookup by external reference.
-    - [ ] Idempotency key lookup.
-    - [ ] Outbox status and retry lookup.
-- [ ] Create Java enums:
-    - [ ] `AccountType`
-    - [ ] `AccountStatus`
-    - [ ] `TransactionStatus`
-    - [ ] `PostingDirection`
-    - [ ] `OutboxStatus`
-- [ ] Create money representation:
-    - [ ] Use integer minor units or strict `BigDecimal` scale.
-    - [ ] Add validation helpers.
-    - [ ] Add unit tests for invalid money values.
-- [ ] Create JPA entities for the initial schema.
-- [ ] Create Spring Data repositories.
+- [x] Create Flyway migration folder:
+    - [x] `src/main/resources/db/migration`
+- [x] Add initial schema migration:
+    - [x] `customers`
+    - [x] `accounts`
+    - [x] `ledger_transactions`
+    - [x] `journal_entries`
+    - [x] `postings`
+    - [x] `transfer_requests`
+    - [x] `audit_events`
+    - [x] `idempotency_records`
+    - [x] `outbox_events`
+- [x] Add required constraints:
+    - [x] Unique account number.
+    - [x] Unique idempotency key per operation scope.
+    - [x] Foreign keys between postings, journal entries, transactions, and accounts.
+    - [x] Positive amount checks.
+    - [x] Valid debit/credit direction checks.
+    - [x] Version column for optimistic locking.
+- [x] Add required indexes:
+    - [x] Account transaction history by account and posted time.
+    - [x] Transaction lookup by external reference.
+    - [x] Idempotency key lookup.
+    - [x] Outbox status and retry lookup.
+- [x] Create Java enums:
+    - [x] `AccountType`
+    - [x] `AccountStatus`
+    - [x] `TransactionStatus`
+    - [x] `PostingDirection`
+    - [x] `OutboxStatus`
+- [x] Create money representation:
+    - [x] Add a dedicated package for value objects:
+        - [x] `src/main/java/dev/kavrin/banking_ledger/shared/money`
+        - [x] `src/test/java/dev/kavrin/banking_ledger/shared/money`
+    - [x] Create a `CurrencyCode` value object:
+        - [x] Store the ISO-style code as a `String`.
+        - [x] Normalize input by trimming whitespace and converting to uppercase.
+        - [x] Reject null, blank, non-3-letter, and non-ASCII alphabetic values.
+        - [x] Add a `value()` accessor for persistence and DTO mapping.
+    - [x] Create a `Money` value object:
+        - [x] Store `amountMinor` as `long`.
+        - [x] Store `currencyCode` as `CurrencyCode`.
+        - [x] Add factory methods such as `ofMinor(long amountMinor, CurrencyCode currencyCode)` and `zero(CurrencyCode currencyCode)`.
+        - [x] Reject null currency codes.
+        - [x] Reject negative amounts for normal money values.
+        - [x] Add `isZero()` and `isPositive()` helpers.
+    - [x] Add money arithmetic helpers:
+        - [x] `plus(Money other)` for same-currency addition.
+        - [x] `minus(Money other)` for same-currency subtraction.
+        - [x] `isGreaterThanOrEqualTo(Money other)` for balance checks.
+        - [x] Reject arithmetic between different currencies.
+        - [x] Reject subtraction that would produce a negative result.
+        - [x] Use `Math.addExact` and `Math.subtractExact` to fail on `long` overflow.
+    - [x] Add persistence mapping guidance:
+        - [x] Keep database columns as `amount_minor number(19, 0)` and `currency_code char(3)`.
+        - [x] Map entities to primitive columns first; convert to/from `Money` at entity boundaries or factory methods.
+        - [x] Do not use floating-point types for money.
+    - [x] Add unit tests for valid values:
+        - [x] Creates money from positive minor units.
+        - [x] Creates zero money.
+        - [x] Normalizes lowercase currency input.
+        - [x] Adds same-currency money.
+        - [x] Subtracts same-currency money.
+        - [x] Compares same-currency money for sufficient balance.
+    - [x] Add unit tests for invalid values:
+        - [x] Rejects null currency.
+        - [x] Rejects blank currency.
+        - [x] Rejects currency codes with fewer or more than 3 characters.
+        - [x] Rejects currency codes with digits or symbols.
+        - [x] Rejects negative amounts.
+        - [x] Rejects cross-currency addition, subtraction, and comparison.
+        - [x] Rejects subtraction below zero.
+        - [x] Rejects arithmetic overflow.
+- [x] Create JPA entities for the initial schema.
+- [x] Create Spring Data repositories.
 
 ### Acceptance Criteria
 
-- [ ] Flyway creates the schema from a clean Oracle database.
-- [ ] JPA starts with `ddl-auto=validate` and no schema mismatch.
-- [ ] Database constraints reject invalid postings and negative amounts.
-- [ ] Unit tests verify money validation rules.
-- [ ] The schema supports double-entry postings without exposing mutable ledger records.
+- [x] Flyway creates the schema from a clean Oracle database.
+- [x] JPA starts with `ddl-auto=validate` and no schema mismatch.
+- [x] Database constraints reject invalid postings and negative amounts.
+- [x] Unit tests verify money validation rules.
 
 ## Phase 2: Account Service
 
@@ -100,31 +138,118 @@ Goal: Implement account creation, account lookup, balance views, and account sta
 
 ### Steps
 
+- [x] Prepare account package structure:
+    - [x] `account/api` for REST controllers.
+    - [x] `account/api/dto` for request and response DTOs.
+    - [x] `account/application` for account use-case orchestration.
+    - [x] `account/application/command` for write-side command objects.
+    - [x] `account/application/query` for read-side query objects.
+    - [x] `account/application/service` for application services.
+    - [x] `account/domain/policy` for account business rules.
 - [ ] Add account DTOs:
-    - [ ] Create account request.
-    - [ ] Account response.
-    - [ ] Balance response.
-    - [ ] Account transaction summary response.
-- [ ] Implement account creation use case.
-- [ ] Implement account lookup by ID and account number.
-- [ ] Implement balance query endpoint.
-- [ ] Implement account transaction history query endpoint.
+    - [ ] Create `CreateAccountRequest`.
+    - [ ] Add bean validation annotations:
+        - [ ] `customerId` is required.
+        - [ ] `accountNumber` is required and at most 34 characters.
+        - [ ] `accountType` is required.
+        - [ ] `currencyCode` is required and exactly 3 uppercase letters.
+    - [ ] Create `AccountResponse`.
+    - [ ] Include `id`, `customerId`, `accountNumber`, `accountType`, `accountCategory`, `status`, `currencyCode`, balances, and timestamps.
+    - [ ] Create `BalanceResponse`.
+    - [ ] Include account id, currency code, available balance minor, and ledger balance minor.
+    - [ ] Create `AccountTransactionSummaryResponse`.
+    - [ ] Include posting id, ledger transaction id, direction, amount minor, currency code, description, and posted time.
+- [ ] Add account command/query objects:
+    - [ ] Create `CreateAccountCommand`.
+    - [ ] Create `GetAccountByIdQuery`.
+    - [ ] Create `GetAccountByNumberQuery`.
+    - [ ] Create `GetAccountBalanceQuery`.
+    - [ ] Create `GetAccountTransactionsQuery`.
+- [ ] Add repository lookup methods:
+    - [ ] `existsByAccountNumber`.
+    - [ ] `findByAccountNumber`.
+    - [ ] Account transaction history query through postings by account id and posted time.
+- [ ] Implement account creation use case:
+    - [ ] Load the owning customer.
+    - [ ] Reject duplicate account numbers.
+    - [ ] Validate account type and account category.
+    - [ ] Validate and normalize currency code using `CurrencyCode`.
+    - [ ] Create accounts with `ACTIVE` status.
+    - [ ] Initialize available and ledger balances to zero.
+    - [ ] Save the account inside a transaction.
+    - [ ] Return `AccountResponse`.
+- [ ] Implement account lookup use cases:
+    - [ ] Lookup by account id.
+    - [ ] Lookup by account number.
+    - [ ] Return not-found errors through the shared exception model.
+- [ ] Implement balance query use case:
+    - [ ] Load account by id.
+    - [ ] Return cached available and ledger balances.
+    - [ ] Preserve minor-unit money representation in the response.
+- [ ] Implement account transaction history use case:
+    - [ ] Query postings for the account ordered by `posted_at` descending.
+    - [ ] Support pagination with `Pageable`.
+    - [ ] Support optional `from` and `to` posted-time filters.
+    - [ ] Return transaction summary DTOs.
 - [ ] Add account status rules:
-    - [ ] Active accounts can transact.
-    - [ ] Frozen or closed accounts cannot debit.
-    - [ ] Closed accounts cannot receive credits unless explicitly allowed.
-- [ ] Add validation for currency and account type.
-- [ ] Add audit event creation for account lifecycle operations.
+    - [ ] Create an account status policy class.
+    - [ ] Active accounts can debit and credit.
+    - [ ] Frozen accounts cannot debit.
+    - [ ] Frozen accounts can receive credits unless the policy explicitly forbids it.
+    - [ ] Closed accounts cannot debit.
+    - [ ] Closed accounts cannot receive credits unless explicitly allowed by a future operational workflow.
+- [ ] Add validation for account creation:
+    - [ ] Reject customer accounts with internal-only account types if that rule is selected.
+    - [ ] Reject invalid currency codes before persistence.
+    - [ ] Reject blank account numbers.
+    - [ ] Reject account numbers longer than the schema limit.
+- [ ] Add audit event creation for account lifecycle operations:
+    - [ ] Write an audit event after account creation.
+    - [ ] Include entity type `ACCOUNT`.
+    - [ ] Include account id as entity id.
+    - [ ] Include actor type and correlation id when available.
+    - [ ] Store audit event in the same transaction as account creation.
+- [ ] Add account REST controller:
+    - [ ] `POST /api/v1/accounts`.
+    - [ ] `GET /api/v1/accounts/{accountId}`.
+    - [ ] `GET /api/v1/accounts/by-number/{accountNumber}`.
+    - [ ] `GET /api/v1/accounts/{accountId}/balance`.
+    - [ ] `GET /api/v1/accounts/{accountId}/transactions`.
+- [ ] Add account service tests:
+    - [ ] Successful account creation.
+    - [ ] Duplicate account number is rejected.
+    - [ ] Missing customer is rejected.
+    - [ ] Invalid currency is rejected.
+    - [ ] Lookup by id returns account.
+    - [ ] Lookup by account number returns account.
+    - [ ] Missing account returns not-found error.
+    - [ ] Balance query returns cached balances.
+    - [ ] Status policy allows active debit and credit.
+    - [ ] Status policy rejects frozen/closed debits.
+- [ ] Add account API tests:
+    - [ ] Create account returns `201`.
+    - [ ] Invalid request returns structured validation error.
+    - [ ] Get account returns account response.
+    - [ ] Get balance returns balance response.
+    - [ ] Get transaction history returns a paginated response.
+- [ ] Add account persistence tests:
+    - [ ] Account number uniqueness is enforced.
+    - [ ] Account currency check rejects invalid currency values.
+    - [ ] Account balance checks reject negative cached balances.
 
 ### Acceptance Criteria
 
 - [ ] `POST /api/v1/accounts` creates an account.
+- [ ] Duplicate account creation does not create a second account.
 - [ ] `GET /api/v1/accounts/{accountId}` returns account details.
+- [ ] `GET /api/v1/accounts/by-number/{accountNumber}` returns account details.
 - [ ] `GET /api/v1/accounts/{accountId}/balance` returns current balance.
 - [ ] `GET /api/v1/accounts/{accountId}/transactions` returns paginated history.
 - [ ] Invalid account creation requests return structured validation errors.
 - [ ] Account lifecycle changes create audit events.
 - [ ] Account service tests cover status and validation rules.
+- [ ] Account API tests cover success and validation failure paths.
+- [ ] Account persistence tests prove schema constraints reject invalid account rows.
 
 ## Phase 3: Ledger Posting Engine
 
@@ -250,33 +375,33 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
 ### Steps
 
 - [ ] Choose authentication strategy for the portfolio version:
-  - [ ] Use JWT bearer tokens for API authentication.
-  - [ ] Use local signed JWTs for development and tests.
-  - [ ] Keep the design compatible with a future external identity provider.
+    - [ ] Use JWT bearer tokens for API authentication.
+    - [ ] Use local signed JWTs for development and tests.
+    - [ ] Keep the design compatible with a future external identity provider.
 - [ ] Add security configuration:
-  - [ ] Stateless session policy.
-  - [ ] CSRF disabled for stateless REST APIs.
-  - [ ] CORS configuration for future frontend access.
-  - [ ] Public endpoints for health and API docs.
-  - [ ] Protected endpoints for business APIs.
+    - [ ] Stateless session policy.
+    - [ ] CSRF disabled for stateless REST APIs.
+    - [ ] CORS configuration for future frontend access.
+    - [ ] Public endpoints for health and API docs.
+    - [ ] Protected endpoints for business APIs.
 - [ ] Add development authentication support:
-  - [ ] Create a local token issuing endpoint or test-only token helper.
-  - [ ] Add sample users for development.
-  - [ ] Add sample JWT claims for user ID, roles, and customer ID.
+    - [ ] Create a local token issuing endpoint or test-only token helper.
+    - [ ] Add sample users for development.
+    - [ ] Add sample JWT claims for user ID, roles, and customer ID.
 - [ ] Configure JWT resource server.
 - [ ] Map JWT claims to Spring Security authorities.
 - [ ] Define roles:
-  - [ ] `CUSTOMER`
-  - [ ] `TELLER`
-  - [ ] `AUDITOR`
-  - [ ] `OPS_ADMIN`
-  - [ ] `SERVICE`
+    - [ ] `CUSTOMER`
+    - [ ] `TELLER`
+    - [ ] `AUDITOR`
+    - [ ] `OPS_ADMIN`
+    - [ ] `SERVICE`
 - [ ] Define permission rules:
-  - [ ] Customers can view only their own accounts and transactions.
-  - [ ] Tellers can create and manage customer accounts.
-  - [ ] Auditors can read ledger, reports, and audit events.
-  - [ ] Ops admins can reverse transactions and run reconciliation workflows.
-  - [ ] Service clients can publish or consume internal integration workflows.
+    - [ ] Customers can view only their own accounts and transactions.
+    - [ ] Tellers can create and manage customer accounts.
+    - [ ] Auditors can read ledger, reports, and audit events.
+    - [ ] Ops admins can reverse transactions and run reconciliation workflows.
+    - [ ] Service clients can publish or consume internal integration workflows.
 - [ ] Add method-level authorization.
 - [ ] Protect customer account endpoints.
 - [ ] Protect reversal and adjustment endpoints.

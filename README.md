@@ -272,6 +272,8 @@ V2__create_idempotency_and_outbox_tables.sql
 
 Keep migrations Oracle-compatible because the project is designed around Oracle and PL/SQL-style reporting.
 
+See `docs/DatabaseDesign.md` for schema rationale, transaction isolation choices, locking strategy, and database best practices.
+
 ## Development Notes
 
 - Keep posted ledger records immutable.
@@ -281,4 +283,3 @@ Keep migrations Oracle-compatible because the project is designed around Oracle 
 - Store money using minor units or strict `BigDecimal` scale rules.
 - Do not log sensitive data.
 - Add integration tests for database constraints, rollback behavior, idempotency, and concurrent transfers.
-
