@@ -10,6 +10,7 @@ import dev.kavrin.banking_ledger.ledger.application.command.PostLedgerTransactio
 import dev.kavrin.banking_ledger.ledger.application.command.PostingLineCommand;
 import dev.kavrin.banking_ledger.ledger.application.service.PostLedgerTransactionUseCase;
 import dev.kavrin.banking_ledger.ledger.application.service.PreloadedPostingAccounts;
+import dev.kavrin.banking_ledger.ledger.domain.model.LedgerTransactionType;
 import dev.kavrin.banking_ledger.ledger.domain.model.PostingDirection;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.LedgerTransactionRepository;
 import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
@@ -104,11 +105,11 @@ public class CreateTransferUseCase {
 
         var postedLedgerTransaction = postLedgerTransactionUseCase.handleWithPreloadedAccounts(new PostLedgerTransactionCommand(
                 transfer.getExternalReference(),
-                "TRANSFER",
+                LedgerTransactionType.TRANSFER,
                 transfer.getCurrencyCode(),
                 transfer.getAmountMinor(),
                 transfer.getDescription(),
-                command.actorType().name(),
+                command.actorType().toAuditActorType(),
                 command.correlationId(),
                 List.of(
                         new PostingLineCommand(source.getId(), PostingDirection.DEBIT, transfer.getAmountMinor(), transfer.getCurrencyCode()),

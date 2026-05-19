@@ -634,236 +634,236 @@ Goal: Support operational correction without mutating posted financial records.
     - [x] Add reversal repository.
     - [x] Add repository lookup by original transfer id.
     - [x] Add repository lookup by original ledger transaction id.
-- [ ] Add reversal API DTOs:
-    - [ ] Add `ReverseTransferRequest`.
-    - [ ] Require reason code.
-    - [ ] Allow optional reason detail.
-    - [ ] Add `ReversalResponse`.
-    - [ ] Include original transfer id.
-    - [ ] Include original ledger transaction id.
-    - [ ] Include reversal ledger transaction id.
-    - [ ] Include status, reason fields, timestamps, and failure fields.
-- [ ] Add reversal command and query objects:
-    - [ ] Add `ReverseTransferCommand`.
-    - [ ] Include transfer id.
-    - [ ] Include reason code and reason detail.
-    - [ ] Include actor type, actor role, and correlation id.
-    - [ ] Add `GetReversalByTransferIdQuery`.
-- [ ] Add reversal validation policy:
-    - [ ] Reject missing reason code.
-    - [ ] Reject blank reason code.
-    - [ ] Reject unsupported reason code.
-    - [ ] Reject missing transfer id.
-    - [ ] Reject transfer not found.
-    - [ ] Reject transfer that is not `COMPLETED`.
-    - [ ] Reject transfer with missing ledger transaction id.
-    - [ ] Reject duplicate reversal for the same transfer.
-    - [ ] Reject unauthorized actor roles until Phase 7 security is implemented.
-- [ ] Implement `ReverseTransferUseCase`:
-    - [ ] Annotate handler with `@Transactional`.
-    - [ ] Load the completed transfer.
-    - [ ] Load original ledger transaction and postings.
-    - [ ] Validate duplicate reversal before insert.
-    - [ ] Save reversal request with `PENDING` status.
-    - [ ] Build reversal postings by swapping debit and credit directions.
-    - [ ] Build a `PostLedgerTransactionCommand` with transaction type `REVERSAL`.
-    - [ ] Use a reversal external reference that links to the original transfer.
-    - [ ] Call `PostLedgerTransactionUseCase`.
-    - [ ] Update the original transfer status to `REVERSED`.
-    - [ ] Update reversal status to `COMPLETED`.
-    - [ ] Store the reversal ledger transaction id.
-    - [ ] Return `ReversalResponse`.
-    - [ ] Let unexpected failures roll back reversal, ledger, posting, audit, outbox, and transfer status changes.
-- [ ] Add reversal REST controller:
-    - [ ] Add `POST /api/v1/transfers/{transferId}/reverse`.
-    - [ ] Map request DTO to command.
-    - [ ] Include correlation id and actor headers.
-    - [ ] Return `201 Created` for successful reversal.
-    - [ ] Return structured errors for validation failures.
-- [ ] Add adjustment data model:
-    - [ ] Define whether adjustments use a dedicated `adjustment_requests` table.
-    - [ ] Include adjustment id.
-    - [ ] Include ledger transaction id.
-    - [ ] Include reason code.
-    - [ ] Include reason detail.
-    - [ ] Include actor fields.
-    - [ ] Include status and timestamps.
-- [ ] Add adjustment API DTOs:
-    - [ ] Add `CreateAdjustmentRequest`.
-    - [ ] Require currency code.
-    - [ ] Require amount minor.
-    - [ ] Require reason code.
-    - [ ] Require at least two posting lines.
-    - [ ] Add `AdjustmentPostingLineRequest`.
-    - [ ] Add `AdjustmentResponse`.
-- [ ] Add adjustment validation policy:
-    - [ ] Reject missing reason code.
-    - [ ] Reject blank reason code.
-    - [ ] Reject unsupported reason code.
-    - [ ] Reject fewer than two posting lines.
-    - [ ] Reject unbalanced debit and credit totals.
-    - [ ] Reject posting account not found.
-    - [ ] Reject posting account currency mismatch.
-    - [ ] Reject accounts that cannot be debited or credited.
-    - [ ] Reject insufficient funds for debit lines.
-- [ ] Implement `CreateAdjustmentUseCase`:
-    - [ ] Annotate handler with `@Transactional`.
-    - [ ] Validate request.
-    - [ ] Save adjustment request with `PENDING` status if using a table.
-    - [ ] Build a `PostLedgerTransactionCommand` with transaction type `ADJUSTMENT`.
-    - [ ] Call `PostLedgerTransactionUseCase`.
-    - [ ] Mark adjustment as `COMPLETED`.
-    - [ ] Return `AdjustmentResponse`.
-    - [ ] Let unexpected failures roll back adjustment, ledger, posting, audit, and outbox writes.
-- [ ] Add adjustment REST controller:
-    - [ ] Add `POST /api/v1/ops/adjustments`.
-    - [ ] Map request DTO to command.
-    - [ ] Include correlation id and actor headers.
-    - [ ] Return `201 Created` for successful adjustment.
-- [ ] Add audit events:
-    - [ ] Write `TRANSFER_REVERSED` audit event after successful reversal.
-    - [ ] Write `ADJUSTMENT_POSTED` audit event after successful adjustment.
-    - [ ] Include reason code and correlation id.
-    - [ ] Do not mutate original ledger audit events.
-- [ ] Add outbox events:
-    - [ ] Write `LedgerTransactionReversed` after successful reversal.
-    - [ ] Write `AdjustmentPosted` after successful adjustment.
-    - [ ] Ensure outbox rows commit atomically with ledger writes.
-- [ ] Add authorization placeholders:
-    - [ ] Require `X-Actor-Role` or equivalent header until Phase 7 JWT roles exist.
-    - [ ] Allow reversal only for `OPS_ADMIN` or `SERVICE`.
-    - [ ] Allow adjustment only for `OPS_ADMIN` or `SERVICE`.
-    - [ ] Return structured `403` for unauthorized roles.
-- [ ] Add immutable ledger documentation:
-    - [ ] Add ADR for immutable ledger reversal model.
-    - [ ] Document why reversals create new ledger transactions instead of updating original postings.
-    - [ ] Document adjustment use cases and guardrails.
+- [x] Add reversal API DTOs:
+    - [x] Add `ReverseTransferRequest`.
+    - [x] Require reason code.
+    - [x] Allow optional reason detail.
+    - [x] Add `ReversalResponse`.
+    - [x] Include original transfer id.
+    - [x] Include original ledger transaction id.
+    - [x] Include reversal ledger transaction id.
+    - [x] Include status, reason fields, timestamps, and failure fields.
+- [x] Add reversal command and query objects:
+    - [x] Add `ReverseTransferCommand`.
+    - [x] Include transfer id.
+    - [x] Include reason code and reason detail.
+    - [x] Include actor type, actor role, and correlation id.
+    - [x] Add `GetReversalByTransferIdQuery`.
+- [x] Add reversal validation policy:
+    - [x] Reject missing reason code.
+    - [x] Reject blank reason code.
+    - [x] Reject unsupported reason code.
+    - [x] Reject missing transfer id.
+    - [x] Reject transfer not found.
+    - [x] Reject transfer that is not `COMPLETED`.
+    - [x] Reject transfer with missing ledger transaction id.
+    - [x] Reject duplicate reversal for the same transfer.
+    - [x] Reject unauthorized actor roles until Phase 7 security is implemented.
+- [x] Implement `ReverseTransferUseCase`:
+    - [x] Annotate handler with `@Transactional`.
+    - [x] Load the completed transfer.
+    - [x] Load original ledger transaction and postings.
+    - [x] Validate duplicate reversal before insert.
+    - [x] Save reversal request with `PENDING` status.
+    - [x] Build reversal postings by swapping debit and credit directions.
+    - [x] Build a `PostLedgerTransactionCommand` with transaction type `REVERSAL`.
+    - [x] Use a reversal external reference that links to the original transfer.
+    - [x] Call `PostLedgerTransactionUseCase`.
+    - [x] Update the original transfer status to `REVERSED`.
+    - [x] Update reversal status to `COMPLETED`.
+    - [x] Store the reversal ledger transaction id.
+    - [x] Return `ReversalResponse`.
+    - [x] Let unexpected failures roll back reversal, ledger, posting, audit, outbox, and transfer status changes.
+- [x] Add reversal REST controller:
+    - [x] Add `POST /api/v1/transfers/{transferId}/reverse`.
+    - [x] Map request DTO to command.
+    - [x] Include correlation id and actor headers.
+    - [x] Return `201 Created` for successful reversal.
+    - [x] Return structured errors for validation failures.
+- [x] Add adjustment data model:
+    - [x] Define whether adjustments use a dedicated `adjustment_requests` table.
+    - [x] Include adjustment id.
+    - [x] Include ledger transaction id.
+    - [x] Include reason code.
+    - [x] Include reason detail.
+    - [x] Include actor fields.
+    - [x] Include status and timestamps.
+- [x] Add adjustment API DTOs:
+    - [x] Add `CreateAdjustmentRequest`.
+    - [x] Require currency code.
+    - [x] Require amount minor.
+    - [x] Require reason code.
+    - [x] Require at least two posting lines.
+    - [x] Add `AdjustmentPostingLineRequest`.
+    - [x] Add `AdjustmentResponse`.
+- [x] Add adjustment validation policy:
+    - [x] Reject missing reason code.
+    - [x] Reject blank reason code.
+    - [x] Reject unsupported reason code.
+    - [x] Reject fewer than two posting lines.
+    - [x] Reject unbalanced debit and credit totals.
+    - [x] Reject posting account not found.
+    - [x] Reject posting account currency mismatch.
+    - [x] Reject accounts that cannot be debited or credited.
+    - [x] Reject insufficient funds for debit lines.
+- [x] Implement `CreateAdjustmentUseCase`:
+    - [x] Annotate handler with `@Transactional`.
+    - [x] Validate request.
+    - [x] Save adjustment request with `PENDING` status if using a table.
+    - [x] Build a `PostLedgerTransactionCommand` with transaction type `ADJUSTMENT`.
+    - [x] Call `PostLedgerTransactionUseCase`.
+    - [x] Mark adjustment as `COMPLETED`.
+    - [x] Return `AdjustmentResponse`.
+    - [x] Let unexpected failures roll back adjustment, ledger, posting, audit, and outbox writes.
+- [x] Add adjustment REST controller:
+    - [x] Add `POST /api/v1/ops/adjustments`.
+    - [x] Map request DTO to command.
+    - [x] Include correlation id and actor headers.
+    - [x] Return `201 Created` for successful adjustment.
+- [x] Add audit events:
+    - [x] Write `TRANSFER_REVERSED` audit event after successful reversal.
+    - [x] Write `ADJUSTMENT_POSTED` audit event after successful adjustment.
+    - [x] Include reason code and correlation id.
+    - [x] Do not mutate original ledger audit events.
+- [x] Add outbox events:
+    - [x] Write `LedgerTransactionReversed` after successful reversal.
+    - [x] Write `AdjustmentPosted` after successful adjustment.
+    - [x] Ensure outbox rows commit atomically with ledger writes.
+- [x] Add authorization placeholders:
+    - [x] Require `X-Actor-Role` or equivalent header until Phase 7 JWT roles exist.
+    - [x] Allow reversal only for `OPS_ADMIN` or `SERVICE`.
+    - [x] Allow adjustment only for `OPS_ADMIN` or `SERVICE`.
+    - [x] Return structured `403` for unauthorized roles.
+- [x] Add immutable ledger documentation:
+    - [x] Add ADR for immutable ledger reversal model.
+    - [x] Document why reversals create new ledger transactions instead of updating original postings.
+    - [x] Document adjustment use cases and guardrails.
 
 ### Test Scenarios
 
-- [ ] Reversal API success:
-    - [ ] `POST /api/v1/transfers/{transferId}/reverse` returns `201 Created`.
-    - [ ] Response includes original transfer id.
-    - [ ] Response includes original ledger transaction id.
-    - [ ] Response includes reversal ledger transaction id.
-    - [ ] Response includes completed status.
-- [ ] Reversal ledger behavior:
-    - [ ] Reversal creates one new ledger transaction with type `REVERSAL`.
-    - [ ] Reversal creates equal and opposite postings.
-    - [ ] Original ledger transaction remains unchanged.
-    - [ ] Original journal entry remains unchanged.
-    - [ ] Original postings remain unchanged.
-    - [ ] Source and destination balances return to pre-transfer values.
-- [ ] Reversal transfer status behavior:
-    - [ ] Original transfer status changes from `COMPLETED` to `REVERSED`.
-    - [ ] Original transfer keeps original ledger transaction id.
-    - [ ] Reversal record stores reversal ledger transaction id.
-- [ ] Duplicate reversal:
-    - [ ] Second reversal request for same transfer is rejected.
-    - [ ] Duplicate reversal does not create a second reversal ledger transaction.
-    - [ ] Duplicate reversal does not create additional postings.
-- [ ] Reversal reason validation:
-    - [ ] Missing reason code returns structured validation error.
-    - [ ] Blank reason code returns structured validation error.
-    - [ ] Unsupported reason code returns structured validation error.
-    - [ ] Reason detail exceeding max length returns structured validation error.
-- [ ] Reversal transfer validation:
-    - [ ] Missing transfer id path variable is handled by routing.
-    - [ ] Unknown transfer id returns structured not-found error.
-    - [ ] Transfer without ledger transaction id is rejected.
-    - [ ] Transfer in `PENDING` status is rejected.
-    - [ ] Transfer in `FAILED` status is rejected.
-    - [ ] Transfer in `REJECTED` status is rejected.
-    - [ ] Transfer already in `REVERSED` status is rejected.
-- [ ] Reversal authorization:
-    - [ ] Missing actor role is rejected.
-    - [ ] `CUSTOMER` role is rejected.
-    - [ ] `TELLER` role is rejected.
-    - [ ] `AUDITOR` role is rejected.
-    - [ ] `OPS_ADMIN` role is accepted.
-    - [ ] `SERVICE` role is accepted.
-- [ ] Reversal rollback:
-    - [ ] Failure after reversal request save rolls back reversal record.
-    - [ ] Failure after reversal ledger save rolls back ledger, journal, postings, audit, outbox, and transfer status.
-    - [ ] Original transfer remains `COMPLETED` after rollback.
-- [ ] Reversal audit and outbox:
-    - [ ] Successful reversal writes `TRANSFER_REVERSED` audit event.
-    - [ ] Audit event includes transfer id, reversal ledger transaction id, reason code, and correlation id.
-    - [ ] Successful reversal writes `LedgerTransactionReversed` outbox event.
-    - [ ] Rollback prevents audit and outbox rows from persisting.
-- [ ] Reversal persistence constraints:
-    - [ ] Unique reversal per original transfer is enforced.
-    - [ ] Unique reversal per original ledger transaction is enforced.
-    - [ ] Unique reversal ledger transaction id is enforced.
-    - [ ] Foreign key to original transfer is enforced.
-    - [ ] Foreign key to original ledger transaction is enforced.
-    - [ ] Foreign key to reversal ledger transaction is enforced.
-    - [ ] Completed reversal requires completed timestamp.
-    - [ ] Failed reversal requires failure reason.
-- [ ] Adjustment API success:
-    - [ ] `POST /api/v1/ops/adjustments` returns `201 Created`.
-    - [ ] Response includes adjustment id if an adjustment table exists.
-    - [ ] Response includes ledger transaction id.
-    - [ ] Response includes completed status.
-- [ ] Adjustment ledger behavior:
-    - [ ] Adjustment creates one new ledger transaction with type `ADJUSTMENT`.
-    - [ ] Adjustment creates all requested postings.
-    - [ ] Debit total equals credit total.
-    - [ ] Affected account balances are updated by posting direction.
-- [ ] Adjustment request validation:
-    - [ ] Missing currency code returns structured validation error.
-    - [ ] Invalid currency code returns structured validation error.
-    - [ ] Missing amount returns structured validation error.
-    - [ ] Non-positive amount returns structured validation error.
-    - [ ] Missing reason code returns structured validation error.
-    - [ ] Blank reason code returns structured validation error.
-    - [ ] Fewer than two posting lines returns structured validation error.
-    - [ ] Unbalanced posting lines return structured business error.
-    - [ ] Posting account not found returns structured not-found error.
-    - [ ] Posting account currency mismatch returns structured business error.
-    - [ ] Debit from frozen account is rejected.
-    - [ ] Credit to closed account is rejected.
-    - [ ] Insufficient funds on debit account is rejected.
-- [ ] Adjustment authorization:
-    - [ ] Missing actor role is rejected.
-    - [ ] `CUSTOMER` role is rejected.
-    - [ ] `TELLER` role is rejected unless explicitly allowed.
-    - [ ] `AUDITOR` role is rejected.
-    - [ ] `OPS_ADMIN` role is accepted.
-    - [ ] `SERVICE` role is accepted.
-- [ ] Adjustment rollback:
-    - [ ] Ledger posting failure rolls back adjustment record.
-    - [ ] Ledger posting failure rolls back ledger, journal, postings, audit, and outbox.
-    - [ ] Account balances remain unchanged after rollback.
-- [ ] Adjustment audit and outbox:
-    - [ ] Successful adjustment writes `ADJUSTMENT_POSTED` audit event.
-    - [ ] Audit event includes ledger transaction id, reason code, and correlation id.
-    - [ ] Successful adjustment writes `AdjustmentPosted` outbox event.
-- [ ] Adjustment persistence constraints, if an adjustment table exists:
-    - [ ] Ledger transaction uniqueness is enforced.
-    - [ ] Reason code is required.
-    - [ ] Completed adjustment requires completed timestamp.
-    - [ ] Failed adjustment requires failure reason.
+- [x] Reversal API success:
+    - [x] `POST /api/v1/transfers/{transferId}/reverse` returns `201 Created`.
+    - [x] Response includes original transfer id.
+    - [x] Response includes original ledger transaction id.
+    - [x] Response includes reversal ledger transaction id.
+    - [x] Response includes completed status.
+- [x] Reversal ledger behavior:
+    - [x] Reversal creates one new ledger transaction with type `REVERSAL`.
+    - [x] Reversal creates equal and opposite postings.
+    - [x] Original ledger transaction remains unchanged.
+    - [x] Original journal entry remains unchanged.
+    - [x] Original postings remain unchanged.
+    - [x] Source and destination balances return to pre-transfer values.
+- [x] Reversal transfer status behavior:
+    - [x] Original transfer status changes from `COMPLETED` to `REVERSED`.
+    - [x] Original transfer keeps original ledger transaction id.
+    - [x] Reversal record stores reversal ledger transaction id.
+- [x] Duplicate reversal:
+    - [x] Second reversal request for same transfer is rejected.
+    - [x] Duplicate reversal does not create a second reversal ledger transaction.
+    - [x] Duplicate reversal does not create additional postings.
+- [x] Reversal reason validation:
+    - [x] Missing reason code returns structured validation error.
+    - [x] Blank reason code returns structured validation error.
+    - [x] Unsupported reason code returns structured validation error.
+    - [x] Reason detail exceeding max length returns structured validation error.
+- [x] Reversal transfer validation:
+    - [x] Missing transfer id path variable is handled by routing.
+    - [x] Unknown transfer id returns structured not-found error.
+    - [x] Transfer without ledger transaction id is rejected.
+    - [x] Transfer in `PENDING` status is rejected.
+    - [x] Transfer in `FAILED` status is rejected.
+    - [x] Transfer in `REJECTED` status is rejected.
+    - [x] Transfer already in `REVERSED` status is rejected.
+- [x] Reversal authorization:
+    - [x] Missing actor role is rejected.
+    - [x] `CUSTOMER` role is rejected.
+    - [x] `TELLER` role is rejected.
+    - [x] `AUDITOR` role is rejected.
+    - [x] `OPS_ADMIN` role is accepted.
+    - [x] `SERVICE` role is accepted.
+- [x] Reversal rollback:
+    - [x] Failure after reversal request save rolls back reversal record.
+    - [x] Failure after reversal ledger save rolls back ledger, journal, postings, audit, outbox, and transfer status.
+    - [x] Original transfer remains `COMPLETED` after rollback.
+- [x] Reversal audit and outbox:
+    - [x] Successful reversal writes `TRANSFER_REVERSED` audit event.
+    - [x] Audit event includes transfer id, reversal ledger transaction id, reason code, and correlation id.
+    - [x] Successful reversal writes `LedgerTransactionReversed` outbox event.
+    - [x] Rollback prevents audit and outbox rows from persisting.
+- [x] Reversal persistence constraints:
+    - [x] Unique reversal per original transfer is enforced.
+    - [x] Unique reversal per original ledger transaction is enforced.
+    - [x] Unique reversal ledger transaction id is enforced.
+    - [x] Foreign key to original transfer is enforced.
+    - [x] Foreign key to original ledger transaction is enforced.
+    - [x] Foreign key to reversal ledger transaction is enforced.
+    - [x] Completed reversal requires completed timestamp.
+    - [x] Failed reversal requires failure reason.
+- [x] Adjustment API success:
+    - [x] `POST /api/v1/ops/adjustments` returns `201 Created`.
+    - [x] Response includes adjustment id if an adjustment table exists.
+    - [x] Response includes ledger transaction id.
+    - [x] Response includes completed status.
+- [x] Adjustment ledger behavior:
+    - [x] Adjustment creates one new ledger transaction with type `ADJUSTMENT`.
+    - [x] Adjustment creates all requested postings.
+    - [x] Debit total equals credit total.
+    - [x] Affected account balances are updated by posting direction.
+- [x] Adjustment request validation:
+    - [x] Missing currency code returns structured validation error.
+    - [x] Invalid currency code returns structured validation error.
+    - [x] Missing amount returns structured validation error.
+    - [x] Non-positive amount returns structured validation error.
+    - [x] Missing reason code returns structured validation error.
+    - [x] Blank reason code returns structured validation error.
+    - [x] Fewer than two posting lines returns structured validation error.
+    - [x] Unbalanced posting lines return structured business error.
+    - [x] Posting account not found returns structured not-found error.
+    - [x] Posting account currency mismatch returns structured business error.
+    - [x] Debit from frozen account is rejected.
+    - [x] Credit to closed account is rejected.
+    - [x] Insufficient funds on debit account is rejected.
+- [x] Adjustment authorization:
+    - [x] Missing actor role is rejected.
+    - [x] `CUSTOMER` role is rejected.
+    - [x] `TELLER` role is rejected unless explicitly allowed.
+    - [x] `AUDITOR` role is rejected.
+    - [x] `OPS_ADMIN` role is accepted.
+    - [x] `SERVICE` role is accepted.
+- [x] Adjustment rollback:
+    - [x] Ledger posting failure rolls back adjustment record.
+    - [x] Ledger posting failure rolls back ledger, journal, postings, audit, and outbox.
+    - [x] Account balances remain unchanged after rollback.
+- [x] Adjustment audit and outbox:
+    - [x] Successful adjustment writes `ADJUSTMENT_POSTED` audit event.
+    - [x] Audit event includes ledger transaction id, reason code, and correlation id.
+    - [x] Successful adjustment writes `AdjustmentPosted` outbox event.
+- [x] Adjustment persistence constraints, if an adjustment table exists:
+    - [x] Ledger transaction uniqueness is enforced.
+    - [x] Reason code is required.
+    - [x] Completed adjustment requires completed timestamp.
+    - [x] Failed adjustment requires failure reason.
 
 ### Acceptance Criteria
 
-- [ ] `POST /api/v1/transfers/{transferId}/reverse` reverses a completed transfer.
-- [ ] Reversal creates a new reversal ledger transaction.
-- [ ] Reversal creates equal and opposite postings.
-- [ ] Original ledger records remain unchanged.
-- [ ] Original transfer is marked `REVERSED`.
-- [ ] Duplicate reversal attempts are rejected.
-- [ ] Reversal requires a valid reason code.
-- [ ] Unauthorized users cannot reverse transactions.
-- [ ] `POST /api/v1/ops/adjustments` posts a balanced adjustment.
-- [ ] Adjustment creates a new adjustment ledger transaction.
-- [ ] Adjustment updates affected account balances through the ledger posting engine.
-- [ ] Unauthorized users cannot post adjustments.
-- [ ] Reversal and adjustment audit events are written.
-- [ ] Reversal and adjustment outbox events are written atomically.
-- [ ] Rollback tests prove no partial reversal or adjustment writes persist.
-- [ ] Persistence tests prove reversal and adjustment constraints reject invalid rows.
-- [ ] ADR documents immutable ledger reversal and adjustment design.
+- [x] `POST /api/v1/transfers/{transferId}/reverse` reverses a completed transfer.
+- [x] Reversal creates a new reversal ledger transaction.
+- [x] Reversal creates equal and opposite postings.
+- [x] Original ledger records remain unchanged.
+- [x] Original transfer is marked `REVERSED`.
+- [x] Duplicate reversal attempts are rejected.
+- [x] Reversal requires a valid reason code.
+- [x] Unauthorized users cannot reverse transactions.
+- [x] `POST /api/v1/ops/adjustments` posts a balanced adjustment.
+- [x] Adjustment creates a new adjustment ledger transaction.
+- [x] Adjustment updates affected account balances through the ledger posting engine.
+- [x] Unauthorized users cannot post adjustments.
+- [x] Reversal and adjustment audit events are written.
+- [x] Reversal and adjustment outbox events are written atomically.
+- [x] Rollback tests prove no partial reversal or adjustment writes persist.
+- [x] Persistence tests prove reversal and adjustment constraints reject invalid rows.
+- [x] ADR documents immutable ledger reversal and adjustment design.
 
 ## Phase 7: Authentication, Authorization, And API Security
 
@@ -875,39 +875,211 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
     - [ ] Use JWT bearer tokens for API authentication.
     - [ ] Use local signed JWTs for development and tests.
     - [ ] Keep the design compatible with a future external identity provider.
-- [ ] Add security configuration:
-    - [ ] Stateless session policy.
-    - [ ] CSRF disabled for stateless REST APIs.
-    - [ ] CORS configuration for future frontend access.
-    - [ ] Public endpoints for health and API docs.
-    - [ ] Protected endpoints for business APIs.
+    - [ ] Document accepted JWT issuer, audience, subject, role, customer id, and actor id claims.
+    - [ ] Decide token lifetime for local development tokens.
+    - [ ] Decide whether service-to-service clients use a dedicated `SERVICE` role claim.
+- [ ] Add security dependencies and configuration properties:
+    - [ ] Add Spring Security resource server dependencies if missing.
+    - [ ] Add local JWT signing key or JWK configuration for `dev`.
+    - [ ] Add issuer and audience properties.
+    - [ ] Add token clock skew property.
+    - [ ] Add configuration properties tests for required security settings.
+- [ ] Add JWT resource server configuration:
+    - [ ] Configure stateless session policy.
+    - [ ] Disable CSRF for stateless REST APIs.
+    - [ ] Configure bearer token authentication.
+    - [ ] Validate issuer.
+    - [ ] Validate audience.
+    - [ ] Validate expiry.
+    - [ ] Validate not-before if present.
+    - [ ] Reject unsigned or wrongly signed tokens.
+    - [ ] Keep `/actuator/health`, OpenAPI docs, and Swagger UI public.
+    - [ ] Require authentication for all business API endpoints by default.
+- [ ] Add role and principal model:
+    - [ ] Add `SecurityRole` enum with `CUSTOMER`, `TELLER`, `AUDITOR`, `OPS_ADMIN`, and `SERVICE`.
+    - [ ] Add authenticated principal model with subject, actor id, actor type, roles, optional customer id, and token id.
+    - [ ] Add mapper from JWT claims to authenticated principal.
+    - [ ] Add mapper from principal roles to Spring Security authorities.
+    - [ ] Add mapper from principal to existing audit actor fields.
+    - [ ] Reject tokens with missing subject.
+    - [ ] Reject tokens with no recognized roles.
+    - [ ] Reject customer tokens that do not include `customerId`.
+    - [ ] Reject malformed `customerId` claim.
 - [ ] Add development authentication support:
-    - [ ] Create a local token issuing endpoint or test-only token helper.
-    - [ ] Add sample users for development.
-    - [ ] Add sample JWT claims for user ID, roles, and customer ID.
-- [ ] Configure JWT resource server.
-- [ ] Map JWT claims to Spring Security authorities.
-- [ ] Define roles:
-    - [ ] `CUSTOMER`
-    - [ ] `TELLER`
-    - [ ] `AUDITOR`
-    - [ ] `OPS_ADMIN`
-    - [ ] `SERVICE`
-- [ ] Define permission rules:
-    - [ ] Customers can view only their own accounts and transactions.
-    - [ ] Tellers can create and manage customer accounts.
-    - [ ] Auditors can read ledger, reports, and audit events.
-    - [ ] Ops admins can reverse transactions and run reconciliation workflows.
-    - [ ] Service clients can publish or consume internal integration workflows.
-- [ ] Add method-level authorization.
-- [ ] Protect customer account endpoints.
-- [ ] Protect reversal and adjustment endpoints.
-- [ ] Protect reconciliation and ops endpoints.
-- [ ] Add ownership checks for customer-scoped resources.
-- [ ] Add structured authentication and authorization error responses.
-- [ ] Add test JWT support for integration tests.
-- [ ] Ensure sensitive data is not logged.
-- [ ] Add ADR for authentication and authorization design.
+    - [ ] Add local token factory for tests.
+    - [ ] Add sample development users for customer, teller, auditor, ops admin, and service.
+    - [ ] Add optional dev-only endpoint or command for issuing sample tokens.
+    - [ ] Ensure dev token issuance is disabled outside development profile.
+    - [ ] Add README or docs snippet showing how to get sample tokens locally.
+- [ ] Add structured authentication and authorization errors:
+    - [ ] Return `401` for missing bearer token.
+    - [ ] Return `401` for invalid signature.
+    - [ ] Return `401` for expired token.
+    - [ ] Return `401` for malformed token.
+    - [ ] Return `401` for invalid issuer or audience.
+    - [ ] Return `403` for authenticated users without required role.
+    - [ ] Return `403` for ownership violations.
+    - [ ] Use the existing `ApiErrorResponse` shape.
+    - [ ] Include correlation id in security error responses.
+    - [ ] Do not leak token values or cryptographic details in error messages.
+- [ ] Replace temporary actor headers for protected workflows:
+    - [ ] Derive actor type from the authenticated principal.
+    - [ ] Derive actor role from the authenticated principal.
+    - [ ] Derive actor id from the authenticated principal.
+    - [ ] Stop trusting `X-Actor-Type` for protected endpoints.
+    - [ ] Stop trusting `X-Actor-Role` for protected endpoints.
+    - [ ] Keep `X-Correlation-Id` as a request tracing header.
+    - [ ] Ensure audit events use principal-derived actor fields.
+- [ ] Define endpoint authorization matrix:
+    - [ ] Public endpoints: health, OpenAPI docs, Swagger UI.
+    - [ ] Customer account read endpoints require `CUSTOMER` and ownership.
+    - [ ] Customer transfer creation requires `CUSTOMER` and source account ownership.
+    - [ ] Teller customer/account management endpoints require `TELLER` or `OPS_ADMIN`.
+    - [ ] Auditor read-only ledger and audit endpoints require `AUDITOR` or `OPS_ADMIN`.
+    - [ ] Transfer reversal endpoint requires `OPS_ADMIN` or `SERVICE`.
+    - [ ] Adjustment endpoint requires `OPS_ADMIN` or `SERVICE`.
+    - [ ] Reconciliation operation endpoints require `OPS_ADMIN` or `SERVICE`.
+    - [ ] Internal publishing or integration endpoints require `SERVICE`.
+    - [ ] Deny access by default for unclassified endpoints.
+- [ ] Add method-level authorization:
+    - [ ] Enable method security.
+    - [ ] Add authorization annotations to use cases or controllers.
+    - [ ] Prefer method-level checks for ownership-sensitive business operations.
+    - [ ] Keep HTTP route rules coarse and method rules domain-specific.
+    - [ ] Add authorization tests at controller and use-case boundaries.
+- [ ] Add customer ownership checks:
+    - [ ] Add service to check account ownership by customer id.
+    - [ ] Add ownership check for account detail lookup.
+    - [ ] Add ownership check for account transaction list.
+    - [ ] Add ownership check for customer-initiated transfer source account.
+    - [ ] Reject access to another customer's account with structured `403`.
+    - [ ] Avoid returning `404` for authorization failures unless explicitly documented.
+- [ ] Protect account and customer endpoints:
+    - [ ] Require authentication for account creation.
+    - [ ] Allow `TELLER` or `OPS_ADMIN` to create customer accounts.
+    - [ ] Allow `CUSTOMER` to read owned accounts.
+    - [ ] Prevent `CUSTOMER` from creating accounts for other customers.
+    - [ ] Prevent `AUDITOR` from mutating accounts.
+    - [ ] Prevent `SERVICE` from customer-facing account operations unless explicitly allowed.
+- [ ] Protect transfer endpoints:
+    - [ ] Require authentication for transfer creation.
+    - [ ] Allow customer transfer only from owned source account.
+    - [ ] Allow teller or ops workflows only if intentionally supported.
+    - [ ] Keep idempotency key validation independent from authentication.
+    - [ ] Ensure unauthorized transfer requests do not create idempotency records.
+    - [ ] Ensure unauthorized transfer requests do not mutate balances.
+- [ ] Protect reversal and adjustment endpoints:
+    - [ ] Require `OPS_ADMIN` or `SERVICE` for reversal.
+    - [ ] Require `OPS_ADMIN` or `SERVICE` for adjustment.
+    - [ ] Reject `CUSTOMER`, `TELLER`, and `AUDITOR`.
+    - [ ] Use principal actor fields in reversal and adjustment command objects.
+    - [ ] Ensure unauthorized requests do not create reversal or adjustment request rows.
+    - [ ] Ensure unauthorized requests do not create ledger, audit, or outbox rows.
+- [ ] Protect audit and investigation endpoints:
+    - [ ] Require `AUDITOR` or `OPS_ADMIN` for audit event queries.
+    - [ ] Require `AUDITOR`, `OPS_ADMIN`, or `SERVICE` for ledger transaction investigation lookup.
+    - [ ] Ensure read-only roles cannot call mutating endpoints.
+    - [ ] Add paging limits to prevent broad unrestricted reads.
+- [ ] Add CORS configuration:
+    - [ ] Allow configured local frontend origins in development.
+    - [ ] Do not allow wildcard origins with credentials.
+    - [ ] Allow `Authorization`, `Content-Type`, `Idempotency-Key`, and `X-Correlation-Id` headers.
+    - [ ] Add preflight tests for protected endpoints.
+- [ ] Add security logging and privacy guardrails:
+    - [ ] Log authentication failures without token content.
+    - [ ] Log authorization failures with subject, roles, endpoint, and correlation id.
+    - [ ] Do not log bearer tokens.
+    - [ ] Do not log raw JWT claims containing sensitive values.
+    - [ ] Add test or static check for accidental token logging where practical.
+- [ ] Add security test utilities:
+    - [ ] Add test JWT builder.
+    - [ ] Add helpers for each role.
+    - [ ] Add helper for customer token with customer id.
+    - [ ] Add helper for expired token.
+    - [ ] Add helper for invalid issuer or audience.
+    - [ ] Add helper for token signed with wrong key.
+- [ ] Add security documentation:
+    - [ ] Add ADR for authentication and authorization design.
+    - [ ] Document JWT claims and role mapping.
+    - [ ] Document endpoint authorization matrix.
+    - [ ] Document local token generation.
+    - [ ] Document the planned migration from local JWTs to an external identity provider.
+
+### Test Scenarios
+
+- [ ] JWT validation:
+    - [ ] Missing `Authorization` header returns `401`.
+    - [ ] Non-bearer `Authorization` header returns `401`.
+    - [ ] Malformed bearer token returns `401`.
+    - [ ] Token signed with the wrong key returns `401`.
+    - [ ] Expired token returns `401`.
+    - [ ] Token used before `nbf` returns `401`.
+    - [ ] Token with invalid issuer returns `401`.
+    - [ ] Token with invalid audience returns `401`.
+    - [ ] Token with missing subject returns `401`.
+    - [ ] Token with no recognized roles returns `403` or `401` according to documented policy.
+- [ ] Principal mapping:
+    - [ ] `CUSTOMER` role maps to customer authority.
+    - [ ] `TELLER` role maps to teller authority.
+    - [ ] `AUDITOR` role maps to auditor authority.
+    - [ ] `OPS_ADMIN` role maps to ops admin authority.
+    - [ ] `SERVICE` role maps to service authority.
+    - [ ] Multiple roles map to multiple authorities.
+    - [ ] Customer token requires valid customer id.
+    - [ ] Non-customer token may omit customer id.
+    - [ ] Principal exposes actor id for audit.
+- [ ] Public endpoint access:
+    - [ ] Health endpoint is accessible without token.
+    - [ ] OpenAPI docs are accessible without token.
+    - [ ] Swagger UI is accessible without token.
+    - [ ] Business endpoint without token is rejected.
+- [ ] Account endpoint authorization:
+    - [ ] Customer can read an owned account.
+    - [ ] Customer cannot read another customer's account.
+    - [ ] Customer can list transactions only for an owned account.
+    - [ ] Customer cannot list transactions for another customer's account.
+    - [ ] Teller can create an account for a customer.
+    - [ ] Auditor cannot create an account.
+    - [ ] Service role cannot call customer account mutation endpoints unless explicitly allowed.
+- [ ] Transfer authorization:
+    - [ ] Customer can create a transfer from an owned source account.
+    - [ ] Customer cannot create a transfer from another customer's account.
+    - [ ] Unauthorized transfer attempt does not create idempotency record.
+    - [ ] Unauthorized transfer attempt does not create transfer request.
+    - [ ] Unauthorized transfer attempt does not create ledger rows.
+    - [ ] Unauthorized transfer attempt does not change balances.
+- [ ] Reversal authorization:
+    - [ ] `OPS_ADMIN` can reverse a completed transfer.
+    - [ ] `SERVICE` can reverse a completed transfer.
+    - [ ] `CUSTOMER` cannot reverse a transfer.
+    - [ ] `TELLER` cannot reverse a transfer.
+    - [ ] `AUDITOR` cannot reverse a transfer.
+    - [ ] Unauthorized reversal attempt does not create reversal, ledger, audit, or outbox rows.
+- [ ] Adjustment authorization:
+    - [ ] `OPS_ADMIN` can post an adjustment.
+    - [ ] `SERVICE` can post an adjustment.
+    - [ ] `CUSTOMER` cannot post an adjustment.
+    - [ ] `TELLER` cannot post an adjustment.
+    - [ ] `AUDITOR` cannot post an adjustment.
+    - [ ] Unauthorized adjustment attempt does not create adjustment, ledger, audit, or outbox rows.
+- [ ] Audit and investigation authorization:
+    - [ ] `AUDITOR` can query audit events.
+    - [ ] `OPS_ADMIN` can query audit events.
+    - [ ] `CUSTOMER` cannot query audit events.
+    - [ ] `TELLER` cannot query audit events unless explicitly allowed.
+    - [ ] `AUDITOR` can query ledger transaction investigation details.
+    - [ ] Read-only roles cannot mutate reversal, adjustment, or reconciliation resources.
+- [ ] Structured security errors:
+    - [ ] Authentication failures use `ApiErrorResponse`.
+    - [ ] Authorization failures use `ApiErrorResponse`.
+    - [ ] Security error responses include correlation id.
+    - [ ] Security error responses do not include token text.
+    - [ ] Security error responses do not expose signing key, algorithm details, or stack traces.
+- [ ] CORS:
+    - [ ] Allowed dev origin receives expected CORS headers.
+    - [ ] Disallowed origin is rejected or omitted from CORS headers.
+    - [ ] Preflight allows `Authorization`, `Idempotency-Key`, and `X-Correlation-Id`.
+    - [ ] Wildcard origin is not used with credentials.
 
 ### Acceptance Criteria
 
@@ -923,6 +1095,10 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
 - [ ] Unauthorized role access returns `403`.
 - [ ] Missing or invalid credentials return `401`.
 - [ ] Security tests cover authentication and authorization rules.
+- [ ] Actor fields are derived from JWT claims, not trusted request headers.
+- [ ] Customer ownership checks prevent cross-customer account access.
+- [ ] Unauthorized requests do not produce financial writes.
+- [ ] Security ADR and endpoint authorization matrix are documented.
 
 ## Phase 8: Audit Trail And Investigation APIs
 
@@ -930,13 +1106,245 @@ Goal: Provide traceability for financial operations and operational troubleshoot
 
 ### Steps
 
-- [ ] Add audit event writer service.
-- [ ] Capture actor, role, channel, correlation ID, timestamp, entity type, and entity ID.
-- [ ] Add audit query filters.
-- [ ] Add ops ledger transaction lookup endpoint.
-- [ ] Add audit event query endpoint.
-- [ ] Add structured error codes for business rejections.
-- [ ] Add correlation ID to logs and responses.
+- [ ] Review current audit event schema and usage:
+    - [ ] Inventory all current audit event writes.
+    - [ ] Confirm account creation writes audit event.
+    - [ ] Confirm ledger transaction posting writes audit event.
+    - [ ] Confirm transfer reversal writes audit event.
+    - [ ] Confirm adjustment posting writes audit event.
+    - [ ] Identify missing actor role, channel, and payload fields in existing writes.
+    - [ ] Document audit payload fields that are safe to store.
+- [ ] Add audit event writer service:
+    - [ ] Add a single `AuditEventWriter` component.
+    - [ ] Accept event type, entity type, entity id, actor, correlation id, channel, and payload.
+    - [ ] Serialize payload through `ObjectMapper`.
+    - [ ] Reject payloads that cannot be serialized.
+    - [ ] Keep writer transactional with the caller.
+    - [ ] Replace direct repository writes in account, ledger, reversal, and adjustment flows.
+    - [ ] Preserve existing audit event names.
+- [ ] Normalize audit event types and entity types:
+    - [ ] Use enums for all application-written audit event types.
+    - [ ] Use enums for all application-written audit entity types.
+    - [ ] Add `TRANSFER_CREATED` if transfer creation needs a business-level event separate from ledger posting.
+    - [ ] Add `TRANSFER_REVERSED`.
+    - [ ] Add `ADJUSTMENT_POSTED`.
+    - [ ] Add `RECONCILIATION_BATCH_IMPORTED` for future reconciliation.
+    - [ ] Add `RECONCILIATION_COMPLETED` for future reconciliation.
+    - [ ] Add tests that fail on unsupported audit event strings.
+- [ ] Capture actor and request context consistently:
+    - [ ] Add request context accessor for current principal.
+    - [ ] Add request context accessor for current correlation id.
+    - [ ] Add request channel value such as `API`, `SYSTEM`, or `BATCH`.
+    - [ ] Ensure audit writer uses principal-derived actor fields from Phase 7.
+    - [ ] Use `SYSTEM` actor for internal scheduled/system work.
+    - [ ] Ensure missing actor context is explicit and not silently null for protected endpoints.
+- [ ] Define audit payload policy:
+    - [ ] Allow identifiers, reason codes, status, amount, currency, and high-level metadata.
+    - [ ] Do not store bearer tokens.
+    - [ ] Do not store passwords, verification codes, secrets, or signing material.
+    - [ ] Do not store full request bodies by default.
+    - [ ] Do not store PII unless required for investigation.
+    - [ ] Add helper to build small structured payload maps.
+    - [ ] Add documentation for allowed and disallowed audit payload data.
+- [ ] Add audit event query model:
+    - [ ] Add `AuditEventResponse`.
+    - [ ] Include audit event id.
+    - [ ] Include event type.
+    - [ ] Include entity type and entity id.
+    - [ ] Include actor type, actor role, and actor id.
+    - [ ] Include channel.
+    - [ ] Include correlation id.
+    - [ ] Include created timestamp.
+    - [ ] Include parsed or raw payload according to API design.
+- [ ] Add audit event query filters:
+    - [ ] Filter by event type.
+    - [ ] Filter by entity type.
+    - [ ] Filter by entity id.
+    - [ ] Filter by actor type.
+    - [ ] Filter by actor role.
+    - [ ] Filter by actor id.
+    - [ ] Filter by correlation id.
+    - [ ] Filter by created-from timestamp.
+    - [ ] Filter by created-to timestamp.
+    - [ ] Add deterministic sort by created timestamp and id.
+    - [ ] Add pagination with default size and max size.
+    - [ ] Validate invalid page, size, and date ranges.
+- [ ] Add audit event query repository support:
+    - [ ] Add specifications or explicit repository query method for filters.
+    - [ ] Ensure filters compose correctly.
+    - [ ] Add indexes if query performance requires them.
+    - [ ] Avoid loading large payloads unnecessarily if a summary endpoint is added.
+    - [ ] Add repository tests for each important filter.
+- [ ] Add audit event query use case:
+    - [ ] Validate filter command.
+    - [ ] Enforce maximum page size.
+    - [ ] Enforce valid time range.
+    - [ ] Return stable paged response.
+    - [ ] Preserve payload JSON without reformatting unless intentionally parsed.
+- [ ] Add audit event REST endpoint:
+    - [ ] Add `GET /api/v1/audit/events`.
+    - [ ] Map query parameters to audit query command.
+    - [ ] Return paged audit events.
+    - [ ] Require `AUDITOR` or `OPS_ADMIN`.
+    - [ ] Return structured errors for invalid filters.
+    - [ ] Add OpenAPI examples later in Phase 12.
+- [ ] Add audit event detail endpoint:
+    - [ ] Add `GET /api/v1/audit/events/{auditEventId}`.
+    - [ ] Return a single audit event by id.
+    - [ ] Return structured `404` for missing audit event.
+    - [ ] Require `AUDITOR` or `OPS_ADMIN`.
+    - [ ] Include payload for detail response.
+- [ ] Enforce audit immutability through application workflows:
+    - [ ] Do not expose update endpoint for audit events.
+    - [ ] Do not expose delete endpoint for audit events.
+    - [ ] Keep repository package-private where practical or document service-only usage.
+    - [ ] Add tests proving unsupported update/delete routes return `404` or `405`.
+    - [ ] Consider database trigger or permissions later if required.
+- [ ] Add ledger transaction investigation query model:
+    - [ ] Add `LedgerTransactionInvestigationResponse`.
+    - [ ] Include ledger transaction fields.
+    - [ ] Include journal entry id and status.
+    - [ ] Include posting ids, account ids, directions, amount, currency, and created timestamp.
+    - [ ] Include related transfer if one exists.
+    - [ ] Include related reversal if one exists.
+    - [ ] Include related adjustment if one exists.
+    - [ ] Include related audit event ids.
+    - [ ] Include related outbox event ids and statuses.
+- [ ] Add ledger transaction investigation use case:
+    - [ ] Load ledger transaction by id.
+    - [ ] Load journal entry and postings.
+    - [ ] Load related transfer by ledger transaction id.
+    - [ ] Load related reversal by original or reversal ledger transaction id.
+    - [ ] Load related adjustment by ledger transaction id.
+    - [ ] Load audit events by entity id and related ids.
+    - [ ] Load outbox events by aggregate id and related ids.
+    - [ ] Return structured `404` for unknown transaction id.
+    - [ ] Avoid N+1 queries where practical.
+- [ ] Add ledger transaction investigation REST endpoint:
+    - [ ] Add `GET /api/v1/ops/ledger/transactions/{transactionId}`.
+    - [ ] Require `AUDITOR`, `OPS_ADMIN`, or `SERVICE`.
+    - [ ] Return investigation response.
+    - [ ] Return structured `404` for missing ledger transaction.
+    - [ ] Return structured `400` for invalid UUID path values.
+- [ ] Add account investigation endpoint if useful:
+    - [ ] Add `GET /api/v1/ops/accounts/{accountId}/timeline`.
+    - [ ] Include account state.
+    - [ ] Include ledger postings affecting the account.
+    - [ ] Include related audit events.
+    - [ ] Require `AUDITOR` or `OPS_ADMIN`.
+    - [ ] Keep this endpoint optional if ledger transaction investigation is sufficient.
+- [ ] Add correlation id support:
+    - [ ] Confirm correlation id filter sets request context.
+    - [ ] Ensure every API response includes correlation id.
+    - [ ] Ensure audit queries can filter by correlation id.
+    - [ ] Ensure investigation responses include related correlation ids.
+    - [ ] Ensure logs include correlation id for audit/investigation endpoint calls.
+- [ ] Add structured investigation error codes:
+    - [ ] Add or reuse `RESOURCE_NOT_FOUND` for missing audit event.
+    - [ ] Add or reuse `RESOURCE_NOT_FOUND` for missing ledger transaction.
+    - [ ] Add validation error for invalid filters.
+    - [ ] Add validation error for date range where `createdFrom > createdTo`.
+    - [ ] Add validation error for page size above max.
+- [ ] Add privacy and redaction checks:
+    - [ ] Review all audit payloads for secrets and token values.
+    - [ ] Add tests that audit payloads do not include authorization headers.
+    - [ ] Add tests that audit payloads do not include idempotency keys unless explicitly approved.
+    - [ ] Add tests that validation or authentication failures do not write sensitive audit payloads.
+- [ ] Add audit and investigation documentation:
+    - [ ] Add ADR for audit trail and investigation API design.
+    - [ ] Document audit event schema and payload policy.
+    - [ ] Document query filters and pagination.
+    - [ ] Document investigation endpoint response shape.
+    - [ ] Document role access for audit and investigation APIs.
+
+### Test Scenarios
+
+- [ ] Audit writer:
+    - [ ] Writer persists event type, entity type, entity id, actor fields, channel, correlation id, payload, and timestamp.
+    - [ ] Writer serializes structured payload correctly.
+    - [ ] Writer rejects unserializable payload with a clear exception.
+    - [ ] Writer participates in caller transaction.
+    - [ ] Rollback of caller transaction rolls back audit event.
+    - [ ] Writer does not persist bearer token or secret fields.
+- [ ] Audit event creation coverage:
+    - [ ] Account creation writes expected audit event.
+    - [ ] Ledger transaction posting writes expected audit event.
+    - [ ] Transfer creation writes expected audit event if business-level transfer auditing is added.
+    - [ ] Transfer reversal writes `TRANSFER_REVERSED`.
+    - [ ] Adjustment posting writes `ADJUSTMENT_POSTED`.
+    - [ ] Audit event contains principal-derived actor fields.
+    - [ ] Audit event contains correlation id.
+    - [ ] Audit event payload includes safe identifiers and reason codes.
+- [ ] Audit query filters:
+    - [ ] Query by event type returns matching events only.
+    - [ ] Query by entity type returns matching events only.
+    - [ ] Query by entity id returns matching events only.
+    - [ ] Query by actor type returns matching events only.
+    - [ ] Query by actor role returns matching events only.
+    - [ ] Query by actor id returns matching events only.
+    - [ ] Query by correlation id returns matching events only.
+    - [ ] Query by created-from excludes older events.
+    - [ ] Query by created-to excludes newer events.
+    - [ ] Combined filters are applied with `AND` semantics.
+    - [ ] Empty result returns an empty page.
+- [ ] Audit query pagination and sorting:
+    - [ ] Default page size is applied when size is omitted.
+    - [ ] Maximum page size is enforced.
+    - [ ] Invalid negative page returns structured validation error.
+    - [ ] Invalid zero or negative size returns structured validation error.
+    - [ ] `createdFrom > createdTo` returns structured validation error.
+    - [ ] Results sort deterministically by created timestamp and id.
+    - [ ] Page metadata includes page number, size, total elements, and total pages.
+- [ ] Audit event REST endpoint:
+    - [ ] `GET /api/v1/audit/events` returns `200` for `AUDITOR`.
+    - [ ] `GET /api/v1/audit/events` returns `200` for `OPS_ADMIN`.
+    - [ ] `CUSTOMER` receives `403`.
+    - [ ] `TELLER` receives `403` unless explicitly allowed.
+    - [ ] Missing token receives `401`.
+    - [ ] Invalid filter returns structured `400`.
+    - [ ] Response does not include sensitive payload fields.
+- [ ] Audit event detail endpoint:
+    - [ ] Existing audit event id returns `200`.
+    - [ ] Missing audit event id returns structured `404`.
+    - [ ] Invalid UUID returns structured `400`.
+    - [ ] `AUDITOR` and `OPS_ADMIN` can access detail.
+    - [ ] Unauthorized roles receive `403`.
+- [ ] Audit immutability:
+    - [ ] `POST /api/v1/audit/events` is not available.
+    - [ ] `PUT /api/v1/audit/events/{id}` is not available.
+    - [ ] `PATCH /api/v1/audit/events/{id}` is not available.
+    - [ ] `DELETE /api/v1/audit/events/{id}` is not available.
+    - [ ] Normal application workflows never update existing audit event rows.
+- [ ] Ledger transaction investigation:
+    - [ ] Existing ledger transaction returns transaction details.
+    - [ ] Response includes journal entry details.
+    - [ ] Response includes all postings.
+    - [ ] Response includes related transfer for transfer ledger transaction.
+    - [ ] Response includes related reversal for reversal ledger transaction.
+    - [ ] Response includes related adjustment for adjustment ledger transaction.
+    - [ ] Response includes related audit event ids.
+    - [ ] Response includes related outbox event ids and statuses.
+    - [ ] Unknown ledger transaction id returns structured `404`.
+    - [ ] Invalid UUID returns structured `400`.
+- [ ] Ledger investigation authorization:
+    - [ ] `AUDITOR` can query ledger investigation endpoint.
+    - [ ] `OPS_ADMIN` can query ledger investigation endpoint.
+    - [ ] `SERVICE` can query ledger investigation endpoint if allowed by matrix.
+    - [ ] `CUSTOMER` receives `403`.
+    - [ ] `TELLER` receives `403` unless explicitly allowed.
+    - [ ] Missing token receives `401`.
+- [ ] Correlation id behavior:
+    - [ ] Query response includes request correlation id.
+    - [ ] Audit filters can find events by correlation id.
+    - [ ] Investigation response includes operation correlation ids.
+    - [ ] Missing `X-Correlation-Id` uses generated correlation id if current filter behavior supports it.
+- [ ] Privacy and redaction:
+    - [ ] Audit payloads do not include bearer token.
+    - [ ] Audit payloads do not include password-like fields.
+    - [ ] Audit payloads do not include verification codes.
+    - [ ] Audit payloads do not include signing keys or secrets.
+    - [ ] Error responses from audit endpoints do not include stack traces.
+    - [ ] Logs for audit queries include correlation id but not sensitive query payloads.
 
 ### Acceptance Criteria
 
@@ -946,6 +1354,10 @@ Goal: Provide traceability for financial operations and operational troubleshoot
 - [ ] `GET /api/v1/audit/events` supports filtering.
 - [ ] Correlation IDs appear in API responses and logs.
 - [ ] Sensitive data is not written to logs or audit payloads.
+- [ ] Audit and investigation APIs are protected by Phase 7 roles.
+- [ ] Audit query endpoints support pagination and deterministic sorting.
+- [ ] Investigation response links ledger, postings, transfer, reversal, adjustment, audit, and outbox records where applicable.
+- [ ] ADR documents audit payload policy, query model, and investigation API design.
 
 ## Phase 9: Outbox And Kafka Publishing
 

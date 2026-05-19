@@ -5,12 +5,14 @@ import dev.kavrin.banking_ledger.account.domain.model.AccountStatus;
 import dev.kavrin.banking_ledger.account.domain.model.AccountType;
 import dev.kavrin.banking_ledger.account.persistence.AccountEntity;
 import dev.kavrin.banking_ledger.account.persistence.AccountRepository;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
 import dev.kavrin.banking_ledger.audit.persistence.AuditEventRepository;
 import dev.kavrin.banking_ledger.customer.domain.model.CustomerStatus;
 import dev.kavrin.banking_ledger.customer.persistence.CustomerEntity;
 import dev.kavrin.banking_ledger.customer.persistence.CustomerRepository;
 import dev.kavrin.banking_ledger.ledger.application.command.PostLedgerTransactionCommand;
 import dev.kavrin.banking_ledger.ledger.application.command.PostingLineCommand;
+import dev.kavrin.banking_ledger.ledger.domain.model.LedgerTransactionType;
 import dev.kavrin.banking_ledger.ledger.domain.model.PostingDirection;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.JournalEntryRepository;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.LedgerTransactionRepository;
@@ -18,7 +20,6 @@ import dev.kavrin.banking_ledger.ledger.persistence.repository.PostingRepository
 import dev.kavrin.banking_ledger.outbox.OutboxStatus;
 import dev.kavrin.banking_ledger.outbox.persistence.OutboxEventRepository;
 import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
-import dev.kavrin.banking_ledger.shared.error.BadRequestException;
 import dev.kavrin.banking_ledger.shared.error.BusinessRuleViolationException;
 import dev.kavrin.banking_ledger.shared.error.ConflictException;
 import dev.kavrin.banking_ledger.shared.error.ResourceNotFoundException;
@@ -29,9 +30,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.UUID;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -341,26 +342,26 @@ class PostLedgerTransactionUseCaseIntegrationTests {
     }
 
     @Test
-    void failureAfterPostingSaveRollsBackLedgerJournalPostingsAuditAndOutbox() {
+    void invalidLedgerCommandRollsBackLedgerJournalPostingsAuditAndOutbox() {
         var source = createAccount("SRC", "USD", 1_000);
         var destination = createAccount("DST", "USD", 1_000);
         var command = new PostLedgerTransactionCommand(
                 ref("rollback-after-postings"),
-                "TRANSFER",
+                LedgerTransactionType.TRANSFER,
                 "USD",
                 100,
                 "rollback test",
-                "not-a-real-actor",
+                AuditActorType.SYSTEM,
                 "corr-rollback",
                 java.util.List.of(
-                        new PostingLineCommand(source.getId(), PostingDirection.DEBIT, 100, "USD"),
+                        new PostingLineCommand(source.getId(), PostingDirection.DEBIT, 50, "USD"),
                         new PostingLineCommand(destination.getId(), PostingDirection.CREDIT, 100, "USD")
                 )
         );
 
         assertThatThrownBy(() -> postLedgerTransactionUseCase.handle(command))
-                .isInstanceOfSatisfying(BadRequestException.class, exception ->
-                        assertThat(exception.code()).isEqualTo(ApiErrorCode.Validation.INVALID_REQUEST));
+                .isInstanceOfSatisfying(BusinessRuleViolationException.class, exception ->
+                        assertThat(exception.code()).isEqualTo(ApiErrorCode.Business.LEDGER_TRANSACTION_NOT_BALANCED));
 
         assertThat(ledgerTransactionRepository.existsByExternalReference(ref("rollback-after-postings"))).isFalse();
         assertThat(outboxEventRepository.findAll())
@@ -370,11 +371,11 @@ class PostLedgerTransactionUseCaseIntegrationTests {
     private PostLedgerTransactionCommand validCommand(UUID sourceAccountId, UUID destinationAccountId, String externalReference) {
         return new PostLedgerTransactionCommand(
                 externalReference,
-                "TRANSFER",
+                LedgerTransactionType.TRANSFER,
                 "USD",
                 100,
                 "test transfer",
-                "SYSTEM",
+                AuditActorType.SYSTEM,
                 "corr-ledger",
                 java.util.List.of(
                         new PostingLineCommand(sourceAccountId, PostingDirection.DEBIT, 100, "USD"),

@@ -1,6 +1,7 @@
 package dev.kavrin.banking_ledger.idempotency.application.service;
 
 import dev.kavrin.banking_ledger.idempotency.domain.model.IdempotencyOperationScope;
+import dev.kavrin.banking_ledger.idempotency.domain.model.IdempotencyResourceType;
 import dev.kavrin.banking_ledger.idempotency.persistence.entity.IdempotencyRecordEntity;
 import dev.kavrin.banking_ledger.idempotency.persistence.repository.IdempotencyRecordRepository;
 import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
@@ -15,8 +16,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class IdempotencyService {
-
-    private static final String TRANSFER_RESOURCE_TYPE = "TRANSFER";
 
     private final IdempotencyRecordRepository repository;
 
@@ -50,7 +49,7 @@ public class IdempotencyService {
                 .requestHash(requestHash)
                 .responseBody(responseBody)
                 .responseStatus(statusCode)
-                .resourceType(TRANSFER_RESOURCE_TYPE)
+                .resourceType(IdempotencyResourceType.TRANSFER.name())
                 .resourceId(transferId)
                 .createdAt(now)
                 .expiresAt(now.plusHours(24))

@@ -1,7 +1,8 @@
 package dev.kavrin.banking_ledger.ledger.application.command;
 
 
-import jakarta.validation.Valid;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
+import dev.kavrin.banking_ledger.ledger.domain.model.LedgerTransactionType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ public record PostLedgerTransactionCommand(
 
         String externalReference,
 
-        String transactionType,
+        LedgerTransactionType transactionType,
 
         String currencyCode,
 
@@ -19,7 +20,7 @@ public record PostLedgerTransactionCommand(
 
         String description,
 
-        String actorType,
+        AuditActorType actorType,
 
         String correlationId,
 
@@ -27,9 +28,9 @@ public record PostLedgerTransactionCommand(
 
 ) {
     public PostLedgerTransactionCommand {
-        transactionType = requireText(transactionType, "transactionType");
+        Objects.requireNonNull(transactionType, "transactionType is required");
         currencyCode = requireText(currencyCode, "currencyCode");
-        actorType = actorType == null || actorType.isBlank() ? "SYSTEM" : actorType.trim();
+        actorType = actorType == null ? AuditActorType.SYSTEM : actorType;
         correlationId = correlationId == null ? null : correlationId.trim();
 
         if (externalReference != null) {

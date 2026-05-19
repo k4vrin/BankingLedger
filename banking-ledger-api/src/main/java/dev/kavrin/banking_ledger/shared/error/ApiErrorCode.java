@@ -41,7 +41,9 @@ public sealed interface ApiErrorCode permits
         DUPLICATE_REQUEST,
         IDEMPOTENCY_KEY_CONFLICT,
         INVALID_IDEMPOTENCY_KEY,
-        CONCURRENT_TRANSFER_CONFLICT
+        CONCURRENT_TRANSFER_CONFLICT,
+        TRANSFER_NOT_REVERSIBLE,
+        REVERSAL_ALREADY_EXISTS
     }
 
     enum Security implements ApiErrorCode {

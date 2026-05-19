@@ -1,4 +1,4 @@
-package dev.kavrin.banking_ledger.transfer.api;
+package dev.kavrin.banking_ledger.transfer.api.contoller;
 
 import dev.kavrin.banking_ledger.idempotency.application.service.IdempotencyKeyValidator;
 import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
@@ -15,13 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.Locale;

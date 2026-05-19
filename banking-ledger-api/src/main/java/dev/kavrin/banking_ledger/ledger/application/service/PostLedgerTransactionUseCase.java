@@ -4,26 +4,25 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.kavrin.banking_ledger.account.persistence.AccountEntity;
 import dev.kavrin.banking_ledger.account.persistence.AccountRepository;
-import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
 import dev.kavrin.banking_ledger.audit.persistence.AuditEventEntity;
 import dev.kavrin.banking_ledger.audit.persistence.AuditEventRepository;
 import dev.kavrin.banking_ledger.ledger.application.command.PostLedgerTransactionCommand;
 import dev.kavrin.banking_ledger.ledger.domain.factory.JournalEntryFactory;
 import dev.kavrin.banking_ledger.ledger.domain.factory.PostedLedgerGraph;
-import dev.kavrin.banking_ledger.ledger.domain.model.LedgerTransactionType;
 import dev.kavrin.banking_ledger.ledger.persistence.entity.PostingEntity;
 import dev.kavrin.banking_ledger.ledger.persistence.mapper.LedgerPersistenceMapper;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.JournalEntryRepository;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.LedgerTransactionRepository;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.PostingRepository;
+import dev.kavrin.banking_ledger.outbox.OutboxAggregateType;
+import dev.kavrin.banking_ledger.outbox.OutboxDestination;
+import dev.kavrin.banking_ledger.outbox.OutboxEventType;
 import dev.kavrin.banking_ledger.outbox.OutboxStatus;
 import dev.kavrin.banking_ledger.outbox.persistence.OutboxEventEntity;
 import dev.kavrin.banking_ledger.outbox.persistence.OutboxEventRepository;
-import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
-import dev.kavrin.banking_ledger.shared.error.BadRequestException;
-import dev.kavrin.banking_ledger.shared.error.BusinessRuleViolationException;
-import dev.kavrin.banking_ledger.shared.error.ConflictException;
-import dev.kavrin.banking_ledger.shared.error.ResourceNotFoundException;
+import dev.kavrin.banking_ledger.shared.error.*;
 import dev.kavrin.banking_ledger.shared.money.CurrencyCode;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -69,7 +67,6 @@ public class PostLedgerTransactionUseCase {
             PostLedgerTransactionCommand command,
             PostingAccountResolver accountResolver
     ) {
-        validateTransactionType(command.transactionType());
         var graph = createGraph(command);
 
         if (graph.ledgerTransaction().externalReference() != null
@@ -186,10 +183,10 @@ public class PostLedgerTransactionUseCase {
 
     private AuditEventEntity auditEvent(PostLedgerTransactionCommand command, UUID transactionId) {
         return AuditEventEntity.builder()
-                .eventType("LEDGER_TRANSACTION_POSTED")
-                .entityType("LEDGER_TRANSACTION")
+                .eventType(AuditEventType.LEDGER_TRANSACTION_POSTED.name())
+                .entityType(AuditEntityType.LEDGER_TRANSACTION.name())
                 .entityId(transactionId)
-                .actorType(parseActorType(command.actorType()))
+                .actorType(command.actorType())
                 .correlationId(command.correlationId())
                 .eventPayload(toJson(Map.of(
                         "transactionId", transactionId.toString(),
@@ -205,45 +202,21 @@ public class PostLedgerTransactionUseCase {
     ) {
         var currencyCode = CurrencyCode.of(command.currencyCode()).value();
         return OutboxEventEntity.builder()
-                .aggregateType("LEDGER_TRANSACTION")
+                .aggregateType(OutboxAggregateType.LEDGER_TRANSACTION.name())
                 .aggregateId(transactionId)
-                .eventType("LedgerTransactionPosted")
-                .destination("ledger-events")
+                .eventType(OutboxEventType.LEDGER_TRANSACTION_POSTED.eventName())
+                .destination(OutboxDestination.LEDGER_EVENTS.destinationName())
                 .correlationId(command.correlationId())
                 .eventPayload(toJson(Map.of(
                         "transactionId", transactionId.toString(),
                         "currencyCode", currencyCode,
                         "amountMinor", command.amountMinor(),
-                        "transactionType", command.transactionType(),
+                        "transactionType", command.transactionType().name(),
                         "postedAt", postedAt.toString()
                 )))
                 .status(OutboxStatus.PENDING)
                 .retryCount(0)
                 .build();
-    }
-
-    private AuditActorType parseActorType(String actorType) {
-        try {
-            return AuditActorType.valueOf(actorType.trim().toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException exception) {
-            throw new BadRequestException(
-                    ApiErrorCode.Validation.INVALID_REQUEST,
-                    "Invalid actor type: " + actorType,
-                    "Invalid actor type."
-            );
-        }
-    }
-
-    private void validateTransactionType(String transactionType) {
-        try {
-            LedgerTransactionType.valueOf(transactionType);
-        } catch (IllegalArgumentException exception) {
-            throw new BadRequestException(
-                    ApiErrorCode.Validation.INVALID_REQUEST,
-                    "Invalid transaction type: " + transactionType,
-                    "Invalid transaction type."
-            );
-        }
     }
 
     private String toJson(Map<String, ?> payload) {

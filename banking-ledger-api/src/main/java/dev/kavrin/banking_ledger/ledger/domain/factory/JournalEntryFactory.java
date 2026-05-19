@@ -4,7 +4,6 @@ import dev.kavrin.banking_ledger.ledger.application.command.PostLedgerTransactio
 import dev.kavrin.banking_ledger.ledger.application.command.PostingLineCommand;
 import dev.kavrin.banking_ledger.ledger.domain.model.JournalEntry;
 import dev.kavrin.banking_ledger.ledger.domain.model.LedgerTransaction;
-import dev.kavrin.banking_ledger.ledger.domain.model.LedgerTransactionType;
 import dev.kavrin.banking_ledger.ledger.domain.model.Posting;
 import dev.kavrin.banking_ledger.ledger.domain.policy.DoubleEntryPostingPolicy;
 import dev.kavrin.banking_ledger.shared.money.CurrencyCode;
@@ -18,7 +17,7 @@ public class JournalEntryFactory {
 
         var transaction = LedgerTransaction.pending(
                 command.externalReference(),
-                LedgerTransactionType.valueOf(command.transactionType()),
+                command.transactionType(),
                 command.amountMinor(),
                 transactionCurrency.value(),
                 command.description()

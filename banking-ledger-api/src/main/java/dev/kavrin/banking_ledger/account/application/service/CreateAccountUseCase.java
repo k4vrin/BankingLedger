@@ -8,6 +8,8 @@ import dev.kavrin.banking_ledger.account.domain.model.AccountType;
 import dev.kavrin.banking_ledger.account.persistence.AccountEntity;
 import dev.kavrin.banking_ledger.account.persistence.AccountRepository;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
 import dev.kavrin.banking_ledger.audit.persistence.AuditEventEntity;
 import dev.kavrin.banking_ledger.audit.persistence.AuditEventRepository;
 import dev.kavrin.banking_ledger.customer.persistence.CustomerRepository;
@@ -68,9 +70,9 @@ public class CreateAccountUseCase {
         var savedAccount = accountRepository.save(account);
 
         auditEventRepository.save(AuditEventEntity.builder()
-                .entityType("ACCOUNT")
+                .entityType(AuditEntityType.ACCOUNT.name())
                 .entityId(savedAccount.getId())
-                .eventType("ACCOUNT_CREATED")
+                .eventType(AuditEventType.ACCOUNT_CREATED.name())
                 .actorType(actorType)
                 .correlationId(command.correlationId())
                 .build());
