@@ -603,37 +603,37 @@ Goal: Support operational correction without mutating posted financial records.
 
 ### Steps
 
-- [ ] Design reversal data model:
-    - [ ] Define `reversals` table columns.
-    - [ ] Include reversal id.
-    - [ ] Include original transfer id.
-    - [ ] Include original ledger transaction id.
-    - [ ] Include reversal ledger transaction id.
-    - [ ] Include reason code.
-    - [ ] Include reason detail.
-    - [ ] Include requested actor fields.
-    - [ ] Include requested timestamp.
-    - [ ] Include completed timestamp.
-    - [ ] Include status.
-    - [ ] Include failure reason fields.
-    - [ ] Include version column.
-- [ ] Add reversal schema constraints:
-    - [ ] Enforce one reversal per original transfer.
-    - [ ] Enforce one reversal per original ledger transaction.
-    - [ ] Enforce unique reversal ledger transaction id.
-    - [ ] Enforce foreign key to original transfer.
-    - [ ] Enforce foreign key to original ledger transaction.
-    - [ ] Enforce foreign key to reversal ledger transaction.
-    - [ ] Enforce required reason code.
-    - [ ] Enforce completed timestamp for completed reversals.
-    - [ ] Enforce failure reason for failed or rejected reversals.
-- [ ] Add reversal domain model:
-    - [ ] Add `ReversalStatus`.
-    - [ ] Add `ReversalReasonCode`.
-    - [ ] Add reversal entity.
-    - [ ] Add reversal repository.
-    - [ ] Add repository lookup by original transfer id.
-    - [ ] Add repository lookup by original ledger transaction id.
+- [x] Design reversal data model:
+    - [x] Define `reversals` table columns.
+    - [x] Include reversal id.
+    - [x] Include original transfer id.
+    - [x] Include original ledger transaction id.
+    - [x] Include reversal ledger transaction id.
+    - [x] Include reason code.
+    - [x] Include reason detail.
+    - [x] Include requested actor fields.
+    - [x] Include requested timestamp.
+    - [x] Include completed timestamp.
+    - [x] Include status.
+    - [x] Include failure reason fields.
+    - [x] Include version column.
+- [x] Add reversal schema constraints:
+    - [x] Enforce one reversal per original transfer.
+    - [x] Enforce one reversal per original ledger transaction.
+    - [x] Enforce unique reversal ledger transaction id.
+    - [x] Enforce foreign key to original transfer.
+    - [x] Enforce foreign key to original ledger transaction.
+    - [x] Enforce foreign key to reversal ledger transaction.
+    - [x] Enforce required reason code.
+    - [x] Enforce completed timestamp for completed reversals.
+    - [x] Enforce failure reason for failed or rejected reversals.
+- [x] Add reversal domain model:
+    - [x] Add `ReversalStatus`.
+    - [x] Add `ReversalReasonCode`.
+    - [x] Add reversal entity.
+    - [x] Add reversal repository.
+    - [x] Add repository lookup by original transfer id.
+    - [x] Add repository lookup by original ledger transaction id.
 - [ ] Add reversal API DTOs:
     - [ ] Add `ReverseTransferRequest`.
     - [ ] Require reason code.

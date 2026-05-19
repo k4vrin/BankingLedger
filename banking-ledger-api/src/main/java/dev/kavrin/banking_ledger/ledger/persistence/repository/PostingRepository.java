@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public interface PostingRepository extends JpaRepository<PostingEntity, UUID> {
@@ -38,4 +39,6 @@ public interface PostingRepository extends JpaRepository<PostingEntity, UUID> {
             @Param("to") OffsetDateTime to,
             Pageable pageable
     );
+
+    List<PostingEntity> findByJournalEntry_LedgerTransaction_Id(UUID ledgerTransactionId);
 }
