@@ -479,21 +479,21 @@ Goal: Prove that concurrent transfers preserve correct balances and do not allow
 
 ### Steps
 
-- [ ] Audit current transactional boundaries:
-    - [ ] Identify every write use case that updates account balances.
-    - [ ] Confirm `CreateTransferUseCase` and `PostLedgerTransactionUseCase` run in one transaction for transfer creation.
-    - [ ] Confirm idempotency record writes are committed atomically with transfer and ledger writes.
-    - [ ] Document which repositories are called before balance mutation.
-- [ ] Choose and document the account locking strategy:
-    - [ ] Decide whether debit account validation uses pessimistic row locks, optimistic version retries, or a hybrid.
-    - [ ] Document why the selected strategy prevents lost updates and overdrafts.
-    - [ ] Document expected behavior when lock acquisition times out.
-    - [ ] Document expected behavior when an optimistic version conflict occurs.
-- [ ] Add locked account repository methods:
-    - [ ] Add `findByIdForUpdate` for pessimistic account loading if selected.
-    - [ ] Add deterministic multi-account lock ordering by account id to avoid deadlocks.
-    - [ ] Add query-level lock timeout where supported.
-    - [ ] Add repository tests proving the lock method starts and returns the expected account.
+- [x] Audit current transactional boundaries:
+    - [x] Identify every write use case that updates account balances.
+    - [x] Confirm `CreateTransferUseCase` and `PostLedgerTransactionUseCase` run in one transaction for transfer creation.
+    - [x] Confirm idempotency record writes are committed atomically with transfer and ledger writes.
+    - [x] Document which repositories are called before balance mutation.
+- [x] Choose and document the account locking strategy:
+    - [x] Decide whether debit account validation uses pessimistic row locks, optimistic version retries, or a hybrid.
+    - [x] Document why the selected strategy prevents lost updates and overdrafts.
+    - [x] Document expected behavior when lock acquisition times out.
+    - [x] Document expected behavior when an optimistic version conflict occurs.
+- [x] Add locked account repository methods:
+    - [x] Add `findByIdForUpdate` for pessimistic account loading if selected.
+    - [x] Add deterministic multi-account lock ordering by account id to avoid deadlocks.
+    - [x] Add query-level lock timeout where supported.
+    - [x] Add repository tests proving the lock method starts and returns the expected account.
 - [ ] Update transfer account loading:
     - [ ] Load source and destination accounts through the selected locking path.
     - [ ] Lock accounts in deterministic order.

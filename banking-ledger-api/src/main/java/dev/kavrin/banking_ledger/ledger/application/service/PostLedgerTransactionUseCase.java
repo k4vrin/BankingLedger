@@ -25,6 +25,7 @@ import dev.kavrin.banking_ledger.shared.error.BusinessRuleViolationException;
 import dev.kavrin.banking_ledger.shared.error.ConflictException;
 import dev.kavrin.banking_ledger.shared.error.ResourceNotFoundException;
 import dev.kavrin.banking_ledger.shared.money.CurrencyCode;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,10 +49,26 @@ public class PostLedgerTransactionUseCase {
     private final LedgerPersistenceMapper mapper;
     private final AccountBalanceUpdater balanceUpdater;
     private final ObjectMapper objectMapper;
+    private final EntityManager entityManager;
     private final JournalEntryFactory journalEntryFactory = new JournalEntryFactory();
 
     @Transactional
     public PostedLedgerTransactionResult handle(PostLedgerTransactionCommand command) {
+        return post(command, this::loadAndValidateAccounts);
+    }
+
+    @Transactional
+    public PostedLedgerTransactionResult handleWithPreloadedAccounts(
+            PostLedgerTransactionCommand command,
+            PreloadedPostingAccounts preloadedAccounts
+    ) {
+        return post(command, graph -> validatePreloadedAccounts(graph, preloadedAccounts));
+    }
+
+    private PostedLedgerTransactionResult post(
+            PostLedgerTransactionCommand command,
+            PostingAccountResolver accountResolver
+    ) {
         validateTransactionType(command.transactionType());
         var graph = createGraph(command);
 
@@ -65,7 +82,7 @@ public class PostLedgerTransactionUseCase {
             );
         }
 
-        var accountsById = loadAndValidateAccounts(graph);
+        var accountsById = accountResolver.resolve(graph);
         var postedAt = OffsetDateTime.now();
         var transaction = mapper.toLedgerTransactionEntity(graph, postedAt);
         var savedTransaction = ledgerTransactionRepository.save(transaction);
@@ -125,6 +142,46 @@ public class PostLedgerTransactionUseCase {
         }
 
         return accountsById;
+    }
+
+    private Map<UUID, AccountEntity> validatePreloadedAccounts(
+            PostedLedgerGraph graph,
+            PreloadedPostingAccounts preloadedAccounts
+    ) {
+        var accountsById = preloadedAccounts.accountsById();
+        accountsById.values().forEach(this::validateManagedPreloadedAccount);
+
+        for (var posting : graph.journalEntry().getPostings()) {
+            var account = accountsById.get(posting.accountId());
+            if (account == null) {
+                throw new ResourceNotFoundException(
+                        ApiErrorCode.Business.POSTING_ACCOUNT_NOT_FOUND,
+                        "Posting account not found in preloaded account set: " + posting.accountId(),
+                        "Posting account not found."
+                );
+            }
+
+            if (!account.getCurrencyCode().equals(posting.currencyCode())) {
+                throw new BusinessRuleViolationException(
+                        ApiErrorCode.Business.POSTING_ACCOUNT_CURRENCY_MISMATCH,
+                        "Posting currency " + posting.currencyCode()
+                                + " does not match account currency " + account.getCurrencyCode(),
+                        "Posting currency must match account currency."
+                );
+            }
+        }
+
+        return accountsById;
+    }
+
+    private void validateManagedPreloadedAccount(AccountEntity account) {
+        if (!entityManager.contains(account)) {
+            throw new IllegalArgumentException("Preloaded posting account must be managed in the active transaction.");
+        }
+    }
+
+    private interface PostingAccountResolver {
+        Map<UUID, AccountEntity> resolve(PostedLedgerGraph graph);
     }
 
     private AuditEventEntity auditEvent(PostLedgerTransactionCommand command, UUID transactionId) {

@@ -27,8 +27,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.transaction.TestTransaction;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,6 +76,9 @@ class CreateTransferUseCaseIntegrationTests {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     @Test
     void successfulTransferPersistsCompletedTransferLedgerPostingsBalancesAndIdempotencyResponse() throws Exception {
@@ -273,6 +285,76 @@ class CreateTransferUseCaseIntegrationTests {
         assertThat(idempotencyRecordRepository.findByOperationScopeAndIdempotencyKey("TRANSFER_CREATE", "idem-ledger-duplicate")).isEmpty();
     }
 
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void concurrentTransfersFromSameSourceDoNotOverdraftAndOnlyAvailableFundsComplete() throws Exception {
+        var run = shortSuffix();
+        var externalReferencePrefix = "concurrent-transfer-" + run + "-";
+        var idempotencyPrefix = "idem-concurrent-" + run + "-";
+        var source = transactionTemplate.execute(status ->
+                createAccount("SRC-CON", "USD", AccountStatus.ACTIVE, 300));
+        var destination = transactionTemplate.execute(status ->
+                createAccount("DST-CON", "USD", AccountStatus.ACTIVE, 0));
+
+        var executor = Executors.newFixedThreadPool(6);
+        var start = new CountDownLatch(1);
+        var results = Collections.synchronizedList(new ArrayList<CreateTransferResult>());
+        var failures = Collections.synchronizedList(new ArrayList<Throwable>());
+        try {
+            List<Callable<Void>> tasks = new ArrayList<>();
+            for (int index = 0; index < 6; index++) {
+                var externalReference = externalReferencePrefix + index;
+                var idempotencyKey = idempotencyPrefix + index;
+                tasks.add(() -> {
+                    await(start);
+                    try {
+                        results.add(createTransferUseCase.handle(validCommand(
+                                source.getId(),
+                                destination.getId(),
+                                externalReference,
+                                idempotencyKey
+                        )));
+                    } catch (Throwable exception) {
+                        failures.add(exception);
+                    }
+                    return null;
+                });
+            }
+
+            var futures = tasks.stream()
+                    .map(executor::submit)
+                    .toList();
+            start.countDown();
+            for (var future : futures) {
+                future.get(15, TimeUnit.SECONDS);
+            }
+
+            assertThat(results).hasSize(3);
+            assertThat(failures).hasSize(3);
+            assertThat(failures).allSatisfy(exception ->
+                    assertThat(exception).isInstanceOfSatisfying(BusinessRuleViolationException.class, businessException ->
+                            assertThat(businessException.code()).isEqualTo(ApiErrorCode.Business.INSUFFICIENT_FUNDS)));
+
+            var updatedSource = accountRepository.findById(source.getId()).orElseThrow();
+            var updatedDestination = accountRepository.findById(destination.getId()).orElseThrow();
+            assertThat(updatedSource.getAvailableBalanceMinor()).isZero();
+            assertThat(updatedSource.getLedgerBalanceMinor()).isZero();
+            assertThat(updatedDestination.getAvailableBalanceMinor()).isEqualTo(300);
+            assertThat(updatedDestination.getLedgerBalanceMinor()).isEqualTo(300);
+            assertThat(countTransfersByExternalReferencePrefix(externalReferencePrefix)).isEqualTo(3);
+        } finally {
+            executor.shutdownNow();
+            cleanupTransferRun(
+                    externalReferencePrefix,
+                    idempotencyPrefix,
+                    source.getId(),
+                    destination.getId(),
+                    source.getCustomer().getId(),
+                    destination.getCustomer().getId()
+            );
+        }
+    }
+
     private CreateTransferCommand validCommand(
             UUID sourceAccountId,
             UUID destinationAccountId,
@@ -332,7 +414,84 @@ class CreateTransferUseCaseIntegrationTests {
         );
     }
 
+    private long countTransfersByExternalReferencePrefix(String externalReferencePrefix) {
+        return jdbcTemplate.queryForObject(
+                "select count(*) from transfer_requests where external_reference like ?",
+                Long.class,
+                externalReferencePrefix + "%"
+        );
+    }
+
+    private void cleanupTransferRun(
+            String externalReferencePrefix,
+            String idempotencyPrefix,
+            UUID sourceAccountId,
+            UUID destinationAccountId,
+            UUID sourceCustomerId,
+            UUID destinationCustomerId
+    ) {
+        jdbcTemplate.update("delete from idempotency_records where idempotency_key like ?", idempotencyPrefix + "%");
+        jdbcTemplate.update("delete from transfer_requests where external_reference like ?", externalReferencePrefix + "%");
+        jdbcTemplate.update(
+                """
+                delete from outbox_events
+                where aggregate_id in (
+                    select id from ledger_transactions where external_reference like ?
+                )
+                """,
+                externalReferencePrefix + "%"
+        );
+        jdbcTemplate.update(
+                """
+                delete from audit_events
+                where entity_id in (
+                    select id from ledger_transactions where external_reference like ?
+                )
+                """,
+                externalReferencePrefix + "%"
+        );
+        jdbcTemplate.update(
+                """
+                delete from postings
+                where journal_entry_id in (
+                    select je.id
+                    from journal_entries je
+                    join ledger_transactions lt on lt.id = je.ledger_transaction_id
+                    where lt.external_reference like ?
+                )
+                """,
+                externalReferencePrefix + "%"
+        );
+        jdbcTemplate.update(
+                """
+                delete from journal_entries
+                where ledger_transaction_id in (
+                    select id from ledger_transactions where external_reference like ?
+                )
+                """,
+                externalReferencePrefix + "%"
+        );
+        jdbcTemplate.update("delete from ledger_transactions where external_reference like ?", externalReferencePrefix + "%");
+        jdbcTemplate.update("delete from accounts where id in (hextoraw(?), hextoraw(?))", raw(sourceAccountId), raw(destinationAccountId));
+        jdbcTemplate.update("delete from customers where id in (hextoraw(?), hextoraw(?))", raw(sourceCustomerId), raw(destinationCustomerId));
+    }
+
+    private static void await(CountDownLatch latch) {
+        try {
+            if (!latch.await(10, TimeUnit.SECONDS)) {
+                throw new AssertionError("Timed out waiting for latch.");
+            }
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new AssertionError("Interrupted while waiting for latch.", exception);
+        }
+    }
+
     private static String shortSuffix() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+    }
+
+    private static String raw(UUID uuid) {
+        return uuid.toString().replace("-", "");
     }
 }
