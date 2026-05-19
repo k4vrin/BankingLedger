@@ -23,11 +23,6 @@ public class LockedAccountLoader {
             UUID destinationAccountId
     ) {
 
-        if (sourceAccountId.equals(destinationAccountId)) {
-            var accountEntity = findLocked(sourceAccountId);
-            return new LockedTransferAccounts(accountEntity, accountEntity);
-        }
-
         var orderedIds = Stream.of(sourceAccountId, destinationAccountId)
                 .sorted()
                 .toList();

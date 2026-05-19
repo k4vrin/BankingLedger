@@ -494,11 +494,11 @@ Goal: Prove that concurrent transfers preserve correct balances and do not allow
     - [x] Add deterministic multi-account lock ordering by account id to avoid deadlocks.
     - [x] Add query-level lock timeout where supported.
     - [x] Add repository tests proving the lock method starts and returns the expected account.
-- [ ] Update transfer account loading:
-    - [ ] Load source and destination accounts through the selected locking path.
-    - [ ] Lock accounts in deterministic order.
-    - [ ] Keep source and destination role mapping after ordered loading.
-    - [ ] Validate balances only after locked account rows are loaded.
+- [x] Update transfer account loading:
+    - [x] Load source and destination accounts through the selected locking path.
+    - [x] Lock accounts in deterministic order.
+    - [x] Keep source and destination role mapping after ordered loading.
+    - [x] Validate balances only after locked account rows are loaded.
 - [ ] Add concurrency error handling:
     - [ ] Map lock timeout failures to a structured `409 Conflict` or retryable business error.
     - [ ] Map optimistic locking failures to a structured `409 Conflict`.
