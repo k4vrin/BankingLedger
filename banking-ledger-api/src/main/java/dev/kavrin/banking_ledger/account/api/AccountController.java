@@ -13,12 +13,15 @@ import dev.kavrin.banking_ledger.account.application.service.AccountQueryUseCase
 import dev.kavrin.banking_ledger.account.application.service.CreateAccountUseCase;
 import dev.kavrin.banking_ledger.account.application.service.GetAccountBalanceUseCase;
 import dev.kavrin.banking_ledger.account.application.service.GetAccountTransactionsUseCase;
+import dev.kavrin.banking_ledger.security.domain.AuthenticatedPrincipal;
 import dev.kavrin.banking_ledger.shared.money.CurrencyCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -36,9 +39,10 @@ public class AccountController {
     private final GetAccountTransactionsUseCase getAccountTransactionsUseCase;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('TELLER', 'OPS_ADMIN')")
     public ResponseEntity<AccountResponse> createAccount(
             @Valid @RequestBody CreateAccountRequest request,
-            @RequestHeader(value = "X-Actor-Type", required = false) String actorType,
+            @AuthenticationPrincipal AuthenticatedPrincipal principal,
             @RequestHeader(value = "X-Correlation-Id", required = false) String correlationId
     ) {
         var response = createAccountUseCase.handle(new CreateAccountCommand(
@@ -46,7 +50,7 @@ public class AccountController {
                 request.accountNumber(),
                 request.accountType(),
                 CurrencyCode.of(request.currencyCode()),
-                actorType,
+                principal.actorType().name(),
                 correlationId
         ));
 
@@ -56,21 +60,25 @@ public class AccountController {
     }
 
     @GetMapping("/{accountId}")
+    @PreAuthorize("@accountOwnership.canReadAccount(authentication.principal, #accountId)")
     public AccountResponse getById(@PathVariable UUID accountId) {
         return accountQueryUseCase.getById(new GetAccountByIdQuery(accountId));
     }
 
     @GetMapping("/by-number/{accountNumber}")
+    @PreAuthorize("@accountOwnership.canReadAccountNumber(authentication.principal, #accountNumber)")
     public AccountResponse getByNumber(@PathVariable String accountNumber) {
         return accountQueryUseCase.getByNumber(new GetAccountByNumberQuery(accountNumber));
     }
 
     @GetMapping("/{accountId}/balance")
+    @PreAuthorize("@accountOwnership.canReadAccount(authentication.principal, #accountId)")
     public BalanceResponse getBalance(@PathVariable UUID accountId) {
         return getAccountBalanceUseCase.handle(new GetAccountBalanceQuery(accountId));
     }
 
     @GetMapping("/{accountId}/transactions")
+    @PreAuthorize("@accountOwnership.canReadAccount(authentication.principal, #accountId)")
     public Page<AccountTransactionSummaryResponse> getTransactions(
             @PathVariable UUID accountId,
             @RequestParam(required = false)

@@ -4,34 +4,40 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.kavrin.banking_ledger.account.application.command.CreateAccountCommand;
 import dev.kavrin.banking_ledger.account.application.service.CreateAccountUseCase;
 import dev.kavrin.banking_ledger.account.domain.model.AccountType;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
 import dev.kavrin.banking_ledger.customer.domain.model.CustomerStatus;
 import dev.kavrin.banking_ledger.customer.persistence.CustomerEntity;
 import dev.kavrin.banking_ledger.customer.persistence.CustomerRepository;
+import dev.kavrin.banking_ledger.security.auth.BankingJwtAuthenticationToken;
+import dev.kavrin.banking_ledger.security.domain.AuthenticatedPrincipal;
+import dev.kavrin.banking_ledger.security.domain.SecurityRole;
 import dev.kavrin.banking_ledger.shared.money.CurrencyCode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@WithMockUser
 class AccountControllerIntegrationTests {
 
     @Autowired
@@ -53,8 +59,8 @@ class AccountControllerIntegrationTests {
 
         mockMvc.perform(post("/api/v1/accounts")
                         .with(csrf())
+                        .with(authentication(auth(SecurityRole.TELLER, null)))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Actor-Type", "SYSTEM")
                         .header("X-Correlation-Id", "corr-api-create")
                         .content(objectMapper.writeValueAsString(Map.of(
                                 "customerId", customer.getId(),
@@ -78,6 +84,7 @@ class AccountControllerIntegrationTests {
     void invalidCreateAccountRequestReturnsStructuredValidationError() throws Exception {
         mockMvc.perform(post("/api/v1/accounts")
                         .with(csrf())
+                        .with(authentication(auth(SecurityRole.TELLER, null)))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
                                 "accountNumber", "",
@@ -100,8 +107,8 @@ class AccountControllerIntegrationTests {
 
         mockMvc.perform(post("/api/v1/accounts")
                         .with(csrf())
+                        .with(authentication(auth(SecurityRole.TELLER, null)))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Actor-Type", "SYSTEM")
                         .content(objectMapper.writeValueAsString(Map.of(
                                 "customerId", customer.getId(),
                                 "accountNumber", accountNumber,
@@ -118,12 +125,14 @@ class AccountControllerIntegrationTests {
         var customer = createCustomer();
         var account = createAccount(customer.getId(), "GET-" + shortSuffix());
 
-        mockMvc.perform(get("/api/v1/accounts/{accountId}", account.id()))
+        mockMvc.perform(get("/api/v1/accounts/{accountId}", account.id())
+                        .with(authentication(auth(SecurityRole.CUSTOMER, customer.getId()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(account.id().toString()))
                 .andExpect(jsonPath("$.accountNumber").value(account.accountNumber()));
 
-        mockMvc.perform(get("/api/v1/accounts/{accountId}/balance", account.id()))
+        mockMvc.perform(get("/api/v1/accounts/{accountId}/balance", account.id())
+                        .with(authentication(auth(SecurityRole.CUSTOMER, customer.getId()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountId").value(account.id().toString()))
                 .andExpect(jsonPath("$.currencyCode").value("USD"))
@@ -137,6 +146,7 @@ class AccountControllerIntegrationTests {
         var account = createAccount(customer.getId(), "PAGE-" + shortSuffix());
 
         mockMvc.perform(get("/api/v1/accounts/{accountId}/transactions", account.id())
+                        .with(authentication(auth(SecurityRole.CUSTOMER, customer.getId())))
                         .param("page", "0")
                         .param("size", "20"))
                 .andExpect(status().isOk())
@@ -162,6 +172,40 @@ class AccountControllerIntegrationTests {
                 .email("phase2-api-" + shortSuffix() + "@example.com")
                 .status(CustomerStatus.ACTIVE)
                 .build());
+    }
+
+    private BankingJwtAuthenticationToken auth(SecurityRole role, UUID customerId) {
+        var principal = new AuthenticatedPrincipal(
+                "test-" + role.name().toLowerCase(),
+                "test-actor",
+                actorType(role),
+                Set.of(role),
+                customerId,
+                "token-id"
+        );
+        return new BankingJwtAuthenticationToken(
+                jwt(),
+                principal,
+                List.of(new SimpleGrantedAuthority("ROLE_" + role.name()))
+        );
+    }
+
+    private AuditActorType actorType(SecurityRole role) {
+        return switch (role) {
+            case CUSTOMER -> AuditActorType.CUSTOMER;
+            case SERVICE -> AuditActorType.SERVICE;
+            case TELLER, AUDITOR, OPS_ADMIN -> AuditActorType.EMPLOYEE;
+        };
+    }
+
+    private Jwt jwt() {
+        return new Jwt(
+                "token-value",
+                Instant.now(),
+                Instant.now().plusSeconds(3600),
+                Map.of("alg", "HS256"),
+                Map.of("sub", "test-subject")
+        );
     }
 
     private static String shortSuffix() {

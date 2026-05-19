@@ -4,5 +4,6 @@ public enum AuditEntityType {
     ACCOUNT,
     LEDGER_TRANSACTION,
     TRANSFER,
-    ADJUSTMENT
+    ADJUSTMENT,
+    RECONCILIATION_BATCH
 }

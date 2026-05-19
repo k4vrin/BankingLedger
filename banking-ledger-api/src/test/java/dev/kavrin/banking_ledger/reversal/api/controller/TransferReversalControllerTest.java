@@ -1,20 +1,29 @@
 package dev.kavrin.banking_ledger.reversal.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
 import dev.kavrin.banking_ledger.reversal.api.dto.ReversalResponse;
 import dev.kavrin.banking_ledger.reversal.application.command.ReverseTransferCommand;
 import dev.kavrin.banking_ledger.reversal.application.service.ReverseTransferUseCase;
 import dev.kavrin.banking_ledger.reversal.domain.model.ReversalReasonCode;
 import dev.kavrin.banking_ledger.reversal.domain.model.ReversalStatus;
+import dev.kavrin.banking_ledger.security.domain.AuthenticatedPrincipal;
+import dev.kavrin.banking_ledger.security.domain.SecurityRole;
 import dev.kavrin.banking_ledger.shared.error.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,12 +36,15 @@ class TransferReversalControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private StubReverseTransferUseCase reverseTransferUseCase;
     private MockMvc mockMvc;
+    private AuthenticatedPrincipal principal;
 
     @BeforeEach
     void setUp() {
         reverseTransferUseCase = new StubReverseTransferUseCase();
+        principal = opsAdminPrincipal();
         mockMvc = MockMvcBuilders
                 .standaloneSetup(new TransferReversalController(reverseTransferUseCase))
+                .setCustomArgumentResolvers(new TestPrincipalArgumentResolver())
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
@@ -66,9 +78,6 @@ class TransferReversalControllerTest {
         mockMvc.perform(post("/api/v1/transfers/{transferId}/reverse", transferId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Correlation-Id", " corr-reversal ")
-                        .header("X-Actor-Type", "OPS_ADMIN")
-                        .header("X-Actor-Role", "OPS_ADMIN")
-                        .header("X-Actor-Id", " ops-user-1 ")
                         .content(objectMapper.writeValueAsString(Map.of(
                                 "reasonCode", "DUPLICATE_TRANSFER",
                                 "reasonDetail", " duplicate request "
@@ -92,8 +101,6 @@ class TransferReversalControllerTest {
         mockMvc.perform(post("/api/v1/transfers/{transferId}/reverse", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Correlation-Id", "corr-reversal")
-                        .header("X-Actor-Type", "OPS_ADMIN")
-                        .header("X-Actor-Role", "OPS_ADMIN")
                         .content("{}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
@@ -104,11 +111,11 @@ class TransferReversalControllerTest {
 
     @Test
     void forbiddenActorRoleReturnsStructuredError() throws Exception {
+        principal = tellerPrincipal();
+
         mockMvc.perform(post("/api/v1/transfers/{transferId}/reverse", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Correlation-Id", "corr-reversal")
-                        .header("X-Actor-Type", "TELLER")
-                        .header("X-Actor-Role", "TELLER")
                         .content(objectMapper.writeValueAsString(Map.of(
                                 "reasonCode", "DUPLICATE_TRANSFER"
                         ))))
@@ -121,8 +128,6 @@ class TransferReversalControllerTest {
     void missingCorrelationHeaderReturnsStructuredBadRequest() throws Exception {
         mockMvc.perform(post("/api/v1/transfers/{transferId}/reverse", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Actor-Type", "OPS_ADMIN")
-                        .header("X-Actor-Role", "OPS_ADMIN")
                         .content(objectMapper.writeValueAsString(Map.of(
                                 "reasonCode", "DUPLICATE_TRANSFER"
                         ))))
@@ -139,8 +144,6 @@ class TransferReversalControllerTest {
         mockMvc.perform(post("/api/v1/transfers/{transferId}/reverse", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Correlation-Id", "corr-reversal")
-                        .header("X-Actor-Type", "OPS_ADMIN")
-                        .header("X-Actor-Role", "OPS_ADMIN")
                         .content(objectMapper.writeValueAsString(Map.of(
                                 "reasonCode", "UNKNOWN_REASON"
                         ))))
@@ -164,6 +167,45 @@ class TransferReversalControllerTest {
             lastCommand = command;
             dev.kavrin.banking_ledger.reversal.domain.policy.ReversalValidationPolicy.validateRequest(command);
             return nextResponse;
+        }
+    }
+
+    private AuthenticatedPrincipal opsAdminPrincipal() {
+        return new AuthenticatedPrincipal(
+                "ops-subject",
+                "ops-user-1",
+                AuditActorType.EMPLOYEE,
+                Set.of(SecurityRole.OPS_ADMIN),
+                null,
+                "token-id"
+        );
+    }
+
+    private AuthenticatedPrincipal tellerPrincipal() {
+        return new AuthenticatedPrincipal(
+                "teller-subject",
+                "teller-user-1",
+                AuditActorType.EMPLOYEE,
+                Set.of(SecurityRole.TELLER),
+                null,
+                "token-id"
+        );
+    }
+
+    private class TestPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
+        @Override
+        public boolean supportsParameter(MethodParameter parameter) {
+            return AuthenticatedPrincipal.class.equals(parameter.getParameterType());
+        }
+
+        @Override
+        public Object resolveArgument(
+                MethodParameter parameter,
+                ModelAndViewContainer mavContainer,
+                NativeWebRequest webRequest,
+                WebDataBinderFactory binderFactory
+        ) {
+            return principal;
         }
     }
 }

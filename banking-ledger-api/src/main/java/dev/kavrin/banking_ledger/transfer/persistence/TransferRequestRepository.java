@@ -16,6 +16,17 @@ public interface TransferRequestRepository extends JpaRepository<TransferRequest
 
     Optional<TransferRequestEntity> findByLedgerTransaction_Id(UUID ledgerTransactionId);
 
+    @Query("""
+            select count(t) > 0
+            from TransferRequestEntity t
+            where t.id = :id
+              and (
+                  t.sourceAccount.customer.id = :customerId
+                  or t.destinationAccount.customer.id = :customerId
+              )
+            """)
+    boolean existsByIdAndCustomerId(UUID id, UUID customerId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
         select t

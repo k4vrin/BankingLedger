@@ -871,65 +871,65 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
 
 ### Steps
 
-- [ ] Choose authentication strategy for the portfolio version:
-    - [ ] Use JWT bearer tokens for API authentication.
-    - [ ] Use local signed JWTs for development and tests.
-    - [ ] Keep the design compatible with a future external identity provider.
-    - [ ] Document accepted JWT issuer, audience, subject, role, customer id, and actor id claims.
-    - [ ] Decide token lifetime for local development tokens.
-    - [ ] Decide whether service-to-service clients use a dedicated `SERVICE` role claim.
+- [x] Choose authentication strategy for the portfolio version:
+    - [x] Use JWT bearer tokens for API authentication.
+    - [x] Use local signed JWTs for development and tests.
+    - [x] Keep the design compatible with a future external identity provider.
+    - [x] Document accepted JWT issuer, audience, subject, role, customer id, and actor id claims.
+    - [x] Decide token lifetime for local development tokens.
+    - [x] Decide whether service-to-service clients use a dedicated `SERVICE` role claim.
 - [ ] Add security dependencies and configuration properties:
-    - [ ] Add Spring Security resource server dependencies if missing.
-    - [ ] Add local JWT signing key or JWK configuration for `dev`.
-    - [ ] Add issuer and audience properties.
-    - [ ] Add token clock skew property.
+    - [x] Add Spring Security resource server dependencies if missing.
+    - [x] Add local JWT signing key or JWK configuration for `dev`.
+    - [x] Add issuer and audience properties.
+    - [x] Add token clock skew property.
     - [ ] Add configuration properties tests for required security settings.
-- [ ] Add JWT resource server configuration:
-    - [ ] Configure stateless session policy.
-    - [ ] Disable CSRF for stateless REST APIs.
-    - [ ] Configure bearer token authentication.
-    - [ ] Validate issuer.
-    - [ ] Validate audience.
-    - [ ] Validate expiry.
-    - [ ] Validate not-before if present.
-    - [ ] Reject unsigned or wrongly signed tokens.
-    - [ ] Keep `/actuator/health`, OpenAPI docs, and Swagger UI public.
-    - [ ] Require authentication for all business API endpoints by default.
-- [ ] Add role and principal model:
-    - [ ] Add `SecurityRole` enum with `CUSTOMER`, `TELLER`, `AUDITOR`, `OPS_ADMIN`, and `SERVICE`.
-    - [ ] Add authenticated principal model with subject, actor id, actor type, roles, optional customer id, and token id.
-    - [ ] Add mapper from JWT claims to authenticated principal.
-    - [ ] Add mapper from principal roles to Spring Security authorities.
-    - [ ] Add mapper from principal to existing audit actor fields.
-    - [ ] Reject tokens with missing subject.
-    - [ ] Reject tokens with no recognized roles.
-    - [ ] Reject customer tokens that do not include `customerId`.
-    - [ ] Reject malformed `customerId` claim.
+- [x] Add JWT resource server configuration:
+    - [x] Configure stateless session policy.
+    - [x] Disable CSRF for stateless REST APIs.
+    - [x] Configure bearer token authentication.
+    - [x] Validate issuer.
+    - [x] Validate audience.
+    - [x] Validate expiry.
+    - [x] Validate not-before if present.
+    - [x] Reject unsigned or wrongly signed tokens.
+    - [x] Keep `/actuator/health`, OpenAPI docs, and Swagger UI public.
+    - [x] Require authentication for all business API endpoints by default.
+- [x] Add role and principal model:
+    - [x] Add `SecurityRole` enum with `CUSTOMER`, `TELLER`, `AUDITOR`, `OPS_ADMIN`, and `SERVICE`.
+    - [x] Add authenticated principal model with subject, actor id, actor type, roles, optional customer id, and token id.
+    - [x] Add mapper from JWT claims to authenticated principal.
+    - [x] Add mapper from principal roles to Spring Security authorities.
+    - [x] Add mapper from principal to existing audit actor fields.
+    - [x] Reject tokens with missing subject.
+    - [x] Reject tokens with no recognized roles.
+    - [x] Reject customer tokens that do not include `customerId`.
+    - [x] Reject malformed `customerId` claim.
 - [ ] Add development authentication support:
-    - [ ] Add local token factory for tests.
+    - [x] Add local token factory for tests.
     - [ ] Add sample development users for customer, teller, auditor, ops admin, and service.
-    - [ ] Add optional dev-only endpoint or command for issuing sample tokens.
-    - [ ] Ensure dev token issuance is disabled outside development profile.
-    - [ ] Add README or docs snippet showing how to get sample tokens locally.
-- [ ] Add structured authentication and authorization errors:
-    - [ ] Return `401` for missing bearer token.
-    - [ ] Return `401` for invalid signature.
-    - [ ] Return `401` for expired token.
-    - [ ] Return `401` for malformed token.
-    - [ ] Return `401` for invalid issuer or audience.
-    - [ ] Return `403` for authenticated users without required role.
-    - [ ] Return `403` for ownership violations.
-    - [ ] Use the existing `ApiErrorResponse` shape.
-    - [ ] Include correlation id in security error responses.
-    - [ ] Do not leak token values or cryptographic details in error messages.
-- [ ] Replace temporary actor headers for protected workflows:
-    - [ ] Derive actor type from the authenticated principal.
-    - [ ] Derive actor role from the authenticated principal.
-    - [ ] Derive actor id from the authenticated principal.
-    - [ ] Stop trusting `X-Actor-Type` for protected endpoints.
-    - [ ] Stop trusting `X-Actor-Role` for protected endpoints.
-    - [ ] Keep `X-Correlation-Id` as a request tracing header.
-    - [ ] Ensure audit events use principal-derived actor fields.
+    - [x] Add optional dev-only endpoint or command for issuing sample tokens.
+    - [x] Ensure dev token issuance is disabled outside development profile.
+    - [x] Add README or docs snippet showing how to get sample tokens locally.
+- [x] Add structured authentication and authorization errors:
+    - [x] Return `401` for missing bearer token.
+    - [x] Return `401` for invalid signature.
+    - [x] Return `401` for expired token.
+    - [x] Return `401` for malformed token.
+    - [x] Return `401` for invalid issuer or audience.
+    - [x] Return `403` for authenticated users without required role.
+    - [x] Return `403` for ownership violations.
+    - [x] Use the existing `ApiErrorResponse` shape.
+    - [x] Include correlation id in security error responses.
+    - [x] Do not leak token values or cryptographic details in error messages.
+- [x] Replace temporary actor headers for protected workflows:
+    - [x] Derive actor type from the authenticated principal.
+    - [x] Derive actor role from the authenticated principal.
+    - [x] Derive actor id from the authenticated principal.
+    - [x] Stop trusting `X-Actor-Type` for protected endpoints.
+    - [x] Stop trusting `X-Actor-Role` for protected endpoints.
+    - [x] Keep `X-Correlation-Id` as a request tracing header.
+    - [x] Ensure audit events use principal-derived actor fields.
 - [ ] Define endpoint authorization matrix:
     - [ ] Public endpoints: health, OpenAPI docs, Swagger UI.
     - [ ] Customer account read endpoints require `CUSTOMER` and ownership.
@@ -942,48 +942,48 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
     - [ ] Internal publishing or integration endpoints require `SERVICE`.
     - [ ] Deny access by default for unclassified endpoints.
 - [ ] Add method-level authorization:
-    - [ ] Enable method security.
-    - [ ] Add authorization annotations to use cases or controllers.
-    - [ ] Prefer method-level checks for ownership-sensitive business operations.
-    - [ ] Keep HTTP route rules coarse and method rules domain-specific.
+    - [x] Enable method security.
+    - [x] Add authorization annotations to use cases or controllers.
+    - [x] Prefer method-level checks for ownership-sensitive business operations.
+    - [x] Keep HTTP route rules coarse and method rules domain-specific.
     - [ ] Add authorization tests at controller and use-case boundaries.
 - [ ] Add customer ownership checks:
-    - [ ] Add service to check account ownership by customer id.
-    - [ ] Add ownership check for account detail lookup.
-    - [ ] Add ownership check for account transaction list.
-    - [ ] Add ownership check for customer-initiated transfer source account.
-    - [ ] Reject access to another customer's account with structured `403`.
+    - [x] Add service to check account ownership by customer id.
+    - [x] Add ownership check for account detail lookup.
+    - [x] Add ownership check for account transaction list.
+    - [x] Add ownership check for customer-initiated transfer source account.
+    - [x] Reject access to another customer's account with structured `403`.
     - [ ] Avoid returning `404` for authorization failures unless explicitly documented.
-- [ ] Protect account and customer endpoints:
-    - [ ] Require authentication for account creation.
-    - [ ] Allow `TELLER` or `OPS_ADMIN` to create customer accounts.
-    - [ ] Allow `CUSTOMER` to read owned accounts.
-    - [ ] Prevent `CUSTOMER` from creating accounts for other customers.
-    - [ ] Prevent `AUDITOR` from mutating accounts.
-    - [ ] Prevent `SERVICE` from customer-facing account operations unless explicitly allowed.
+- [x] Protect account and customer endpoints:
+    - [x] Require authentication for account creation.
+    - [x] Allow `TELLER` or `OPS_ADMIN` to create customer accounts.
+    - [x] Allow `CUSTOMER` to read owned accounts.
+    - [x] Prevent `CUSTOMER` from creating accounts for other customers.
+    - [x] Prevent `AUDITOR` from mutating accounts.
+    - [x] Prevent `SERVICE` from customer-facing account operations unless explicitly allowed.
 - [ ] Protect transfer endpoints:
-    - [ ] Require authentication for transfer creation.
-    - [ ] Allow customer transfer only from owned source account.
-    - [ ] Allow teller or ops workflows only if intentionally supported.
-    - [ ] Keep idempotency key validation independent from authentication.
-    - [ ] Ensure unauthorized transfer requests do not create idempotency records.
-    - [ ] Ensure unauthorized transfer requests do not mutate balances.
-- [ ] Protect reversal and adjustment endpoints:
-    - [ ] Require `OPS_ADMIN` or `SERVICE` for reversal.
-    - [ ] Require `OPS_ADMIN` or `SERVICE` for adjustment.
-    - [ ] Reject `CUSTOMER`, `TELLER`, and `AUDITOR`.
-    - [ ] Use principal actor fields in reversal and adjustment command objects.
-    - [ ] Ensure unauthorized requests do not create reversal or adjustment request rows.
-    - [ ] Ensure unauthorized requests do not create ledger, audit, or outbox rows.
+    - [x] Require authentication for transfer creation.
+    - [x] Allow customer transfer only from owned source account.
+    - [x] Allow teller or ops workflows only if intentionally supported.
+    - [x] Keep idempotency key validation independent from authentication.
+    - [x] Ensure unauthorized transfer requests do not create idempotency records.
+    - [x] Ensure unauthorized transfer requests do not mutate balances.
+- [x] Protect reversal and adjustment endpoints:
+    - [x] Require `OPS_ADMIN` or `SERVICE` for reversal.
+    - [x] Require `OPS_ADMIN` or `SERVICE` for adjustment.
+    - [x] Reject `CUSTOMER`, `TELLER`, and `AUDITOR`.
+    - [x] Use principal actor fields in reversal and adjustment command objects.
+    - [x] Ensure unauthorized requests do not create reversal or adjustment request rows.
+    - [x] Ensure unauthorized requests do not create ledger, audit, or outbox rows.
 - [ ] Protect audit and investigation endpoints:
     - [ ] Require `AUDITOR` or `OPS_ADMIN` for audit event queries.
     - [ ] Require `AUDITOR`, `OPS_ADMIN`, or `SERVICE` for ledger transaction investigation lookup.
     - [ ] Ensure read-only roles cannot call mutating endpoints.
     - [ ] Add paging limits to prevent broad unrestricted reads.
 - [ ] Add CORS configuration:
-    - [ ] Allow configured local frontend origins in development.
-    - [ ] Do not allow wildcard origins with credentials.
-    - [ ] Allow `Authorization`, `Content-Type`, `Idempotency-Key`, and `X-Correlation-Id` headers.
+    - [x] Allow configured local frontend origins in development.
+    - [x] Do not allow wildcard origins with credentials.
+    - [x] Allow `Authorization`, `Content-Type`, `Idempotency-Key`, and `X-Correlation-Id` headers.
     - [ ] Add preflight tests for protected endpoints.
 - [ ] Add security logging and privacy guardrails:
     - [ ] Log authentication failures without token content.
@@ -992,18 +992,18 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
     - [ ] Do not log raw JWT claims containing sensitive values.
     - [ ] Add test or static check for accidental token logging where practical.
 - [ ] Add security test utilities:
-    - [ ] Add test JWT builder.
-    - [ ] Add helpers for each role.
-    - [ ] Add helper for customer token with customer id.
+    - [x] Add test JWT builder.
+    - [x] Add helpers for each role.
+    - [x] Add helper for customer token with customer id.
     - [ ] Add helper for expired token.
     - [ ] Add helper for invalid issuer or audience.
     - [ ] Add helper for token signed with wrong key.
-- [ ] Add security documentation:
-    - [ ] Add ADR for authentication and authorization design.
-    - [ ] Document JWT claims and role mapping.
-    - [ ] Document endpoint authorization matrix.
-    - [ ] Document local token generation.
-    - [ ] Document the planned migration from local JWTs to an external identity provider.
+- [x] Add security documentation:
+    - [x] Add ADR for authentication and authorization design.
+    - [x] Document JWT claims and role mapping.
+    - [x] Document endpoint authorization matrix.
+    - [x] Document local token generation.
+    - [x] Document the planned migration from local JWTs to an external identity provider.
 
 ### Test Scenarios
 
@@ -1106,31 +1106,31 @@ Goal: Provide traceability for financial operations and operational troubleshoot
 
 ### Steps
 
-- [ ] Review current audit event schema and usage:
-    - [ ] Inventory all current audit event writes.
-    - [ ] Confirm account creation writes audit event.
-    - [ ] Confirm ledger transaction posting writes audit event.
-    - [ ] Confirm transfer reversal writes audit event.
-    - [ ] Confirm adjustment posting writes audit event.
-    - [ ] Identify missing actor role, channel, and payload fields in existing writes.
-    - [ ] Document audit payload fields that are safe to store.
-- [ ] Add audit event writer service:
-    - [ ] Add a single `AuditEventWriter` component.
-    - [ ] Accept event type, entity type, entity id, actor, correlation id, channel, and payload.
-    - [ ] Serialize payload through `ObjectMapper`.
-    - [ ] Reject payloads that cannot be serialized.
-    - [ ] Keep writer transactional with the caller.
-    - [ ] Replace direct repository writes in account, ledger, reversal, and adjustment flows.
-    - [ ] Preserve existing audit event names.
-- [ ] Normalize audit event types and entity types:
-    - [ ] Use enums for all application-written audit event types.
-    - [ ] Use enums for all application-written audit entity types.
-    - [ ] Add `TRANSFER_CREATED` if transfer creation needs a business-level event separate from ledger posting.
-    - [ ] Add `TRANSFER_REVERSED`.
-    - [ ] Add `ADJUSTMENT_POSTED`.
-    - [ ] Add `RECONCILIATION_BATCH_IMPORTED` for future reconciliation.
-    - [ ] Add `RECONCILIATION_COMPLETED` for future reconciliation.
-    - [ ] Add tests that fail on unsupported audit event strings.
+- [x] Review current audit event schema and usage:
+    - [x] Inventory all current audit event writes.
+    - [x] Confirm account creation writes audit event.
+    - [x] Confirm ledger transaction posting writes audit event.
+    - [x] Confirm transfer reversal writes audit event.
+    - [x] Confirm adjustment posting writes audit event.
+    - [x] Identify missing actor role, channel, and payload fields in existing writes.
+    - [x] Document audit payload fields that are safe to store.
+- [x] Add audit event writer service:
+    - [x] Add a single `AuditEventWriter` component.
+    - [x] Accept event type, entity type, entity id, actor, correlation id, channel, and payload.
+    - [x] Serialize payload through `ObjectMapper`.
+    - [x] Reject payloads that cannot be serialized.
+    - [x] Keep writer transactional with the caller.
+    - [x] Replace direct repository writes in account, ledger, reversal, and adjustment flows.
+    - [x] Preserve existing audit event names.
+- [x] Normalize audit event types and entity types:
+    - [x] Use enums for all application-written audit event types.
+    - [x] Use enums for all application-written audit entity types.
+    - [x] Add `TRANSFER_CREATED` if transfer creation needs a business-level event separate from ledger posting.
+    - [x] Add `TRANSFER_REVERSED`.
+    - [x] Add `ADJUSTMENT_POSTED`.
+    - [x] Add `RECONCILIATION_BATCH_IMPORTED` for future reconciliation.
+    - [x] Add `RECONCILIATION_COMPLETED` for future reconciliation.
+    - [x] Add tests that fail on unsupported audit event strings.
 - [ ] Capture actor and request context consistently:
     - [ ] Add request context accessor for current principal.
     - [ ] Add request context accessor for current correlation id.
@@ -1138,94 +1138,94 @@ Goal: Provide traceability for financial operations and operational troubleshoot
     - [ ] Ensure audit writer uses principal-derived actor fields from Phase 7.
     - [ ] Use `SYSTEM` actor for internal scheduled/system work.
     - [ ] Ensure missing actor context is explicit and not silently null for protected endpoints.
-- [ ] Define audit payload policy:
-    - [ ] Allow identifiers, reason codes, status, amount, currency, and high-level metadata.
-    - [ ] Do not store bearer tokens.
-    - [ ] Do not store passwords, verification codes, secrets, or signing material.
-    - [ ] Do not store full request bodies by default.
-    - [ ] Do not store PII unless required for investigation.
-    - [ ] Add helper to build small structured payload maps.
-    - [ ] Add documentation for allowed and disallowed audit payload data.
-- [ ] Add audit event query model:
-    - [ ] Add `AuditEventResponse`.
-    - [ ] Include audit event id.
-    - [ ] Include event type.
-    - [ ] Include entity type and entity id.
-    - [ ] Include actor type, actor role, and actor id.
-    - [ ] Include channel.
-    - [ ] Include correlation id.
-    - [ ] Include created timestamp.
-    - [ ] Include parsed or raw payload according to API design.
-- [ ] Add audit event query filters:
-    - [ ] Filter by event type.
-    - [ ] Filter by entity type.
-    - [ ] Filter by entity id.
-    - [ ] Filter by actor type.
-    - [ ] Filter by actor role.
-    - [ ] Filter by actor id.
-    - [ ] Filter by correlation id.
-    - [ ] Filter by created-from timestamp.
-    - [ ] Filter by created-to timestamp.
-    - [ ] Add deterministic sort by created timestamp and id.
-    - [ ] Add pagination with default size and max size.
-    - [ ] Validate invalid page, size, and date ranges.
-- [ ] Add audit event query repository support:
-    - [ ] Add specifications or explicit repository query method for filters.
-    - [ ] Ensure filters compose correctly.
+- [x] Define audit payload policy:
+    - [x] Allow identifiers, reason codes, status, amount, currency, and high-level metadata.
+    - [x] Do not store bearer tokens.
+    - [x] Do not store passwords, verification codes, secrets, or signing material.
+    - [x] Do not store full request bodies by default.
+    - [x] Do not store PII unless required for investigation.
+    - [x] Add helper to build small structured payload maps.
+    - [x] Add documentation for allowed and disallowed audit payload data.
+- [x] Add audit event query model:
+    - [x] Add `AuditEventResponse`.
+    - [x] Include audit event id.
+    - [x] Include event type.
+    - [x] Include entity type and entity id.
+    - [x] Include actor type, actor role, and actor id.
+    - [x] Include channel.
+    - [x] Include correlation id.
+    - [x] Include created timestamp.
+    - [x] Include parsed or raw payload according to API design.
+- [x] Add audit event query filters:
+    - [x] Filter by event type.
+    - [x] Filter by entity type.
+    - [x] Filter by entity id.
+    - [x] Filter by actor type.
+    - [x] Filter by actor role.
+    - [x] Filter by actor id.
+    - [x] Filter by correlation id.
+    - [x] Filter by created-from timestamp.
+    - [x] Filter by created-to timestamp.
+    - [x] Add deterministic sort by created timestamp and id.
+    - [x] Add pagination with default size and max size.
+    - [x] Validate invalid page, size, and date ranges.
+- [x] Add audit event query repository support:
+    - [x] Add specifications or explicit repository query method for filters.
+    - [x] Ensure filters compose correctly.
     - [ ] Add indexes if query performance requires them.
     - [ ] Avoid loading large payloads unnecessarily if a summary endpoint is added.
     - [ ] Add repository tests for each important filter.
-- [ ] Add audit event query use case:
-    - [ ] Validate filter command.
-    - [ ] Enforce maximum page size.
-    - [ ] Enforce valid time range.
-    - [ ] Return stable paged response.
-    - [ ] Preserve payload JSON without reformatting unless intentionally parsed.
-- [ ] Add audit event REST endpoint:
-    - [ ] Add `GET /api/v1/audit/events`.
-    - [ ] Map query parameters to audit query command.
-    - [ ] Return paged audit events.
-    - [ ] Require `AUDITOR` or `OPS_ADMIN`.
-    - [ ] Return structured errors for invalid filters.
+- [x] Add audit event query use case:
+    - [x] Validate filter command.
+    - [x] Enforce maximum page size.
+    - [x] Enforce valid time range.
+    - [x] Return stable paged response.
+    - [x] Preserve payload JSON without reformatting unless intentionally parsed.
+- [x] Add audit event REST endpoint:
+    - [x] Add `GET /api/v1/audit/events`.
+    - [x] Map query parameters to audit query command.
+    - [x] Return paged audit events.
+    - [x] Require `AUDITOR` or `OPS_ADMIN`.
+    - [x] Return structured errors for invalid filters.
     - [ ] Add OpenAPI examples later in Phase 12.
-- [ ] Add audit event detail endpoint:
-    - [ ] Add `GET /api/v1/audit/events/{auditEventId}`.
-    - [ ] Return a single audit event by id.
-    - [ ] Return structured `404` for missing audit event.
-    - [ ] Require `AUDITOR` or `OPS_ADMIN`.
-    - [ ] Include payload for detail response.
-- [ ] Enforce audit immutability through application workflows:
-    - [ ] Do not expose update endpoint for audit events.
-    - [ ] Do not expose delete endpoint for audit events.
+- [x] Add audit event detail endpoint:
+    - [x] Add `GET /api/v1/audit/events/{auditEventId}`.
+    - [x] Return a single audit event by id.
+    - [x] Return structured `404` for missing audit event.
+    - [x] Require `AUDITOR` or `OPS_ADMIN`.
+    - [x] Include payload for detail response.
+- [x] Enforce audit immutability through application workflows:
+    - [x] Do not expose update endpoint for audit events.
+    - [x] Do not expose delete endpoint for audit events.
     - [ ] Keep repository package-private where practical or document service-only usage.
     - [ ] Add tests proving unsupported update/delete routes return `404` or `405`.
     - [ ] Consider database trigger or permissions later if required.
-- [ ] Add ledger transaction investigation query model:
-    - [ ] Add `LedgerTransactionInvestigationResponse`.
-    - [ ] Include ledger transaction fields.
-    - [ ] Include journal entry id and status.
-    - [ ] Include posting ids, account ids, directions, amount, currency, and created timestamp.
-    - [ ] Include related transfer if one exists.
-    - [ ] Include related reversal if one exists.
-    - [ ] Include related adjustment if one exists.
-    - [ ] Include related audit event ids.
-    - [ ] Include related outbox event ids and statuses.
-- [ ] Add ledger transaction investigation use case:
-    - [ ] Load ledger transaction by id.
-    - [ ] Load journal entry and postings.
-    - [ ] Load related transfer by ledger transaction id.
-    - [ ] Load related reversal by original or reversal ledger transaction id.
-    - [ ] Load related adjustment by ledger transaction id.
-    - [ ] Load audit events by entity id and related ids.
-    - [ ] Load outbox events by aggregate id and related ids.
-    - [ ] Return structured `404` for unknown transaction id.
-    - [ ] Avoid N+1 queries where practical.
-- [ ] Add ledger transaction investigation REST endpoint:
-    - [ ] Add `GET /api/v1/ops/ledger/transactions/{transactionId}`.
-    - [ ] Require `AUDITOR`, `OPS_ADMIN`, or `SERVICE`.
-    - [ ] Return investigation response.
-    - [ ] Return structured `404` for missing ledger transaction.
-    - [ ] Return structured `400` for invalid UUID path values.
+- [x] Add ledger transaction investigation query model:
+    - [x] Add `LedgerTransactionInvestigationResponse`.
+    - [x] Include ledger transaction fields.
+    - [x] Include journal entry id and status.
+    - [x] Include posting ids, account ids, directions, amount, currency, and created timestamp.
+    - [x] Include related transfer if one exists.
+    - [x] Include related reversal if one exists.
+    - [x] Include related adjustment if one exists.
+    - [x] Include related audit event ids.
+    - [x] Include related outbox event ids and statuses.
+- [x] Add ledger transaction investigation use case:
+    - [x] Load ledger transaction by id.
+    - [x] Load journal entry and postings.
+    - [x] Load related transfer by ledger transaction id.
+    - [x] Load related reversal by original or reversal ledger transaction id.
+    - [x] Load related adjustment by ledger transaction id.
+    - [x] Load audit events by entity id and related ids.
+    - [x] Load outbox events by aggregate id and related ids.
+    - [x] Return structured `404` for unknown transaction id.
+    - [x] Avoid N+1 queries where practical.
+- [x] Add ledger transaction investigation REST endpoint:
+    - [x] Add `GET /api/v1/ops/ledger/transactions/{transactionId}`.
+    - [x] Require `AUDITOR`, `OPS_ADMIN`, or `SERVICE`.
+    - [x] Return investigation response.
+    - [x] Return structured `404` for missing ledger transaction.
+    - [x] Return structured `400` for invalid UUID path values.
 - [ ] Add account investigation endpoint if useful:
     - [ ] Add `GET /api/v1/ops/accounts/{accountId}/timeline`.
     - [ ] Include account state.
@@ -1233,29 +1233,29 @@ Goal: Provide traceability for financial operations and operational troubleshoot
     - [ ] Include related audit events.
     - [ ] Require `AUDITOR` or `OPS_ADMIN`.
     - [ ] Keep this endpoint optional if ledger transaction investigation is sufficient.
-- [ ] Add correlation id support:
-    - [ ] Confirm correlation id filter sets request context.
-    - [ ] Ensure every API response includes correlation id.
-    - [ ] Ensure audit queries can filter by correlation id.
-    - [ ] Ensure investigation responses include related correlation ids.
-    - [ ] Ensure logs include correlation id for audit/investigation endpoint calls.
-- [ ] Add structured investigation error codes:
-    - [ ] Add or reuse `RESOURCE_NOT_FOUND` for missing audit event.
-    - [ ] Add or reuse `RESOURCE_NOT_FOUND` for missing ledger transaction.
-    - [ ] Add validation error for invalid filters.
-    - [ ] Add validation error for date range where `createdFrom > createdTo`.
-    - [ ] Add validation error for page size above max.
-- [ ] Add privacy and redaction checks:
-    - [ ] Review all audit payloads for secrets and token values.
-    - [ ] Add tests that audit payloads do not include authorization headers.
-    - [ ] Add tests that audit payloads do not include idempotency keys unless explicitly approved.
-    - [ ] Add tests that validation or authentication failures do not write sensitive audit payloads.
-- [ ] Add audit and investigation documentation:
-    - [ ] Add ADR for audit trail and investigation API design.
-    - [ ] Document audit event schema and payload policy.
-    - [ ] Document query filters and pagination.
-    - [ ] Document investigation endpoint response shape.
-    - [ ] Document role access for audit and investigation APIs.
+- [x] Add correlation id support:
+    - [x] Confirm correlation id filter sets request context.
+    - [x] Ensure every API response includes correlation id.
+    - [x] Ensure audit queries can filter by correlation id.
+    - [x] Ensure investigation responses include related correlation ids.
+    - [x] Ensure logs include correlation id for audit/investigation endpoint calls.
+- [x] Add structured investigation error codes:
+    - [x] Add or reuse `RESOURCE_NOT_FOUND` for missing audit event.
+    - [x] Add or reuse `RESOURCE_NOT_FOUND` for missing ledger transaction.
+    - [x] Add validation error for invalid filters.
+    - [x] Add validation error for date range where `createdFrom > createdTo`.
+    - [x] Add validation error for page size above max.
+- [x] Add privacy and redaction checks:
+    - [x] Review all audit payloads for secrets and token values.
+    - [x] Add tests that audit payloads do not include authorization headers.
+    - [x] Add tests that audit payloads do not include idempotency keys unless explicitly approved.
+    - [x] Add tests that validation or authentication failures do not write sensitive audit payloads.
+- [x] Add audit and investigation documentation:
+    - [x] Add ADR for audit trail and investigation API design.
+    - [x] Document audit event schema and payload policy.
+    - [x] Document query filters and pagination.
+    - [x] Document investigation endpoint response shape.
+    - [x] Document role access for audit and investigation APIs.
 
 ### Test Scenarios
 
@@ -1348,16 +1348,16 @@ Goal: Provide traceability for financial operations and operational troubleshoot
 
 ### Acceptance Criteria
 
-- [ ] Every financial operation creates an audit event.
-- [ ] Audit events are immutable through application workflows.
-- [ ] `GET /api/v1/ops/ledger/transactions/{transactionId}` returns investigation details.
-- [ ] `GET /api/v1/audit/events` supports filtering.
-- [ ] Correlation IDs appear in API responses and logs.
-- [ ] Sensitive data is not written to logs or audit payloads.
-- [ ] Audit and investigation APIs are protected by Phase 7 roles.
-- [ ] Audit query endpoints support pagination and deterministic sorting.
-- [ ] Investigation response links ledger, postings, transfer, reversal, adjustment, audit, and outbox records where applicable.
-- [ ] ADR documents audit payload policy, query model, and investigation API design.
+- [x] Every financial operation creates an audit event.
+- [x] Audit events are immutable through application workflows.
+- [x] `GET /api/v1/ops/ledger/transactions/{transactionId}` returns investigation details.
+- [x] `GET /api/v1/audit/events` supports filtering.
+- [x] Correlation IDs appear in API responses and logs.
+- [x] Sensitive data is not written to logs or audit payloads.
+- [x] Audit and investigation APIs are protected by Phase 7 roles.
+- [x] Audit query endpoints support pagination and deterministic sorting.
+- [x] Investigation response links ledger, postings, transfer, reversal, adjustment, audit, and outbox records where applicable.
+- [x] ADR documents audit payload policy, query model, and investigation API design.
 
 ## Phase 9: Outbox And Kafka Publishing
 
@@ -1365,19 +1365,143 @@ Goal: Publish financial events reliably without losing consistency between datab
 
 ### Steps
 
-- [ ] Finalize `outbox_events` schema.
-- [ ] Write outbox records inside financial transactions.
-- [ ] Implement outbox publisher worker.
-- [ ] Publish events:
+- [ ] Finalize outbox schema:
+    - [ ] Confirm `outbox_events` has aggregate type, aggregate id, event type, destination, correlation id, payload, status, retry count, retry timestamp, error message, created timestamp, published timestamp, and version.
+    - [ ] Add status values for `PENDING`, `PUBLISHED`, `FAILED`, and `DEAD_LETTERED` if missing.
+    - [ ] Add indexes for status and next retry timestamp.
+    - [ ] Add index for aggregate type and aggregate id.
+    - [ ] Add index for event type.
+    - [ ] Add check constraints for status and retry count.
+    - [ ] Add optimistic version column if missing.
+- [ ] Define outbox domain model:
+    - [ ] Add `OutboxEventType` values for all published events.
+    - [ ] Add `OutboxDestination` values for Kafka topics.
+    - [ ] Add `OutboxPublishStatus` transition rules.
+    - [ ] Add payload envelope model with event id, event type, aggregate id, occurred timestamp, schema version, and data.
+    - [ ] Add event schema version constants.
+- [ ] Add outbox writer service:
+    - [ ] Centralize outbox row creation in one component.
+    - [ ] Accept aggregate metadata, event type, destination, correlation id, and payload.
+    - [ ] Serialize payload with `ObjectMapper`.
+    - [ ] Reject unserializable payloads.
+    - [ ] Write inside the caller transaction.
+    - [ ] Replace direct outbox repository writes in ledger, reversal, adjustment, and later reconciliation flows.
+- [ ] Ensure atomic financial writes:
+    - [ ] Confirm ledger posting writes outbox event in the same transaction.
+    - [ ] Confirm reversal writes outbox event in the same transaction.
+    - [ ] Confirm adjustment writes outbox event in the same transaction.
+    - [ ] Confirm rollback removes outbox rows when financial writes fail.
+    - [ ] Document which use cases write which event types.
+- [ ] Implement outbox publisher worker:
+    - [ ] Add scheduled publisher component.
+    - [ ] Select eligible events with `PENDING` or retryable `FAILED` status.
+    - [ ] Lock selected rows to prevent duplicate publisher instances from publishing the same event.
+    - [ ] Publish in deterministic batch order.
+    - [ ] Make batch size configurable.
+    - [ ] Make scheduler interval configurable.
+    - [ ] Skip publishing when worker is disabled by config.
+- [ ] Add Kafka publishing:
+    - [ ] Configure Kafka producer properties.
+    - [ ] Publish event payload to destination topic.
+    - [ ] Use outbox event id as Kafka message key or header.
+    - [ ] Include correlation id in Kafka headers.
+    - [ ] Include event type and schema version in Kafka headers.
+    - [ ] Mark event `PUBLISHED` only after successful send acknowledgement.
+    - [ ] Store published timestamp.
+- [ ] Publish required events:
     - [ ] `LedgerTransactionPosted`
     - [ ] `LedgerTransactionReversed`
+    - [ ] `AdjustmentPosted`
     - [ ] `AccountBalanceChanged`
     - [ ] `ReconciliationMismatchFound`
-- [ ] Add retry handling.
-- [ ] Add dead-letter handling strategy.
-- [ ] Add replay strategy.
-- [ ] Add metrics for outbox lag and failures.
-- [ ] Add ADR for outbox/event publishing strategy.
+    - [ ] `ReconciliationCompleted`
+- [ ] Add retry handling:
+    - [ ] Increment retry count on publish failure.
+    - [ ] Store last error message with safe truncation.
+    - [ ] Compute next retry timestamp with bounded exponential backoff.
+    - [ ] Stop retrying after max attempts.
+    - [ ] Move exhausted events to `DEAD_LETTERED`.
+    - [ ] Make max attempts configurable.
+- [ ] Add dead-letter handling:
+    - [ ] Define when an event is dead-lettered.
+    - [ ] Keep dead-lettered rows queryable.
+    - [ ] Add optional admin endpoint or repository query for dead-lettered events.
+    - [ ] Ensure dead-lettering does not delete payloads.
+    - [ ] Document manual recovery steps.
+- [ ] Add replay strategy:
+    - [ ] Add admin use case to requeue dead-lettered or failed events.
+    - [ ] Require `OPS_ADMIN` or `SERVICE` for replay.
+    - [ ] Preserve original event id and payload.
+    - [ ] Reset retry count only when explicitly requested.
+    - [ ] Audit replay requests.
+    - [ ] Prevent replay of already published events unless explicitly forced.
+- [ ] Add observability:
+    - [ ] Add metric for pending outbox count.
+    - [ ] Add metric for oldest pending event age.
+    - [ ] Add metric for publish success count.
+    - [ ] Add metric for publish failure count.
+    - [ ] Add metric for dead-letter count.
+    - [ ] Log publish failures with correlation id and event id.
+    - [ ] Do not log full event payload by default.
+- [ ] Add documentation:
+    - [ ] Add ADR for outbox and Kafka publishing strategy.
+    - [ ] Document topic names and event schemas.
+    - [ ] Document retry and dead-letter policy.
+    - [ ] Document replay procedure.
+    - [ ] Document local Kafka setup.
+
+### Test Scenarios
+
+- [ ] Outbox schema and persistence:
+    - [ ] Valid outbox row persists with `PENDING` status.
+    - [ ] Invalid status is rejected by schema.
+    - [ ] Negative retry count is rejected.
+    - [ ] Event payload is required.
+    - [ ] Aggregate id is required.
+    - [ ] Status and retry indexes support publisher query.
+- [ ] Outbox writer:
+    - [ ] Writer persists expected aggregate metadata.
+    - [ ] Writer serializes payload.
+    - [ ] Writer rejects unserializable payload.
+    - [ ] Writer uses caller correlation id.
+    - [ ] Writer participates in caller transaction.
+    - [ ] Rollback removes outbox rows.
+- [ ] Financial event creation:
+    - [ ] Ledger posting creates `LedgerTransactionPosted`.
+    - [ ] Reversal creates `LedgerTransactionReversed`.
+    - [ ] Adjustment creates `AdjustmentPosted`.
+    - [ ] Balance-changing flow creates expected `AccountBalanceChanged` events if implemented.
+    - [ ] Reconciliation mismatch creates `ReconciliationMismatchFound`.
+- [ ] Publisher success:
+    - [ ] Pending event is sent to Kafka.
+    - [ ] Published event is marked `PUBLISHED`.
+    - [ ] Published timestamp is set.
+    - [ ] Kafka headers include event id, event type, schema version, and correlation id.
+    - [ ] Already published event is not republished by normal scheduler.
+- [ ] Publisher concurrency:
+    - [ ] Two publisher workers do not publish the same event.
+    - [ ] Row lock prevents duplicate processing.
+    - [ ] Failed lock acquisition is retried later.
+    - [ ] Batch ordering is deterministic.
+- [ ] Retry and dead-letter:
+    - [ ] Publish failure increments retry count.
+    - [ ] Publish failure stores safe error message.
+    - [ ] Next retry timestamp uses backoff.
+    - [ ] Event is not retried before next retry timestamp.
+    - [ ] Event moves to `DEAD_LETTERED` after max attempts.
+    - [ ] Dead-lettered event is not published by normal scheduler.
+- [ ] Replay:
+    - [ ] Failed event can be requeued.
+    - [ ] Dead-lettered event can be requeued by authorized actor.
+    - [ ] Published event cannot be replayed without force.
+    - [ ] Unauthorized replay returns `403`.
+    - [ ] Replay request writes audit event.
+- [ ] Metrics and logging:
+    - [ ] Pending count metric is correct.
+    - [ ] Oldest pending age metric is correct.
+    - [ ] Success and failure counters increment.
+    - [ ] Logs include event id and correlation id.
+    - [ ] Logs do not include full payload by default.
 
 ### Acceptance Criteria
 
@@ -1387,6 +1511,9 @@ Goal: Publish financial events reliably without losing consistency between datab
 - [ ] Poison messages are handled according to the dead-letter strategy.
 - [ ] Tests prove event records are not lost during rollback.
 - [ ] Outbox behavior is documented.
+- [ ] Concurrent publishers do not duplicate messages.
+- [ ] Replay is controlled, audited, and documented.
+- [ ] Metrics expose publish health and lag.
 
 ## Phase 10: Reconciliation
 
@@ -1398,18 +1525,137 @@ Goal: Simulate settlement batch import, compare external settlement data with in
     - [ ] `settlement_batches`
     - [ ] `settlement_items`
     - [ ] `reconciliation_results`
-- [ ] Add settlement batch import DTOs.
-- [ ] Implement settlement batch creation endpoint.
-- [ ] Match settlement items to ledger transactions.
+    - [ ] Add batch id, source, file/reference name, imported by actor, status, imported timestamp, completed timestamp, counts, and version.
+    - [ ] Add item id, batch id, external transaction reference, amount, currency, status, settlement date, raw line hash, and metadata.
+    - [ ] Add result id, batch id, item id, ledger transaction id, mismatch type, severity, status, detail, and timestamps.
+    - [ ] Add uniqueness for batch source plus external transaction reference.
+    - [ ] Add indexes for batch id, external reference, mismatch type, and status.
+- [ ] Define reconciliation domain model:
+    - [ ] Add `SettlementBatchStatus`.
+    - [ ] Add `SettlementItemStatus`.
+    - [ ] Add `ReconciliationResultStatus`.
+    - [ ] Add `ReconciliationMismatchType`.
+    - [ ] Add severity enum for informational, warning, and critical mismatches.
+- [ ] Add settlement batch import DTOs:
+    - [ ] Add `CreateSettlementBatchRequest`.
+    - [ ] Add `SettlementItemRequest`.
+    - [ ] Require source.
+    - [ ] Require external transaction reference.
+    - [ ] Require amount and currency.
+    - [ ] Require settlement status.
+    - [ ] Require settlement date.
+    - [ ] Validate max batch size.
+    - [ ] Add response DTOs for batch, item, and result summaries.
+- [ ] Add settlement batch validation policy:
+    - [ ] Reject missing source.
+    - [ ] Reject empty item list.
+    - [ ] Reject batch larger than configured maximum.
+    - [ ] Reject duplicate external references in the same batch.
+    - [ ] Reject invalid currency codes.
+    - [ ] Reject non-positive amounts where settlement status requires an amount.
+    - [ ] Reject unsupported settlement statuses.
+    - [ ] Return structured validation errors.
+- [ ] Implement settlement batch creation use case:
+    - [ ] Save batch with `PENDING` or `IMPORTED` status.
+    - [ ] Save all settlement items.
+    - [ ] Store item raw line hash or canonical hash.
+    - [ ] Store imported actor and correlation id.
+    - [ ] Run reconciliation synchronously for portfolio simplicity or document async decision.
+    - [ ] Mark batch `COMPLETED` after reconciliation.
+    - [ ] Mark batch `FAILED` if reconciliation fails after import.
+    - [ ] Ensure failed transaction rolls back partial batch if synchronous.
+- [ ] Match settlement items to internal ledger transactions:
+    - [ ] Match by external reference.
+    - [ ] Optionally match by idempotency resource id if available.
+    - [ ] Ignore reversed transactions only if documented.
+    - [ ] Include reversal and adjustment transaction types in matching rules.
+    - [ ] Define how duplicate internal matches are handled.
+    - [ ] Define how duplicate external matches are handled.
 - [ ] Detect mismatches:
     - [ ] Missing internal transaction.
     - [ ] Missing external settlement item.
     - [ ] Amount mismatch.
     - [ ] Currency mismatch.
     - [ ] Status mismatch.
-- [ ] Add reconciliation result query endpoint.
-- [ ] Add audit events for reconciliation operations.
-- [ ] Publish mismatch events through outbox.
+    - [ ] Duplicate external item.
+    - [ ] Duplicate internal transaction reference.
+    - [ ] Reversed transaction settled as successful.
+    - [ ] Settlement item outside expected date window.
+- [ ] Add reconciliation result query use cases:
+    - [ ] Query batch by id.
+    - [ ] Query batch list with filters.
+    - [ ] Query result list by batch id.
+    - [ ] Filter results by mismatch type.
+    - [ ] Filter results by severity.
+    - [ ] Filter results by status.
+    - [ ] Add pagination and deterministic sorting.
+- [ ] Add reconciliation REST endpoints:
+    - [ ] `POST /api/v1/ops/reconciliation/batches`.
+    - [ ] `GET /api/v1/ops/reconciliation/batches`.
+    - [ ] `GET /api/v1/ops/reconciliation/batches/{batchId}`.
+    - [ ] `GET /api/v1/ops/reconciliation/batches/{batchId}/results`.
+    - [ ] Require `OPS_ADMIN` or `SERVICE` for import.
+    - [ ] Require `AUDITOR` or `OPS_ADMIN` for queries.
+- [ ] Add audit events:
+    - [ ] Write `RECONCILIATION_BATCH_IMPORTED`.
+    - [ ] Write `RECONCILIATION_COMPLETED`.
+    - [ ] Write `RECONCILIATION_FAILED` if import or comparison fails.
+    - [ ] Include batch id, counts, mismatch count, source, actor, and correlation id.
+- [ ] Add outbox events:
+    - [ ] Publish `ReconciliationMismatchFound` for critical mismatches.
+    - [ ] Publish `ReconciliationCompleted` for completed batch.
+    - [ ] Ensure outbox rows commit atomically with reconciliation rows.
+- [ ] Add documentation:
+    - [ ] Add ADR for reconciliation design and matching rules.
+    - [ ] Document supported mismatch types.
+    - [ ] Document sample settlement batch payload.
+    - [ ] Document operational review flow for mismatches.
+
+### Test Scenarios
+
+- [ ] Batch schema and persistence:
+    - [ ] Batch persists with source, actor, counts, status, and timestamps.
+    - [ ] Settlement items persist under batch.
+    - [ ] Reconciliation results persist under batch.
+    - [ ] Duplicate external reference in same source is rejected or handled according to policy.
+    - [ ] Batch version increments on status change.
+- [ ] Import validation:
+    - [ ] Missing source returns structured validation error.
+    - [ ] Empty item list returns structured validation error.
+    - [ ] Batch above max size returns structured validation error.
+    - [ ] Invalid currency returns structured validation error.
+    - [ ] Duplicate external reference in request returns structured validation error.
+    - [ ] Unsupported settlement status returns structured validation error.
+- [ ] Matching behavior:
+    - [ ] Exact external reference, amount, currency, and status produces matched result.
+    - [ ] Missing internal ledger transaction produces missing-internal mismatch.
+    - [ ] Internal ledger transaction without external item produces missing-external mismatch.
+    - [ ] Amount mismatch is detected.
+    - [ ] Currency mismatch is detected.
+    - [ ] Status mismatch is detected.
+    - [ ] Duplicate external item is detected.
+    - [ ] Duplicate internal reference is detected.
+    - [ ] Reversed transaction settled as successful is detected.
+- [ ] API behavior:
+    - [ ] `POST /api/v1/ops/reconciliation/batches` returns created batch.
+    - [ ] Batch response includes item count and mismatch count.
+    - [ ] `GET /api/v1/ops/reconciliation/batches/{batchId}` returns batch summary.
+    - [ ] Unknown batch id returns structured `404`.
+    - [ ] Result list supports mismatch type filter.
+    - [ ] Result list supports severity filter.
+    - [ ] Result list supports pagination and sorting.
+- [ ] Authorization:
+    - [ ] `OPS_ADMIN` can import batch.
+    - [ ] `SERVICE` can import batch.
+    - [ ] `AUDITOR` can query batches and results.
+    - [ ] `CUSTOMER` cannot import or query reconciliation.
+    - [ ] `TELLER` cannot import unless explicitly allowed.
+- [ ] Audit and outbox:
+    - [ ] Import writes `RECONCILIATION_BATCH_IMPORTED`.
+    - [ ] Completed batch writes `RECONCILIATION_COMPLETED`.
+    - [ ] Critical mismatch writes `ReconciliationMismatchFound` outbox event.
+    - [ ] Failed reconciliation rolls back or marks failed according to documented transaction policy.
+    - [ ] Audit payload includes source, counts, mismatch count, and correlation id.
 
 ### Acceptance Criteria
 
@@ -1419,6 +1665,9 @@ Goal: Simulate settlement batch import, compare external settlement data with in
 - [ ] Mismatch events are added to the outbox.
 - [ ] Reconciliation actions are audited.
 - [ ] Tests cover matched, missing, and mismatched settlement items.
+- [ ] Matching rules are documented and deterministic.
+- [ ] Reconciliation APIs are protected by role.
+- [ ] Batch and result queries support pagination and filtering.
 
 ## Phase 11: Reporting And Oracle-Oriented SQL
 
@@ -1426,14 +1675,101 @@ Goal: Demonstrate Oracle-friendly reporting and operational SQL skills.
 
 ### Steps
 
-- [ ] Add daily trial balance report.
-- [ ] Add account statement summary report.
-- [ ] Add reconciliation mismatch report.
-- [ ] Add suspense account aging report.
-- [ ] Add top failed transfer reasons report.
-- [ ] Use Oracle-compatible SQL.
-- [ ] Add at least one PL/SQL-style function or procedure script.
-- [ ] Document how to run reports locally.
+- [ ] Define reporting folder structure:
+    - [ ] Add `reports/sql/` for standalone SQL.
+    - [ ] Add `reports/plsql/` for PL/SQL-style scripts.
+    - [ ] Add `reports/README.md`.
+    - [ ] Document required schema and sample data assumptions.
+- [ ] Add report query conventions:
+    - [ ] Use Oracle-compatible SQL.
+    - [ ] Use bind variables for date ranges and account ids.
+    - [ ] Avoid vendor-neutral syntax that Oracle does not support.
+    - [ ] Include comments describing each report purpose.
+    - [ ] Include expected columns in each report file.
+- [ ] Add daily trial balance report:
+    - [ ] Group by currency and account category.
+    - [ ] Sum debit and credit postings.
+    - [ ] Calculate net movement.
+    - [ ] Include opening and closing balances if practical.
+    - [ ] Filter by report date.
+- [ ] Add account statement summary report:
+    - [ ] Filter by account id.
+    - [ ] Filter by date range.
+    - [ ] Include ledger transaction id, posting direction, amount, currency, description, and timestamp.
+    - [ ] Include running balance if practical with analytic functions.
+- [ ] Add reconciliation mismatch report:
+    - [ ] Filter by batch id.
+    - [ ] Filter by mismatch type.
+    - [ ] Include external reference, ledger transaction id, expected amount, actual amount, status, and detail.
+    - [ ] Sort by severity and created timestamp.
+- [ ] Add suspense account aging report:
+    - [ ] Identify suspense or internal accounts by category or configured account numbers.
+    - [ ] Group open suspense entries by age bucket.
+    - [ ] Include 0-1 day, 2-7 days, 8-30 days, and 31+ days buckets.
+    - [ ] Include amount totals by currency.
+- [ ] Add top failed transfer reasons report:
+    - [ ] Group failed transfers by failure reason code.
+    - [ ] Count failures.
+    - [ ] Sum failed amount by currency.
+    - [ ] Filter by date range.
+    - [ ] Sort by count descending.
+- [ ] Add Oracle-specific examples:
+    - [ ] Use analytic functions such as `sum(...) over (...)` where useful.
+    - [ ] Use `case` expressions for buckets.
+    - [ ] Use date truncation carefully with `timestamp with time zone`.
+    - [ ] Include at least one CTE-heavy report.
+- [ ] Add PL/SQL-style script:
+    - [ ] Add function or procedure for one reporting workflow.
+    - [ ] Include input parameters.
+    - [ ] Include output cursor or table insert.
+    - [ ] Include comments explaining how to run it locally.
+    - [ ] Keep script optional and safe for local development.
+- [ ] Add reporting integration support:
+    - [ ] Add repository or JDBC test harness for reports where practical.
+    - [ ] Seed deterministic data for report tests.
+    - [ ] Assert report totals for known transactions.
+    - [ ] Assert report rows for reversal and adjustment data.
+- [ ] Add report documentation:
+    - [ ] Document each report purpose.
+    - [ ] Document parameters.
+    - [ ] Document expected columns.
+    - [ ] Document sample command for running through SQL client.
+    - [ ] Document how reports support interview/demo storytelling.
+
+### Test Scenarios
+
+- [ ] Daily trial balance:
+    - [ ] Report returns one row per currency/account category.
+    - [ ] Debit totals match seeded postings.
+    - [ ] Credit totals match seeded postings.
+    - [ ] Reversal postings are included as opposite movement.
+    - [ ] Adjustment postings are included.
+    - [ ] Date filter excludes outside transactions.
+- [ ] Account statement summary:
+    - [ ] Report returns postings for the selected account only.
+    - [ ] Date range filter works.
+    - [ ] Running balance is correct if included.
+    - [ ] Transfer, reversal, and adjustment entries are distinguishable.
+    - [ ] Unknown account returns no rows.
+- [ ] Reconciliation mismatch report:
+    - [ ] Report returns mismatches for selected batch.
+    - [ ] Mismatch type filter works.
+    - [ ] Severity sorting works.
+    - [ ] Matched rows are excluded when report is mismatch-only.
+- [ ] Suspense aging:
+    - [ ] Entries fall into correct age bucket.
+    - [ ] Totals are grouped by currency.
+    - [ ] Empty suspense account returns zero or no rows according to report design.
+- [ ] Failed transfer reasons:
+    - [ ] Failures are grouped by reason code.
+    - [ ] Counts are correct.
+    - [ ] Amount totals are correct by currency.
+    - [ ] Date range excludes old failures.
+- [ ] SQL quality:
+    - [ ] SQL scripts run against Oracle test schema.
+    - [ ] Bind variables are used for dynamic values.
+    - [ ] Report files are documented.
+    - [ ] PL/SQL-style script compiles or is syntax-checked where practical.
 
 ### Acceptance Criteria
 
@@ -1442,6 +1778,8 @@ Goal: Demonstrate Oracle-friendly reporting and operational SQL skills.
 - [ ] At least one Oracle PL/SQL-style script is included.
 - [ ] Reporting queries are covered by integration tests where practical.
 - [ ] README or docs explain report purpose and execution.
+- [ ] Reports demonstrate transfer, reversal, adjustment, and reconciliation data.
+- [ ] Oracle-specific SQL features are used intentionally and documented.
 
 ## Phase 12: API Documentation And Developer Experience
 
@@ -1449,22 +1787,136 @@ Goal: Make the project easy to inspect, run, and review as a portfolio project.
 
 ### Steps
 
-- [ ] Add OpenAPI support.
-- [ ] Document all public endpoints.
-- [ ] Add request and response examples.
-- [ ] Add error response examples.
-- [ ] Add seed data for local development.
-- [ ] Add useful Makefile or task commands if desired.
-- [ ] Add architecture diagram.
-- [ ] Add ERD diagram.
-- [ ] Add ADRs:
+- [ ] Add OpenAPI support:
+    - [ ] Confirm Springdoc dependency and configuration.
+    - [ ] Group public, customer, ops, audit, and admin endpoints if useful.
+    - [ ] Add API title, description, version, and contact metadata.
+    - [ ] Add JWT bearer security scheme.
+    - [ ] Add idempotency header documentation.
+    - [ ] Add correlation id header documentation.
+- [ ] Document endpoint contracts:
+    - [ ] Account creation and lookup.
+    - [ ] Account transaction listing.
+    - [ ] Transfer creation and lookup.
+    - [ ] Transfer reversal.
+    - [ ] Adjustment posting.
+    - [ ] Reconciliation batch import and query.
+    - [ ] Audit event query and detail.
+    - [ ] Ledger transaction investigation.
+    - [ ] Outbox replay or admin endpoints if added.
+- [ ] Add request and response examples:
+    - [ ] Successful account creation.
+    - [ ] Successful transfer.
+    - [ ] Idempotency replay.
+    - [ ] Idempotency conflict.
+    - [ ] Successful reversal.
+    - [ ] Successful adjustment.
+    - [ ] Reconciliation mismatch batch.
+    - [ ] Audit query response.
+    - [ ] Security error response.
+    - [ ] Validation error response.
+- [ ] Add common error documentation:
+    - [ ] Document `ApiErrorResponse`.
+    - [ ] Document validation error shape.
+    - [ ] Document authentication error shape.
+    - [ ] Document authorization error shape.
+    - [ ] Document concurrency conflict response.
+    - [ ] Document idempotency conflict response.
+    - [ ] Document not-found response.
+- [ ] Add seed data for local development:
+    - [ ] Add deterministic customers.
+    - [ ] Add deterministic accounts with balances.
+    - [ ] Add sample completed transfer.
+    - [ ] Add sample reversed transfer.
+    - [ ] Add sample adjustment.
+    - [ ] Add sample reconciliation batch.
+    - [ ] Add sample users or token fixtures for each role.
+    - [ ] Ensure seed data is idempotent.
+- [ ] Add developer commands:
+    - [ ] Add Makefile or documented shell commands.
+    - [ ] Command to run unit tests.
+    - [ ] Command to run integration tests.
+    - [ ] Command to start local dependencies.
+    - [ ] Command to run the API.
+    - [ ] Command to apply migrations.
+    - [ ] Command to generate sample tokens.
+    - [ ] Command to run report SQL examples.
+- [ ] Add local environment documentation:
+    - [ ] Document required Java version.
+    - [ ] Document Oracle setup.
+    - [ ] Document Kafka setup.
+    - [ ] Document environment variables.
+    - [ ] Document profiles.
+    - [ ] Document troubleshooting steps for common startup failures.
+- [ ] Add diagrams:
+    - [ ] Add architecture diagram.
+    - [ ] Add request flow diagram for transfer creation.
+    - [ ] Add reversal flow diagram.
+    - [ ] Add outbox publishing diagram.
+    - [ ] Add ERD diagram.
+    - [ ] Keep diagrams in source-controlled editable format.
+- [ ] Complete ADR set:
     - [ ] Double-entry model.
     - [ ] Amount and currency representation.
     - [ ] Transaction isolation.
     - [ ] Locking strategy.
     - [ ] Immutable ledger and reversal model.
     - [ ] Idempotency design.
+    - [ ] Authentication and authorization design.
+    - [ ] Audit trail and investigation API design.
     - [ ] Outbox/event publishing strategy.
+    - [ ] Reconciliation matching strategy.
+- [ ] Add demo collection:
+    - [ ] Add HTTP files or Postman collection.
+    - [ ] Include happy-path flow.
+    - [ ] Include duplicate idempotency replay.
+    - [ ] Include reversal flow.
+    - [ ] Include adjustment flow.
+    - [ ] Include reconciliation flow.
+    - [ ] Include audit investigation flow.
+    - [ ] Include role-specific tokens or token generation steps.
+- [ ] Add quality-of-life docs:
+    - [ ] Add glossary for banking terms used in the project.
+    - [ ] Add feature matrix by phase.
+    - [ ] Add known limitations.
+    - [ ] Add future improvements.
+
+### Test Scenarios
+
+- [ ] OpenAPI:
+    - [ ] API docs endpoint is available locally.
+    - [ ] OpenAPI JSON includes bearer security scheme.
+    - [ ] Transfer endpoint documents `Idempotency-Key`.
+    - [ ] Endpoints document `X-Correlation-Id`.
+    - [ ] Error schema is included.
+    - [ ] Example payloads are valid JSON.
+- [ ] Seed data:
+    - [ ] Seed script can run on empty database.
+    - [ ] Seed script can run twice without duplicates.
+    - [ ] Seeded transfer can be queried.
+    - [ ] Seeded reversal can be queried.
+    - [ ] Seeded adjustment can be queried.
+    - [ ] Seeded users/tokens work in documented flows.
+- [ ] Developer commands:
+    - [ ] Test command succeeds.
+    - [ ] API run command starts application.
+    - [ ] Local dependency command starts required services where practical.
+    - [ ] Token command produces usable development tokens.
+    - [ ] Report command returns sample output where practical.
+- [ ] Demo collection:
+    - [ ] Collection creates account successfully.
+    - [ ] Collection posts transfer successfully.
+    - [ ] Collection proves idempotency replay.
+    - [ ] Collection reverses transfer.
+    - [ ] Collection posts adjustment.
+    - [ ] Collection imports reconciliation batch.
+    - [ ] Collection queries audit trail.
+- [ ] Documentation quality:
+    - [ ] README setup instructions are complete.
+    - [ ] Diagram files exist.
+    - [ ] ADR links work.
+    - [ ] Known limitations are documented.
+    - [ ] No secrets are present in docs or examples.
 
 ### Acceptance Criteria
 
@@ -1473,6 +1925,9 @@ Goal: Make the project easy to inspect, run, and review as a portfolio project.
 - [ ] Example requests demonstrate the core flows.
 - [ ] Architecture and ERD diagrams exist in `docs/`.
 - [ ] ADRs explain the most important technical decisions.
+- [ ] Seed data and demo collection support an end-to-end demo.
+- [ ] Developer commands reduce setup friction.
+- [ ] Documentation avoids secrets and environment-specific private values.
 
 ## Phase 13: CI/CD And Quality Gates
 
@@ -1480,14 +1935,90 @@ Goal: Add automated verification so the project looks production-oriented.
 
 ### Steps
 
-- [ ] Add GitHub Actions workflow.
-- [ ] Run Maven tests in CI.
-- [ ] Run integration tests with Testcontainers.
-- [ ] Build the API artifact.
-- [ ] Build the Docker image.
-- [ ] Add dependency vulnerability scanning if desired.
-- [ ] Add test coverage reporting.
-- [ ] Add linting or formatting checks if desired.
+- [ ] Add GitHub Actions workflow structure:
+    - [ ] Trigger on pull requests.
+    - [ ] Trigger on pushes to main branch.
+    - [ ] Add concurrency cancellation for repeated branch pushes.
+    - [ ] Cache Maven dependencies.
+    - [ ] Use the project Java version.
+    - [ ] Split fast checks and integration checks if useful.
+- [ ] Run Maven verification:
+    - [ ] Compile main code.
+    - [ ] Compile test code.
+    - [ ] Run unit tests.
+    - [ ] Run integration tests.
+    - [ ] Publish test reports as artifacts on failure.
+    - [ ] Ensure CI uses the same profile assumptions documented in README.
+- [ ] Add Testcontainers or CI database strategy:
+    - [ ] Add Oracle-compatible Testcontainers setup if feasible.
+    - [ ] If Oracle container is too heavy, document CI database alternative.
+    - [ ] Run Flyway migrations in CI.
+    - [ ] Verify migration validation.
+    - [ ] Ensure integration tests do not depend on developer-local database.
+- [ ] Build artifacts:
+    - [ ] Package Spring Boot jar.
+    - [ ] Upload jar artifact where useful.
+    - [ ] Build Docker image.
+    - [ ] Verify Docker image starts or passes a smoke test.
+    - [ ] Add image labels with version and commit SHA.
+- [ ] Add static quality checks:
+    - [ ] Add formatting check if project chooses a formatter.
+    - [ ] Add checkstyle or equivalent only if rules are low-friction.
+    - [ ] Add dependency analysis if useful.
+    - [ ] Add forbidden secrets scan.
+    - [ ] Add YAML and Markdown linting if practical.
+- [ ] Add dependency and container security scanning:
+    - [ ] Run Maven dependency vulnerability scan.
+    - [ ] Run container image vulnerability scan.
+    - [ ] Decide fail thresholds.
+    - [ ] Document how to handle false positives.
+    - [ ] Upload scan results as artifacts.
+- [ ] Add coverage reporting:
+    - [ ] Add JaCoCo report generation.
+    - [ ] Upload coverage artifact.
+    - [ ] Add coverage summary to CI logs.
+    - [ ] Set a pragmatic coverage threshold if useful.
+    - [ ] Exclude generated or configuration-only classes where justified.
+- [ ] Add migration safety checks:
+    - [ ] Run Flyway validate.
+    - [ ] Run migrations from a clean database.
+    - [ ] Ensure no migration checksum drift.
+    - [ ] Add test that all JPA entities match schema assumptions where practical.
+- [ ] Add branch protection guidance:
+    - [ ] Document required checks.
+    - [ ] Document how to rerun failed jobs.
+    - [ ] Document local commands matching CI.
+    - [ ] Add CI status badge if repository is public.
+
+### Test Scenarios
+
+- [ ] CI workflow behavior:
+    - [ ] Pull request triggers CI.
+    - [ ] Push to main triggers CI.
+    - [ ] Failed unit test fails CI.
+    - [ ] Failed integration test fails CI.
+    - [ ] Compilation failure fails CI.
+    - [ ] Migration failure fails CI.
+- [ ] Testcontainers or database setup:
+    - [ ] Clean database receives migrations.
+    - [ ] Integration tests can create and clean data.
+    - [ ] CI database does not depend on local developer state.
+    - [ ] Failed container startup produces clear logs.
+- [ ] Artifact build:
+    - [ ] Jar builds successfully.
+    - [ ] Docker image builds successfully.
+    - [ ] Docker image smoke test succeeds.
+    - [ ] Build artifact is uploaded on successful run if configured.
+- [ ] Quality gates:
+    - [ ] Formatting violation fails formatting job if enabled.
+    - [ ] Vulnerability above threshold fails scan job if enabled.
+    - [ ] Secret scan detects known test fixture secret pattern.
+    - [ ] Coverage report is generated.
+    - [ ] Coverage threshold failure fails CI if threshold is enabled.
+- [ ] Developer parity:
+    - [ ] README local command matches CI command.
+    - [ ] CI profile is documented.
+    - [ ] CI status badge points to correct workflow.
 
 ### Acceptance Criteria
 
@@ -1497,6 +2028,9 @@ Goal: Add automated verification so the project looks production-oriented.
 - [ ] CI verifies Docker image build.
 - [ ] Test coverage summary is available.
 - [ ] README shows CI status badge if repository is public.
+- [ ] Integration tests run without relying on a developer-local database.
+- [ ] Migration validation is part of CI.
+- [ ] Security and dependency scan strategy is documented.
 
 ## Phase 14: Portfolio Polish
 
@@ -1504,22 +2038,104 @@ Goal: Turn the completed implementation into a strong resume and interview artif
 
 ### Steps
 
-- [ ] Add final README overview with screenshots or diagrams.
+- [ ] Add final README overview:
+    - [ ] State project purpose in one paragraph.
+    - [ ] Highlight banking correctness concerns.
+    - [ ] List major features by phase.
+    - [ ] Include architecture diagram.
+    - [ ] Include ERD or schema overview.
+    - [ ] Include quickstart commands.
+    - [ ] Include demo script link.
+- [ ] Add visual demo assets:
+    - [ ] Add screenshots of API docs.
+    - [ ] Add screenshots of optional frontend if built.
+    - [ ] Add sequence diagram for transfer with idempotency.
+    - [ ] Add sequence diagram for reversal.
+    - [ ] Add sequence diagram for outbox publish.
+    - [ ] Add diagram showing transaction boundaries.
 - [ ] Add sample API flow:
     - [ ] Create customer/account.
-    - [ ] Fund account.
+    - [ ] Fund account or seed initial balance.
     - [ ] Transfer money.
     - [ ] Replay duplicate transfer.
+    - [ ] Show idempotency conflict.
     - [ ] Reverse transfer.
+    - [ ] Post adjustment.
     - [ ] Run reconciliation.
     - [ ] Query audit trail.
-- [ ] Add incident write-up:
+    - [ ] Query ledger investigation endpoint.
+    - [ ] Show outbox event status.
+- [ ] Add incident write-ups:
     - [ ] Duplicate request investigation.
     - [ ] Overdraft race condition.
     - [ ] Failed reversal investigation.
-- [ ] Add final test report and coverage summary.
-- [ ] Add resume bullet points.
-- [ ] Add project description for LinkedIn/GitHub.
+    - [ ] Reconciliation mismatch investigation.
+    - [ ] Outbox publish failure and replay.
+    - [ ] Include symptoms, root cause, detection, fix, and prevention.
+- [ ] Add final test and quality report:
+    - [ ] Summarize test count by category.
+    - [ ] Summarize integration test coverage.
+    - [ ] Include coverage report link or screenshot.
+    - [ ] Include CI status.
+    - [ ] Include known test gaps.
+- [ ] Add interview narrative:
+    - [ ] Add 2-minute project explanation.
+    - [ ] Add deep-dive talking points for transactions.
+    - [ ] Add deep-dive talking points for idempotency.
+    - [ ] Add deep-dive talking points for locking and concurrency.
+    - [ ] Add deep-dive talking points for immutable ledger reversal.
+    - [ ] Add deep-dive talking points for outbox and eventual publishing.
+- [ ] Add resume bullet points:
+    - [ ] Java and Spring Boot bullet.
+    - [ ] Oracle and transaction isolation bullet.
+    - [ ] Double-entry ledger bullet.
+    - [ ] Idempotency and concurrency bullet.
+    - [ ] Security and JWT bullet.
+    - [ ] Kafka outbox bullet.
+    - [ ] Testing and CI bullet.
+- [ ] Add GitHub project polish:
+    - [ ] Add repository description.
+    - [ ] Add topics/tags.
+    - [ ] Add license if desired.
+    - [ ] Add contribution note or disclaimer.
+    - [ ] Add roadmap completion summary.
+    - [ ] Add known limitations and next steps.
+- [ ] Add optional demo script:
+    - [ ] Add scripted curl or HTTP file flow.
+    - [ ] Add expected output notes.
+    - [ ] Add reset instructions.
+    - [ ] Keep demo under 10 minutes.
+    - [ ] Include fallback screenshots if local services are not running.
+
+### Test Scenarios
+
+- [ ] Demo flow:
+    - [ ] Demo script runs from clean seed data.
+    - [ ] Transfer step changes balances.
+    - [ ] Idempotency replay returns original response.
+    - [ ] Idempotency conflict returns structured error.
+    - [ ] Reversal restores balances.
+    - [ ] Adjustment changes balances through ledger engine.
+    - [ ] Reconciliation detects expected mismatch.
+    - [ ] Audit query finds demo operation by correlation id.
+    - [ ] Investigation endpoint explains ledger transaction.
+- [ ] Documentation links:
+    - [ ] README links to ADRs.
+    - [ ] README links to diagrams.
+    - [ ] README links to API docs instructions.
+    - [ ] README links to reports.
+    - [ ] All referenced files exist.
+- [ ] Interview artifacts:
+    - [ ] 2-minute explanation is concise.
+    - [ ] Resume bullets are specific and metric-oriented where possible.
+    - [ ] Incident write-ups include root cause and prevention.
+    - [ ] Known limitations are honest and clear.
+- [ ] Repository hygiene:
+    - [ ] No secrets in examples.
+    - [ ] No private machine paths in public docs unless clearly local examples.
+    - [ ] CI badge is correct if used.
+    - [ ] Screenshots are current.
+    - [ ] Demo commands match current API paths.
 
 ### Acceptance Criteria
 
@@ -1528,6 +2144,8 @@ Goal: Turn the completed implementation into a strong resume and interview artif
 - [ ] Demo flow proves the main business behavior.
 - [ ] Incident write-up shows troubleshooting and systems thinking.
 - [ ] Resume bullets highlight Java, Spring Boot, Oracle, transactions, concurrency, security, Kafka, Docker, and testing.
+- [ ] Repository is easy to run, inspect, and discuss in an interview.
+- [ ] Optional frontend demo, if built, is documented separately from backend roadmap.
 
 ## Suggested Build Order
 

@@ -7,11 +7,10 @@ import dev.kavrin.banking_ledger.account.domain.model.AccountStatus;
 import dev.kavrin.banking_ledger.account.domain.model.AccountType;
 import dev.kavrin.banking_ledger.account.persistence.AccountEntity;
 import dev.kavrin.banking_ledger.account.persistence.AccountRepository;
+import dev.kavrin.banking_ledger.audit.application.service.AuditEventWriter;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
-import dev.kavrin.banking_ledger.audit.persistence.AuditEventEntity;
-import dev.kavrin.banking_ledger.audit.persistence.AuditEventRepository;
 import dev.kavrin.banking_ledger.customer.persistence.CustomerRepository;
 import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
 import dev.kavrin.banking_ledger.shared.error.BadRequestException;
@@ -30,7 +29,7 @@ public class CreateAccountUseCase {
 
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
-    private final AuditEventRepository auditEventRepository;
+    private final AuditEventWriter auditEventWriter;
 
     @Transactional
     public AccountResponse handle(CreateAccountCommand command) {
@@ -69,13 +68,17 @@ public class CreateAccountUseCase {
 
         var savedAccount = accountRepository.save(account);
 
-        auditEventRepository.save(AuditEventEntity.builder()
-                .entityType(AuditEntityType.ACCOUNT.name())
-                .entityId(savedAccount.getId())
-                .eventType(AuditEventType.ACCOUNT_CREATED.name())
-                .actorType(actorType)
-                .correlationId(command.correlationId())
-                .build());
+        auditEventWriter.write(
+                AuditEventType.ACCOUNT_CREATED,
+                AuditEntityType.ACCOUNT,
+                savedAccount.getId(),
+                actorType,
+                null,
+                null,
+                command.correlationId(),
+                "API",
+                java.util.Map.of("accountId", savedAccount.getId().toString())
+        );
 
         return toResponse(savedAccount);
 

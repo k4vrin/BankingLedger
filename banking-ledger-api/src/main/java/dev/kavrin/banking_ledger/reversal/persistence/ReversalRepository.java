@@ -9,5 +9,6 @@ public interface ReversalRepository extends JpaRepository<ReversalEntity, UUID> 
 
     Optional<ReversalEntity> findByOriginalTransfer_Id(UUID originalTransferId);
     Optional<ReversalEntity> findByOriginalLedgerTransaction_Id(UUID originalLedgerTransactionId);
+    Optional<ReversalEntity> findByReversalLedgerTransaction_Id(UUID reversalLedgerTransactionId);
     boolean existsByOriginalTransfer_Id(UUID originalTransferId);
 }

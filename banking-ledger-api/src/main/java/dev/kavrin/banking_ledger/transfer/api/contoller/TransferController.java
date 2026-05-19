@@ -1,8 +1,7 @@
 package dev.kavrin.banking_ledger.transfer.api.contoller;
 
 import dev.kavrin.banking_ledger.idempotency.application.service.IdempotencyKeyValidator;
-import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
-import dev.kavrin.banking_ledger.shared.error.BadRequestException;
+import dev.kavrin.banking_ledger.security.domain.AuthenticatedPrincipal;
 import dev.kavrin.banking_ledger.shared.money.CurrencyCode;
 import dev.kavrin.banking_ledger.transfer.api.dto.CreateTransferRequest;
 import dev.kavrin.banking_ledger.transfer.api.dto.TransferResponse;
@@ -10,15 +9,15 @@ import dev.kavrin.banking_ledger.transfer.application.command.CreateTransferComm
 import dev.kavrin.banking_ledger.transfer.application.query.GetTransferByIdQuery;
 import dev.kavrin.banking_ledger.transfer.application.service.CreateTransferUseCase;
 import dev.kavrin.banking_ledger.transfer.application.service.TransferQueryUseCase;
-import dev.kavrin.banking_ledger.transfer.domain.model.RequestedByActorType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.Locale;
 import java.util.UUID;
 
 @RestController
@@ -31,10 +30,11 @@ public class TransferController {
     private final IdempotencyKeyValidator idempotencyKeyValidator;
 
     @PostMapping
+    @PreAuthorize("@accountOwnership.canCreateTransfer(authentication.principal, #request.sourceAccountId())")
     public ResponseEntity<String> createTransfer(
             @Valid @RequestBody CreateTransferRequest request,
             @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
-            @RequestHeader(value = "X-Actor-Type", required = false) String actorType,
+            @AuthenticationPrincipal AuthenticatedPrincipal principal,
             @RequestHeader(value = "X-Correlation-Id", required = false) String correlationId
     ) {
         var normalizedIdempotencyKey = idempotencyKeyValidator.validateAndNormalize(idempotencyKey);
@@ -46,7 +46,7 @@ public class TransferController {
                 request.externalReference(),
                 request.description(),
                 normalizedIdempotencyKey,
-                parseActorType(actorType),
+                principal.requestedByActorType(),
                 correlationId
         ));
 
@@ -61,23 +61,8 @@ public class TransferController {
     }
 
     @GetMapping("/{transferId}")
+    @PreAuthorize("@accountOwnership.canReadTransfer(authentication.principal, #transferId)")
     public TransferResponse getTransfer(@PathVariable UUID transferId) {
         return transferQueryUseCase.getById(new GetTransferByIdQuery(transferId));
-    }
-
-    private RequestedByActorType parseActorType(String actorType) {
-        if (actorType == null || actorType.isBlank()) {
-            return RequestedByActorType.SYSTEM;
-        }
-
-        try {
-            return RequestedByActorType.valueOf(actorType.trim().toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException exception) {
-            throw new BadRequestException(
-                    ApiErrorCode.Validation.INVALID_REQUEST,
-                    "Invalid actor type: " + actorType,
-                    "Invalid actor type."
-            );
-        }
     }
 }

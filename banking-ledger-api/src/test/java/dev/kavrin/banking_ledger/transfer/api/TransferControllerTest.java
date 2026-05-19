@@ -1,7 +1,10 @@
 package dev.kavrin.banking_ledger.transfer.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
 import dev.kavrin.banking_ledger.idempotency.application.service.IdempotencyKeyValidator;
+import dev.kavrin.banking_ledger.security.domain.AuthenticatedPrincipal;
+import dev.kavrin.banking_ledger.security.domain.SecurityRole;
 import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
 import dev.kavrin.banking_ledger.shared.error.GlobalExceptionHandler;
 import dev.kavrin.banking_ledger.shared.error.ResourceNotFoundException;
@@ -15,13 +18,19 @@ import dev.kavrin.banking_ledger.transfer.application.service.TransferQueryUseCa
 import dev.kavrin.banking_ledger.transfer.domain.model.TransferStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.MethodParameter;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.MediaType;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,13 +45,16 @@ class TransferControllerTest {
     private StubCreateTransferUseCase createTransferUseCase;
     private StubTransferQueryUseCase transferQueryUseCase;
     private MockMvc mockMvc;
+    private AuthenticatedPrincipal principal;
 
     @BeforeEach
     void setUp() {
         createTransferUseCase = new StubCreateTransferUseCase();
         transferQueryUseCase = new StubTransferQueryUseCase();
+        principal = customerPrincipal(UUID.randomUUID());
         mockMvc = MockMvcBuilders
                 .standaloneSetup(new TransferController(createTransferUseCase, transferQueryUseCase, new IdempotencyKeyValidator()))
+                .setCustomArgumentResolvers(new TestPrincipalArgumentResolver())
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
@@ -72,14 +84,13 @@ class TransferControllerTest {
         mockMvc.perform(post("/api/v1/transfers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Idempotency-Key", " transfer-key ")
-                        .header("X-Actor-Type", "SYSTEM")
                         .content(validRequestBody()))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", containsString("/api/v1/transfers/" + transferId)))
                 .andExpect(content().json("{\"id\":\"" + transferId + "\"}"));
 
         assertThat(createTransferUseCase.lastCommand.idempotencyKey()).isEqualTo("transfer-key");
-        assertThat(createTransferUseCase.lastCommand.actorType().name()).isEqualTo("SYSTEM");
+        assertThat(createTransferUseCase.lastCommand.actorType().name()).isEqualTo("CUSTOMER");
         assertThat(createTransferUseCase.lastCommand.amountMinor()).isEqualTo(100);
     }
 
@@ -200,6 +211,34 @@ class TransferControllerTest {
                 "currencyCode", "USD",
                 "amountMinor", 100
         ));
+    }
+
+    private AuthenticatedPrincipal customerPrincipal(UUID customerId) {
+        return new AuthenticatedPrincipal(
+                "customer-subject",
+                "customer-actor",
+                AuditActorType.CUSTOMER,
+                Set.of(SecurityRole.CUSTOMER),
+                customerId,
+                "token-id"
+        );
+    }
+
+    private class TestPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
+        @Override
+        public boolean supportsParameter(MethodParameter parameter) {
+            return AuthenticatedPrincipal.class.equals(parameter.getParameterType());
+        }
+
+        @Override
+        public Object resolveArgument(
+                MethodParameter parameter,
+                ModelAndViewContainer mavContainer,
+                NativeWebRequest webRequest,
+                WebDataBinderFactory binderFactory
+        ) {
+            return principal;
+        }
     }
 
     private static class StubCreateTransferUseCase extends CreateTransferUseCase {

@@ -8,17 +8,26 @@ import dev.kavrin.banking_ledger.adjustment.domain.model.AdjustmentReasonCode;
 import dev.kavrin.banking_ledger.adjustment.domain.model.AdjustmentStatus;
 import dev.kavrin.banking_ledger.adjustment.domain.policy.AdjustmentValidationPolicy;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditActorRole;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
+import dev.kavrin.banking_ledger.security.domain.AuthenticatedPrincipal;
+import dev.kavrin.banking_ledger.security.domain.SecurityRole;
 import dev.kavrin.banking_ledger.shared.error.GlobalExceptionHandler;
 import dev.kavrin.banking_ledger.transfer.domain.model.RequestedByActorType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,12 +40,15 @@ class AdjustmentControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private StubCreateAdjustmentUseCase createAdjustmentUseCase;
     private MockMvc mockMvc;
+    private AuthenticatedPrincipal principal;
 
     @BeforeEach
     void setUp() {
         createAdjustmentUseCase = new StubCreateAdjustmentUseCase();
+        principal = opsAdminPrincipal();
         mockMvc = MockMvcBuilders
                 .standaloneSetup(new AdjustmentController(createAdjustmentUseCase))
+                .setCustomArgumentResolvers(new TestPrincipalArgumentResolver())
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
@@ -52,9 +64,6 @@ class AdjustmentControllerTest {
         mockMvc.perform(post("/api/v1/ops/adjustments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Correlation-Id", " corr-adjustment ")
-                        .header("X-Actor-Type", "OPS_ADMIN")
-                        .header("X-Actor-Role", "OPS_ADMIN")
-                        .header("X-Actor-Id", " ops-user-1 ")
                         .content(objectMapper.writeValueAsString(validBody(debitAccountId, creditAccountId))))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", containsString("/api/v1/ops/adjustments/" + adjustmentId)))
@@ -78,8 +87,6 @@ class AdjustmentControllerTest {
         mockMvc.perform(post("/api/v1/ops/adjustments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Correlation-Id", "corr-adjustment")
-                        .header("X-Actor-Type", "OPS_ADMIN")
-                        .header("X-Actor-Role", "OPS_ADMIN")
                         .content(objectMapper.writeValueAsString(Map.of(
                                 "currencyCode", "USD",
                                 "amountMinor", 100,
@@ -100,8 +107,6 @@ class AdjustmentControllerTest {
         mockMvc.perform(post("/api/v1/ops/adjustments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Correlation-Id", "corr-adjustment")
-                        .header("X-Actor-Type", "OPS_ADMIN")
-                        .header("X-Actor-Role", "OPS_ADMIN")
                         .content(objectMapper.writeValueAsString(body)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("MALFORMED_REQUEST"))
@@ -114,8 +119,6 @@ class AdjustmentControllerTest {
     void missingCorrelationHeaderReturnsStructuredBadRequest() throws Exception {
         mockMvc.perform(post("/api/v1/ops/adjustments")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Actor-Type", "OPS_ADMIN")
-                        .header("X-Actor-Role", "OPS_ADMIN")
                         .content(objectMapper.writeValueAsString(validBody(UUID.randomUUID(), UUID.randomUUID()))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("INVALID_REQUEST"))
@@ -126,11 +129,11 @@ class AdjustmentControllerTest {
 
     @Test
     void forbiddenActorRoleReturnsStructuredError() throws Exception {
+        principal = tellerPrincipal();
+
         mockMvc.perform(post("/api/v1/ops/adjustments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Correlation-Id", "corr-adjustment")
-                        .header("X-Actor-Type", "TELLER")
-                        .header("X-Actor-Role", "TELLER")
                         .content(objectMapper.writeValueAsString(validBody(UUID.randomUUID(), UUID.randomUUID()))))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("FORBIDDEN_RESOURCE"))
@@ -178,6 +181,45 @@ class AdjustmentControllerTest {
                 OffsetDateTime.now(),
                 OffsetDateTime.now()
         );
+    }
+
+    private AuthenticatedPrincipal opsAdminPrincipal() {
+        return new AuthenticatedPrincipal(
+                "ops-subject",
+                "ops-user-1",
+                AuditActorType.EMPLOYEE,
+                Set.of(SecurityRole.OPS_ADMIN),
+                null,
+                "token-id"
+        );
+    }
+
+    private AuthenticatedPrincipal tellerPrincipal() {
+        return new AuthenticatedPrincipal(
+                "teller-subject",
+                "teller-user-1",
+                AuditActorType.EMPLOYEE,
+                Set.of(SecurityRole.TELLER),
+                null,
+                "token-id"
+        );
+    }
+
+    private class TestPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
+        @Override
+        public boolean supportsParameter(MethodParameter parameter) {
+            return AuthenticatedPrincipal.class.equals(parameter.getParameterType());
+        }
+
+        @Override
+        public Object resolveArgument(
+                MethodParameter parameter,
+                ModelAndViewContainer mavContainer,
+                NativeWebRequest webRequest,
+                WebDataBinderFactory binderFactory
+        ) {
+            return principal;
+        }
     }
 
     private static class StubCreateAdjustmentUseCase extends CreateAdjustmentUseCase {

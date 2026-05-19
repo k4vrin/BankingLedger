@@ -2,10 +2,9 @@ package dev.kavrin.banking_ledger.reversal.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.kavrin.banking_ledger.audit.application.service.AuditEventWriter;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
-import dev.kavrin.banking_ledger.audit.persistence.AuditEventEntity;
-import dev.kavrin.banking_ledger.audit.persistence.AuditEventRepository;
 import dev.kavrin.banking_ledger.ledger.application.command.PostLedgerTransactionCommand;
 import dev.kavrin.banking_ledger.ledger.application.command.PostingLineCommand;
 import dev.kavrin.banking_ledger.ledger.application.service.PostLedgerTransactionUseCase;
@@ -51,7 +50,7 @@ public class ReverseTransferUseCase {
     private final ReversalPersistenceMapper reversalPersistenceMapper;
     private final PostingRepository postingRepository;
     private final LedgerTransactionRepository ledgerTransactionRepository;
-    private final AuditEventRepository auditEventRepository;
+    private final AuditEventWriter auditEventWriter;
     private final OutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper;
 
@@ -131,7 +130,7 @@ public class ReverseTransferUseCase {
 
         ReversalEntity completedReversal = reversalRepository.save(reversal);
         transferRequestRepository.save(transfer);
-        auditEventRepository.save(auditEvent(command, completedReversal));
+        writeAuditEvent(command, completedReversal);
         outboxEventRepository.save(outboxEvent(command, completedReversal));
 
         return reversalPersistenceMapper.toResponse(completedReversal);
@@ -172,23 +171,24 @@ public class ReverseTransferUseCase {
         return "Reversal for transfer " + transfer.getId() + ": " + reasonDetail.trim();
     }
 
-    private AuditEventEntity auditEvent(ReverseTransferCommand command, ReversalEntity reversal) {
-        return AuditEventEntity.builder()
-                .eventType(AuditEventType.TRANSFER_REVERSED.name())
-                .entityType(AuditEntityType.TRANSFER.name())
-                .entityId(reversal.getOriginalTransfer().getId())
-                .actorType(command.actorType().toAuditActorType())
-                .actorRole(command.actorRole())
-                .actorId(command.actorId())
-                .correlationId(command.correlationId())
-                .eventPayload(toJson(Map.of(
+    private void writeAuditEvent(ReverseTransferCommand command, ReversalEntity reversal) {
+        auditEventWriter.write(
+                AuditEventType.TRANSFER_REVERSED,
+                AuditEntityType.TRANSFER,
+                reversal.getOriginalTransfer().getId(),
+                command.actorType().toAuditActorType(),
+                command.actorRole(),
+                command.actorId(),
+                command.correlationId(),
+                "API",
+                Map.of(
                         "reversalId", reversal.getId().toString(),
                         "originalTransferId", reversal.getOriginalTransfer().getId().toString(),
                         "originalLedgerTransactionId", reversal.getOriginalLedgerTransaction().getId().toString(),
                         "reversalLedgerTransactionId", reversal.getReversalLedgerTransaction().getId().toString(),
                         "reasonCode", command.reasonCode().name()
-                )))
-                .build();
+                )
+        );
     }
 
     private OutboxEventEntity outboxEvent(ReverseTransferCommand command, ReversalEntity reversal) {

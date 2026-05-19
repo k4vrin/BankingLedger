@@ -3,9 +3,6 @@ spring:
     activate:
       on-profile: dev
   security:
-    user:
-      name: ${APP_USER_NAME:dev_user}
-      password: ${APP_USER_PASSWORD:dev_password}
   datasource:
     url: ${DB_URL:jdbc:oracle:thin:@localhost:1521/FREEPDB1}
     username: ${DB_USERNAME:ledger_dev}

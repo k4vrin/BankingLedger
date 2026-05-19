@@ -9,10 +9,9 @@ import dev.kavrin.banking_ledger.adjustment.domain.policy.AdjustmentValidationPo
 import dev.kavrin.banking_ledger.adjustment.persistence.AdjustmentRequestEntity;
 import dev.kavrin.banking_ledger.adjustment.persistence.AdjustmentRequestRepository;
 import dev.kavrin.banking_ledger.adjustment.persistence.mapper.AdjustmentResponseMapper;
+import dev.kavrin.banking_ledger.audit.application.service.AuditEventWriter;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
-import dev.kavrin.banking_ledger.audit.persistence.AuditEventEntity;
-import dev.kavrin.banking_ledger.audit.persistence.AuditEventRepository;
 import dev.kavrin.banking_ledger.ledger.application.command.PostLedgerTransactionCommand;
 import dev.kavrin.banking_ledger.ledger.application.service.PostLedgerTransactionUseCase;
 import dev.kavrin.banking_ledger.ledger.domain.model.LedgerTransactionType;
@@ -38,7 +37,7 @@ public class CreateAdjustmentUseCase {
     private final PostLedgerTransactionUseCase postLedgerTransactionUseCase;
     private final LedgerTransactionRepository ledgerTransactionRepository;
     private final AdjustmentResponseMapper adjustmentResponseMapper;
-    private final AuditEventRepository auditEventRepository;
+    private final AuditEventWriter auditEventWriter;
     private final OutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper;
 
@@ -83,7 +82,7 @@ public class CreateAdjustmentUseCase {
         AdjustmentRequestEntity completedAdjustment =
                 adjustmentRequestRepository.save(adjustment);
 
-        auditEventRepository.save(auditEvent(command, completedAdjustment));
+        writeAuditEvent(command, completedAdjustment);
         outboxEventRepository.save(outboxEvent(command, completedAdjustment));
 
         return adjustmentResponseMapper.toResponse(completedAdjustment);
@@ -101,21 +100,22 @@ public class CreateAdjustmentUseCase {
         return "Adjustment: " + command.reasonCode() + " - " + command.reasonDetail();
     }
 
-    private AuditEventEntity auditEvent(CreateAdjustmentCommand command, AdjustmentRequestEntity adjustment) {
-        return AuditEventEntity.builder()
-                .eventType(AuditEventType.ADJUSTMENT_POSTED.name())
-                .entityType(AuditEntityType.ADJUSTMENT.name())
-                .entityId(adjustment.getId())
-                .actorType(command.actorType().toAuditActorType())
-                .actorRole(command.actorRole())
-                .actorId(command.actorId())
-                .correlationId(command.correlationId())
-                .eventPayload(toJson(Map.of(
+    private void writeAuditEvent(CreateAdjustmentCommand command, AdjustmentRequestEntity adjustment) {
+        auditEventWriter.write(
+                AuditEventType.ADJUSTMENT_POSTED,
+                AuditEntityType.ADJUSTMENT,
+                adjustment.getId(),
+                command.actorType().toAuditActorType(),
+                command.actorRole(),
+                command.actorId(),
+                command.correlationId(),
+                "API",
+                Map.of(
                         "adjustmentId", adjustment.getId().toString(),
                         "ledgerTransactionId", adjustment.getLedgerTransaction().getId().toString(),
                         "reasonCode", command.reasonCode().name()
-                )))
-                .build();
+                )
+        );
     }
 
     private OutboxEventEntity outboxEvent(CreateAdjustmentCommand command, AdjustmentRequestEntity adjustment) {

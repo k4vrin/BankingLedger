@@ -30,6 +30,17 @@ management:
       probes:
         enabled: true
 
+banking-ledger:
+  security:
+    jwt:
+      issuer: ${JWT_ISSUER:banking-ledger-local}
+      audience: ${JWT_AUDIENCE:banking-ledger-api}
+      secret: ${JWT_SECRET:local-development-secret-key-for-banking-ledger-phase-seven}
+      clock-skew: ${JWT_CLOCK_SKEW:30s}
+      dev-token-ttl: ${JWT_DEV_TOKEN_TTL:1h}
+      allowed-cors-origins:
+        - ${APP_CORS_ORIGIN:http://localhost:3000}
+
 logging:
   pattern:
     correlation: "[%X{correlationId:-}] "

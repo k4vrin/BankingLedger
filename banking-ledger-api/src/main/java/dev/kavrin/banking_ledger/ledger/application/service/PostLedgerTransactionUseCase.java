@@ -4,10 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.kavrin.banking_ledger.account.persistence.AccountEntity;
 import dev.kavrin.banking_ledger.account.persistence.AccountRepository;
+import dev.kavrin.banking_ledger.audit.application.service.AuditEventWriter;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
-import dev.kavrin.banking_ledger.audit.persistence.AuditEventEntity;
-import dev.kavrin.banking_ledger.audit.persistence.AuditEventRepository;
 import dev.kavrin.banking_ledger.ledger.application.command.PostLedgerTransactionCommand;
 import dev.kavrin.banking_ledger.ledger.domain.factory.JournalEntryFactory;
 import dev.kavrin.banking_ledger.ledger.domain.factory.PostedLedgerGraph;
@@ -42,7 +41,7 @@ public class PostLedgerTransactionUseCase {
     private final JournalEntryRepository journalEntryRepository;
     private final PostingRepository postingRepository;
     private final AccountRepository accountRepository;
-    private final AuditEventRepository auditEventRepository;
+    private final AuditEventWriter auditEventWriter;
     private final OutboxEventRepository outboxEventRepository;
     private final LedgerPersistenceMapper mapper;
     private final AccountBalanceUpdater balanceUpdater;
@@ -93,7 +92,7 @@ public class PostLedgerTransactionUseCase {
         }
 
         postingRepository.flush();
-        auditEventRepository.save(auditEvent(command, savedTransaction.getId()));
+        writeAuditEvent(command, savedTransaction.getId());
         outboxEventRepository.save(outboxEvent(command, savedTransaction.getId(), postedAt));
 
         return new PostedLedgerTransactionResult(
@@ -181,18 +180,21 @@ public class PostLedgerTransactionUseCase {
         Map<UUID, AccountEntity> resolve(PostedLedgerGraph graph);
     }
 
-    private AuditEventEntity auditEvent(PostLedgerTransactionCommand command, UUID transactionId) {
-        return AuditEventEntity.builder()
-                .eventType(AuditEventType.LEDGER_TRANSACTION_POSTED.name())
-                .entityType(AuditEntityType.LEDGER_TRANSACTION.name())
-                .entityId(transactionId)
-                .actorType(command.actorType())
-                .correlationId(command.correlationId())
-                .eventPayload(toJson(Map.of(
+    private void writeAuditEvent(PostLedgerTransactionCommand command, UUID transactionId) {
+        auditEventWriter.write(
+                AuditEventType.LEDGER_TRANSACTION_POSTED,
+                AuditEntityType.LEDGER_TRANSACTION,
+                transactionId,
+                command.actorType(),
+                null,
+                null,
+                command.correlationId(),
+                "API",
+                Map.of(
                         "transactionId", transactionId.toString(),
                         "externalReference", command.externalReference() == null ? "" : command.externalReference()
-                )))
-                .build();
+                )
+        );
     }
 
     private OutboxEventEntity outboxEvent(

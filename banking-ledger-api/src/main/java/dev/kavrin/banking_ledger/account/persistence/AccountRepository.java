@@ -13,6 +13,10 @@ import java.util.UUID;
 public interface AccountRepository extends JpaRepository<AccountEntity, UUID> {
     public boolean existsByAccountNumber(String accountNumber);
 
+    boolean existsByIdAndCustomer_Id(UUID id, UUID customerId);
+
+    boolean existsByAccountNumberAndCustomer_Id(String accountNumber, UUID customerId);
+
     public Optional<AccountEntity> findByAccountNumber(String accountNumber);
 
     // When loading this row, acquire a database write lock.
