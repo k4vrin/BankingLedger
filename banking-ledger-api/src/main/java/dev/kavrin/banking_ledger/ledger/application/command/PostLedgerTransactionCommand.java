@@ -23,7 +23,7 @@ public record PostLedgerTransactionCommand(
 
         String correlationId,
 
-        List<@Valid PostingLineCommand> postingLines
+        List<PostingLineCommand> postingLines
 
 ) {
     public PostLedgerTransactionCommand {

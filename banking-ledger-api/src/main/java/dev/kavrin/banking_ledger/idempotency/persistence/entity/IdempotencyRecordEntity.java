@@ -1,4 +1,4 @@
-package dev.kavrin.banking_ledger.idempotency.persistence;
+package dev.kavrin.banking_ledger.idempotency.persistence.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

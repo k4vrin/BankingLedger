@@ -382,14 +382,14 @@ Goal: Implement safe account-to-account transfers using the ledger posting engin
     - [x] Add `findByExternalReference`.
     - [x] Add `existsByExternalReference`.
     - [x] Add `findByLedgerTransactionId`.
-- [ ] Add idempotency support for transfer creation:
-    - [ ] Read the `Idempotency-Key` request header.
-    - [ ] Reject missing idempotency keys for `POST /api/v1/transfers`.
-    - [ ] Validate idempotency key length and blank values.
-    - [ ] Compute a stable request hash from the normalized transfer command.
-    - [ ] Store idempotency records with operation scope `TRANSFER_CREATE`.
-    - [ ] Replay the original response for the same key and same request hash.
-    - [ ] Reject the same key with a different request hash.
+- [x] Add idempotency support for transfer creation:
+    - [x] Read the `Idempotency-Key` request header.
+    - [x] Reject missing idempotency keys for `POST /api/v1/transfers`.
+    - [x] Validate idempotency key length and blank values.
+    - [x] Compute a stable request hash from the normalized transfer command.
+    - [x] Store idempotency records with operation scope `TRANSFER_CREATE`.
+    - [x] Replay the original response for the same key and same request hash.
+    - [x] Reject the same key with a different request hash.
 - [ ] Implement transfer validation policy:
     - [ ] Reject missing source account ids.
     - [ ] Reject missing destination account ids.
