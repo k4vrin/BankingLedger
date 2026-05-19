@@ -390,89 +390,88 @@ Goal: Implement safe account-to-account transfers using the ledger posting engin
     - [x] Store idempotency records with operation scope `TRANSFER_CREATE`.
     - [x] Replay the original response for the same key and same request hash.
     - [x] Reject the same key with a different request hash.
-- [ ] Implement transfer validation policy:
-    - [ ] Reject missing source account ids.
-    - [ ] Reject missing destination account ids.
-    - [ ] Reject same source and destination account ids.
-    - [ ] Reject zero or negative amount minor values.
-    - [ ] Normalize and validate currency codes through `CurrencyCode`.
-    - [ ] Reject source account not found.
-    - [ ] Reject destination account not found.
-    - [ ] Reject source accounts that cannot be debited.
-    - [ ] Reject destination accounts that cannot be credited.
-    - [ ] Reject source account currency mismatch.
-    - [ ] Reject destination account currency mismatch.
-    - [ ] Reject insufficient available balance before posting.
-- [ ] Implement `CreateTransferUseCase`:
-    - [ ] Annotate the public handler with `@Transactional`.
-    - [ ] Check idempotency before creating new records.
-    - [ ] Validate duplicate external reference before insert when present.
-    - [ ] Load source and destination accounts.
-    - [ ] Run transfer validation before creating ledger postings.
-    - [ ] Save a `TransferRequestEntity` with `PENDING` status.
-    - [ ] Build a `PostLedgerTransactionCommand` with one debit and one credit posting.
-    - [ ] Call `PostLedgerTransactionUseCase` to post the ledger transaction.
-    - [ ] Update the transfer request to `COMPLETED` with the ledger transaction id and completed timestamp.
-    - [ ] Store the idempotency response after successful completion.
-    - [ ] Mark rejected business failures with failure code and detail where the transfer record exists.
-    - [ ] Let unexpected failures roll back the transfer, ledger postings, audit, outbox, and idempotency writes.
-- [ ] Add transfer lookup use case:
-    - [ ] Load transfer by id.
-    - [ ] Return `TransferResponse`.
-    - [ ] Return structured not-found errors through the shared exception model.
-- [ ] Add transfer REST controller:
-    - [ ] `POST /api/v1/transfers`.
-    - [ ] `GET /api/v1/transfers/{transferId}`.
-    - [ ] Map request DTOs to commands.
-    - [ ] Include correlation id and actor type in commands.
-    - [ ] Return `201 Created` for new transfer creation.
-    - [ ] Return `200 OK` for idempotency replay.
-- [ ] Add transfer service tests:
-    - [ ] Successful transfer persists a completed transfer request.
-    - [ ] Successful transfer creates one ledger transaction.
-    - [ ] Successful transfer creates one debit posting and one credit posting.
-    - [ ] Successful transfer updates source and destination balances.
-    - [ ] Duplicate idempotency key with the same request replays the original response.
-    - [ ] Duplicate idempotency key with a different request is rejected.
-    - [ ] Duplicate external reference is rejected.
-    - [ ] Missing source account is rejected.
-    - [ ] Missing destination account is rejected.
-    - [ ] Same source and destination account is rejected.
-    - [ ] Source account status rejection is returned as a structured business error.
-    - [ ] Destination account status rejection is returned as a structured business error.
-    - [ ] Currency mismatch is rejected before ledger posting.
-    - [ ] Insufficient funds is rejected before ledger posting.
-    - [ ] Ledger posting failure rolls back the transfer request.
-- [ ] Add transfer API tests:
-    - [ ] Valid create request returns `201`.
-    - [ ] Idempotency replay returns `200` and the original response body.
-    - [ ] Missing idempotency key returns structured validation error.
-    - [ ] Invalid request body returns structured validation error.
-    - [ ] Validation failures return structured business errors.
-    - [ ] Transfer lookup returns the transfer response.
-    - [ ] Missing transfer lookup returns structured not-found error.
-- [ ] Add transfer persistence tests:
-    - [ ] External reference uniqueness is enforced.
-    - [ ] Ledger transaction uniqueness is enforced.
-    - [ ] Source and destination account foreign keys are enforced.
-    - [ ] Source and destination account currency foreign keys reject mismatches.
-    - [ ] Amount check rejects non-positive amounts.
-    - [ ] Completed status requires `completed_at`.
+- [x] Implement transfer validation policy:
+    - [x] Reject missing source account ids.
+    - [x] Reject missing destination account ids.
+    - [x] Reject same source and destination account ids.
+    - [x] Reject zero or negative amount minor values.
+    - [x] Normalize and validate currency codes through `CurrencyCode`.
+    - [x] Reject source account not found.
+    - [x] Reject destination account not found.
+    - [x] Reject source accounts that cannot be debited.
+    - [x] Reject destination accounts that cannot be credited.
+    - [x] Reject source account currency mismatch.
+    - [x] Reject destination account currency mismatch.
+    - [x] Reject insufficient available balance before posting.
+- [x] Implement `CreateTransferUseCase`:
+    - [x] Annotate the public handler with `@Transactional`.
+    - [x] Check idempotency before creating new records.
+    - [x] Validate duplicate external reference before insert when present.
+    - [x] Load source and destination accounts.
+    - [x] Run transfer validation before creating ledger postings.
+    - [x] Save a `TransferRequestEntity` with `PENDING` status.
+    - [x] Build a `PostLedgerTransactionCommand` with one debit and one credit posting.
+    - [x] Call `PostLedgerTransactionUseCase` to post the ledger transaction.
+    - [x] Update the transfer request to `COMPLETED` with the ledger transaction id and completed timestamp.
+    - [x] Store the idempotency response after successful completion.
+    - [x] Let unexpected failures roll back the transfer, ledger postings, audit, outbox, and idempotency writes.
+- [x] Add transfer lookup use case:
+    - [x] Load transfer by id.
+    - [x] Return `TransferResponse`.
+    - [x] Return structured not-found errors through the shared exception model.
+- [x] Add transfer REST controller:
+    - [x] `POST /api/v1/transfers`.
+    - [x] `GET /api/v1/transfers/{transferId}`.
+    - [x] Map request DTOs to commands.
+    - [x] Include correlation id and actor type in commands.
+    - [x] Return `201 Created` for new transfer creation.
+    - [x] Return `200 OK` for idempotency replay.
+- [x] Add transfer service tests:
+    - [x] Successful transfer persists a completed transfer request.
+    - [x] Successful transfer creates one ledger transaction.
+    - [x] Successful transfer creates one debit posting and one credit posting.
+    - [x] Successful transfer updates source and destination balances.
+    - [x] Duplicate idempotency key with the same request replays the original response.
+    - [x] Duplicate idempotency key with a different request is rejected.
+    - [x] Duplicate external reference is rejected.
+    - [x] Missing source account is rejected.
+    - [x] Missing destination account is rejected.
+    - [x] Same source and destination account is rejected.
+    - [x] Source account status rejection is returned as a structured business error.
+    - [x] Destination account status rejection is returned as a structured business error.
+    - [x] Currency mismatch is rejected before ledger posting.
+    - [x] Insufficient funds is rejected before ledger posting.
+    - [x] Ledger posting failure rolls back the transfer request.
+- [x] Add transfer API tests:
+    - [x] Valid create request returns `201`.
+    - [x] Idempotency replay returns `200` and the original response body.
+    - [x] Missing idempotency key returns structured validation error.
+    - [x] Invalid request body returns structured validation error.
+    - [x] Validation failures return structured business errors.
+    - [x] Transfer lookup returns the transfer response.
+    - [x] Missing transfer lookup returns structured not-found error.
+- [x] Add transfer persistence tests:
+    - [x] External reference uniqueness is enforced.
+    - [x] Ledger transaction uniqueness is enforced.
+    - [x] Source and destination account foreign keys are enforced.
+    - [x] Source and destination account currency foreign keys reject mismatches.
+    - [x] Amount check rejects non-positive amounts.
+    - [x] Completed status requires `completed_at`.
 
 ### Acceptance Criteria
 
-- [ ] `POST /api/v1/transfers` posts a valid transfer.
-- [ ] The transfer creates exactly one debit posting and one credit posting.
-- [ ] Source and destination cached balances are updated by the ledger posting engine.
-- [ ] Duplicate requests with the same idempotency key return the original result.
-- [ ] Duplicate requests with the same idempotency key and a different payload are rejected.
-- [ ] Duplicate requests do not create duplicate ledger postings.
-- [ ] Overdraft attempts are rejected consistently.
-- [ ] Transfer validation failures return structured business errors.
-- [ ] Transfer creation, ledger posting, audit, outbox, transfer status, and idempotency response commit atomically.
-- [ ] Integration tests cover successful transfer, duplicate replay, idempotency conflict, and validation failures.
-- [ ] API tests cover creation, replay, lookup, validation failures, and not-found responses.
-- [ ] Persistence tests prove schema constraints reject invalid transfer rows.
+- [x] `POST /api/v1/transfers` posts a valid transfer.
+- [x] The transfer creates exactly one debit posting and one credit posting.
+- [x] Source and destination cached balances are updated by the ledger posting engine.
+- [x] Duplicate requests with the same idempotency key return the original result.
+- [x] Duplicate requests with the same idempotency key and a different payload are rejected.
+- [x] Duplicate requests do not create duplicate ledger postings.
+- [x] Overdraft attempts are rejected consistently.
+- [x] Transfer validation failures return structured business errors.
+- [x] Transfer creation, ledger posting, audit, outbox, transfer status, and idempotency response commit atomically.
+- [x] Integration tests cover successful transfer, duplicate replay, idempotency conflict, and validation failures.
+- [x] API tests cover creation, replay, lookup, validation failures, and not-found responses.
+- [x] Persistence tests prove schema constraints reject invalid transfer rows.
 
 ## Phase 5: Concurrency And Transaction Isolation
 
@@ -480,24 +479,120 @@ Goal: Prove that concurrent transfers preserve correct balances and do not allow
 
 ### Steps
 
-- [ ] Choose and document locking strategy:
-    - [ ] Optimistic locking with version columns.
-    - [ ] Pessimistic row locks for debit balance checks.
-    - [ ] Or a clearly justified hybrid.
-- [ ] Add repository methods for locked account loading.
-- [ ] Add retry or conflict handling for concurrent updates.
-- [ ] Add concurrent transfer test utilities.
-- [ ] Simulate multiple transfers from the same source account.
-- [ ] Simulate duplicate idempotency requests arriving concurrently.
-- [ ] Add ADR for transaction isolation and locking strategy.
+- [ ] Audit current transactional boundaries:
+    - [ ] Identify every write use case that updates account balances.
+    - [ ] Confirm `CreateTransferUseCase` and `PostLedgerTransactionUseCase` run in one transaction for transfer creation.
+    - [ ] Confirm idempotency record writes are committed atomically with transfer and ledger writes.
+    - [ ] Document which repositories are called before balance mutation.
+- [ ] Choose and document the account locking strategy:
+    - [ ] Decide whether debit account validation uses pessimistic row locks, optimistic version retries, or a hybrid.
+    - [ ] Document why the selected strategy prevents lost updates and overdrafts.
+    - [ ] Document expected behavior when lock acquisition times out.
+    - [ ] Document expected behavior when an optimistic version conflict occurs.
+- [ ] Add locked account repository methods:
+    - [ ] Add `findByIdForUpdate` for pessimistic account loading if selected.
+    - [ ] Add deterministic multi-account lock ordering by account id to avoid deadlocks.
+    - [ ] Add query-level lock timeout where supported.
+    - [ ] Add repository tests proving the lock method starts and returns the expected account.
+- [ ] Update transfer account loading:
+    - [ ] Load source and destination accounts through the selected locking path.
+    - [ ] Lock accounts in deterministic order.
+    - [ ] Keep source and destination role mapping after ordered loading.
+    - [ ] Validate balances only after locked account rows are loaded.
+- [ ] Add concurrency error handling:
+    - [ ] Map lock timeout failures to a structured `409 Conflict` or retryable business error.
+    - [ ] Map optimistic locking failures to a structured `409 Conflict`.
+    - [ ] Ensure retryable errors do not write transfer, ledger, idempotency, audit, or outbox records.
+    - [ ] Add log messages that include correlation id but no sensitive payload.
+- [ ] Add retry behavior if using optimistic locking:
+    - [ ] Define max retry attempts.
+    - [ ] Define backoff strategy.
+    - [ ] Retry only safe transfer creation paths before any non-idempotent external publishing.
+    - [ ] Stop retrying on validation failures such as insufficient funds or closed accounts.
+- [ ] Harden idempotency under concurrency:
+    - [ ] Ensure concurrent requests with the same idempotency key cannot create duplicate records.
+    - [ ] Handle unique constraint violations on `(operation_scope, idempotency_key)`.
+    - [ ] Re-read the existing idempotency record after a duplicate-key race.
+    - [ ] Replay the stored response if the request hash matches.
+    - [ ] Reject the request if the request hash differs.
+- [ ] Add concurrent test fixtures:
+    - [ ] Add a reusable executor helper with start latches and timeouts.
+    - [ ] Add helpers to create funded accounts for concurrent scenarios.
+    - [ ] Add helpers to collect all thread results and exceptions.
+    - [ ] Add helpers to query final balances, transfers, ledger transactions, postings, and idempotency records.
+- [ ] Add isolation and locking documentation:
+    - [ ] Add ADR for transaction isolation and locking strategy.
+    - [ ] Document database assumptions for Oracle.
+    - [ ] Document why concurrent transfers preserve ledger invariants.
+    - [ ] Document operational guidance for lock timeout and retryable failures.
+
+### Test Scenarios
+
+- [ ] Sequential baseline transfer:
+    - [ ] One valid transfer debits source and credits destination once.
+    - [ ] Final source and destination balances match expected values.
+- [ ] Concurrent independent transfers:
+    - [ ] Transfers from different source accounts complete successfully.
+    - [ ] No unrelated account balance is changed.
+- [ ] Concurrent transfers from the same source account within available balance:
+    - [ ] Multiple transfers complete.
+    - [ ] Final source balance equals initial balance minus all completed transfer amounts.
+    - [ ] Final destination balances equal initial balances plus their received amounts.
+    - [ ] Ledger transaction count equals completed transfer count.
+    - [ ] Posting count equals completed transfer count multiplied by two.
+- [ ] Concurrent transfers from the same source account exceeding available balance:
+    - [ ] Only transfers that fit within available balance complete.
+    - [ ] Excess transfers are rejected with structured insufficient-funds or conflict errors.
+    - [ ] Source available and ledger balances never become negative.
+    - [ ] Rejected transfers do not create ledger transactions or postings.
+- [ ] Concurrent transfers between the same two accounts:
+    - [ ] No deadlock occurs.
+    - [ ] Completed transfers preserve debit and credit totals.
+    - [ ] Final balances are deterministic.
+- [ ] Concurrent cross transfers between two accounts:
+    - [ ] `A -> B` and `B -> A` requests do not deadlock.
+    - [ ] Account locks are acquired in deterministic order.
+    - [ ] Final balances reflect only completed transfers.
+- [ ] Concurrent duplicate idempotency requests with the same payload:
+    - [ ] Exactly one transfer request is created.
+    - [ ] Exactly one ledger transaction is created.
+    - [ ] Exactly two postings are created.
+    - [ ] Every caller receives the same response body.
+    - [ ] Replayed responses return `200 OK` after the original creation completes.
+- [ ] Concurrent duplicate idempotency requests with different payloads:
+    - [ ] One request may complete.
+    - [ ] Conflicting requests are rejected with idempotency conflict errors.
+    - [ ] No duplicate ledger postings are created.
+- [ ] Concurrent duplicate external reference requests:
+    - [ ] Exactly one transfer is created.
+    - [ ] Other requests are rejected with duplicate request errors.
+    - [ ] No duplicate ledger transaction external reference is created.
+- [ ] Lock timeout behavior:
+    - [ ] A transfer waiting on a locked source account fails with the documented structured error.
+    - [ ] The timed-out request creates no transfer, ledger, posting, idempotency, audit, or outbox records.
+- [ ] Optimistic conflict behavior, if optimistic locking is used:
+    - [ ] Version conflict is retried up to the configured max attempts.
+    - [ ] Successful retry creates one transfer and one ledger transaction.
+    - [ ] Exhausted retry returns the documented structured error.
+- [ ] Rollback under concurrent failure:
+    - [ ] A failure after transfer save but before ledger completion rolls back all writes.
+    - [ ] Concurrent successful transfers are not rolled back by another request failure.
+- [ ] Repeated-run stability:
+    - [ ] Same-source concurrent transfer test passes repeatedly.
+    - [ ] Same-key concurrent idempotency test passes repeatedly.
 
 ### Acceptance Criteria
 
-- [ ] Concurrent transfer tests pass repeatedly.
-- [ ] The final account balance is correct after concurrent activity.
-- [ ] Concurrent overdraft attempts do not produce negative balances.
-- [ ] Duplicate concurrent requests create one transfer result.
 - [ ] Locking and isolation choices are documented in an ADR.
+- [ ] Account rows are loaded through the selected locking strategy before balance validation.
+- [ ] Account locks are acquired in deterministic order.
+- [ ] Concurrent transfer tests pass repeatedly.
+- [ ] Final cached account balances are correct after concurrent activity.
+- [ ] Ledger transactions and postings match the number of completed transfers.
+- [ ] Concurrent overdraft attempts never produce negative balances.
+- [ ] Failed concurrent requests do not leave partial transfer, ledger, posting, audit, outbox, or idempotency writes.
+- [ ] Duplicate concurrent idempotency requests create one transfer result.
+- [ ] Lock timeout or optimistic conflict errors are structured and documented.
 
 ## Phase 6: Reversal And Adjustment Flows
 
@@ -505,28 +600,267 @@ Goal: Support operational correction without mutating posted financial records.
 
 ### Steps
 
-- [ ] Add reversal schema:
-    - [ ] `reversals`
-    - [ ] Unique reversal per original transaction.
-    - [ ] Link reversal transaction to original transaction.
-- [ ] Add reversal request and response DTOs.
-- [ ] Implement full transaction reversal.
-- [ ] Require reversal reason.
-- [ ] Require authorized role for reversal.
-- [ ] Prevent duplicate reversals.
-- [ ] Add adjustment entry workflow for operational corrections.
-- [ ] Add audit events for reversals and adjustments.
-- [ ] Add outbox events for reversal completion.
+- [ ] Design reversal data model:
+    - [ ] Define `reversals` table columns.
+    - [ ] Include reversal id.
+    - [ ] Include original transfer id.
+    - [ ] Include original ledger transaction id.
+    - [ ] Include reversal ledger transaction id.
+    - [ ] Include reason code.
+    - [ ] Include reason detail.
+    - [ ] Include requested actor fields.
+    - [ ] Include requested timestamp.
+    - [ ] Include completed timestamp.
+    - [ ] Include status.
+    - [ ] Include failure reason fields.
+    - [ ] Include version column.
+- [ ] Add reversal schema constraints:
+    - [ ] Enforce one reversal per original transfer.
+    - [ ] Enforce one reversal per original ledger transaction.
+    - [ ] Enforce unique reversal ledger transaction id.
+    - [ ] Enforce foreign key to original transfer.
+    - [ ] Enforce foreign key to original ledger transaction.
+    - [ ] Enforce foreign key to reversal ledger transaction.
+    - [ ] Enforce required reason code.
+    - [ ] Enforce completed timestamp for completed reversals.
+    - [ ] Enforce failure reason for failed or rejected reversals.
+- [ ] Add reversal domain model:
+    - [ ] Add `ReversalStatus`.
+    - [ ] Add `ReversalReasonCode`.
+    - [ ] Add reversal entity.
+    - [ ] Add reversal repository.
+    - [ ] Add repository lookup by original transfer id.
+    - [ ] Add repository lookup by original ledger transaction id.
+- [ ] Add reversal API DTOs:
+    - [ ] Add `ReverseTransferRequest`.
+    - [ ] Require reason code.
+    - [ ] Allow optional reason detail.
+    - [ ] Add `ReversalResponse`.
+    - [ ] Include original transfer id.
+    - [ ] Include original ledger transaction id.
+    - [ ] Include reversal ledger transaction id.
+    - [ ] Include status, reason fields, timestamps, and failure fields.
+- [ ] Add reversal command and query objects:
+    - [ ] Add `ReverseTransferCommand`.
+    - [ ] Include transfer id.
+    - [ ] Include reason code and reason detail.
+    - [ ] Include actor type, actor role, and correlation id.
+    - [ ] Add `GetReversalByTransferIdQuery`.
+- [ ] Add reversal validation policy:
+    - [ ] Reject missing reason code.
+    - [ ] Reject blank reason code.
+    - [ ] Reject unsupported reason code.
+    - [ ] Reject missing transfer id.
+    - [ ] Reject transfer not found.
+    - [ ] Reject transfer that is not `COMPLETED`.
+    - [ ] Reject transfer with missing ledger transaction id.
+    - [ ] Reject duplicate reversal for the same transfer.
+    - [ ] Reject unauthorized actor roles until Phase 7 security is implemented.
+- [ ] Implement `ReverseTransferUseCase`:
+    - [ ] Annotate handler with `@Transactional`.
+    - [ ] Load the completed transfer.
+    - [ ] Load original ledger transaction and postings.
+    - [ ] Validate duplicate reversal before insert.
+    - [ ] Save reversal request with `PENDING` status.
+    - [ ] Build reversal postings by swapping debit and credit directions.
+    - [ ] Build a `PostLedgerTransactionCommand` with transaction type `REVERSAL`.
+    - [ ] Use a reversal external reference that links to the original transfer.
+    - [ ] Call `PostLedgerTransactionUseCase`.
+    - [ ] Update the original transfer status to `REVERSED`.
+    - [ ] Update reversal status to `COMPLETED`.
+    - [ ] Store the reversal ledger transaction id.
+    - [ ] Return `ReversalResponse`.
+    - [ ] Let unexpected failures roll back reversal, ledger, posting, audit, outbox, and transfer status changes.
+- [ ] Add reversal REST controller:
+    - [ ] Add `POST /api/v1/transfers/{transferId}/reverse`.
+    - [ ] Map request DTO to command.
+    - [ ] Include correlation id and actor headers.
+    - [ ] Return `201 Created` for successful reversal.
+    - [ ] Return structured errors for validation failures.
+- [ ] Add adjustment data model:
+    - [ ] Define whether adjustments use a dedicated `adjustment_requests` table.
+    - [ ] Include adjustment id.
+    - [ ] Include ledger transaction id.
+    - [ ] Include reason code.
+    - [ ] Include reason detail.
+    - [ ] Include actor fields.
+    - [ ] Include status and timestamps.
+- [ ] Add adjustment API DTOs:
+    - [ ] Add `CreateAdjustmentRequest`.
+    - [ ] Require currency code.
+    - [ ] Require amount minor.
+    - [ ] Require reason code.
+    - [ ] Require at least two posting lines.
+    - [ ] Add `AdjustmentPostingLineRequest`.
+    - [ ] Add `AdjustmentResponse`.
+- [ ] Add adjustment validation policy:
+    - [ ] Reject missing reason code.
+    - [ ] Reject blank reason code.
+    - [ ] Reject unsupported reason code.
+    - [ ] Reject fewer than two posting lines.
+    - [ ] Reject unbalanced debit and credit totals.
+    - [ ] Reject posting account not found.
+    - [ ] Reject posting account currency mismatch.
+    - [ ] Reject accounts that cannot be debited or credited.
+    - [ ] Reject insufficient funds for debit lines.
+- [ ] Implement `CreateAdjustmentUseCase`:
+    - [ ] Annotate handler with `@Transactional`.
+    - [ ] Validate request.
+    - [ ] Save adjustment request with `PENDING` status if using a table.
+    - [ ] Build a `PostLedgerTransactionCommand` with transaction type `ADJUSTMENT`.
+    - [ ] Call `PostLedgerTransactionUseCase`.
+    - [ ] Mark adjustment as `COMPLETED`.
+    - [ ] Return `AdjustmentResponse`.
+    - [ ] Let unexpected failures roll back adjustment, ledger, posting, audit, and outbox writes.
+- [ ] Add adjustment REST controller:
+    - [ ] Add `POST /api/v1/ops/adjustments`.
+    - [ ] Map request DTO to command.
+    - [ ] Include correlation id and actor headers.
+    - [ ] Return `201 Created` for successful adjustment.
+- [ ] Add audit events:
+    - [ ] Write `TRANSFER_REVERSED` audit event after successful reversal.
+    - [ ] Write `ADJUSTMENT_POSTED` audit event after successful adjustment.
+    - [ ] Include reason code and correlation id.
+    - [ ] Do not mutate original ledger audit events.
+- [ ] Add outbox events:
+    - [ ] Write `LedgerTransactionReversed` after successful reversal.
+    - [ ] Write `AdjustmentPosted` after successful adjustment.
+    - [ ] Ensure outbox rows commit atomically with ledger writes.
+- [ ] Add authorization placeholders:
+    - [ ] Require `X-Actor-Role` or equivalent header until Phase 7 JWT roles exist.
+    - [ ] Allow reversal only for `OPS_ADMIN` or `SERVICE`.
+    - [ ] Allow adjustment only for `OPS_ADMIN` or `SERVICE`.
+    - [ ] Return structured `403` for unauthorized roles.
+- [ ] Add immutable ledger documentation:
+    - [ ] Add ADR for immutable ledger reversal model.
+    - [ ] Document why reversals create new ledger transactions instead of updating original postings.
+    - [ ] Document adjustment use cases and guardrails.
+
+### Test Scenarios
+
+- [ ] Reversal API success:
+    - [ ] `POST /api/v1/transfers/{transferId}/reverse` returns `201 Created`.
+    - [ ] Response includes original transfer id.
+    - [ ] Response includes original ledger transaction id.
+    - [ ] Response includes reversal ledger transaction id.
+    - [ ] Response includes completed status.
+- [ ] Reversal ledger behavior:
+    - [ ] Reversal creates one new ledger transaction with type `REVERSAL`.
+    - [ ] Reversal creates equal and opposite postings.
+    - [ ] Original ledger transaction remains unchanged.
+    - [ ] Original journal entry remains unchanged.
+    - [ ] Original postings remain unchanged.
+    - [ ] Source and destination balances return to pre-transfer values.
+- [ ] Reversal transfer status behavior:
+    - [ ] Original transfer status changes from `COMPLETED` to `REVERSED`.
+    - [ ] Original transfer keeps original ledger transaction id.
+    - [ ] Reversal record stores reversal ledger transaction id.
+- [ ] Duplicate reversal:
+    - [ ] Second reversal request for same transfer is rejected.
+    - [ ] Duplicate reversal does not create a second reversal ledger transaction.
+    - [ ] Duplicate reversal does not create additional postings.
+- [ ] Reversal reason validation:
+    - [ ] Missing reason code returns structured validation error.
+    - [ ] Blank reason code returns structured validation error.
+    - [ ] Unsupported reason code returns structured validation error.
+    - [ ] Reason detail exceeding max length returns structured validation error.
+- [ ] Reversal transfer validation:
+    - [ ] Missing transfer id path variable is handled by routing.
+    - [ ] Unknown transfer id returns structured not-found error.
+    - [ ] Transfer without ledger transaction id is rejected.
+    - [ ] Transfer in `PENDING` status is rejected.
+    - [ ] Transfer in `FAILED` status is rejected.
+    - [ ] Transfer in `REJECTED` status is rejected.
+    - [ ] Transfer already in `REVERSED` status is rejected.
+- [ ] Reversal authorization:
+    - [ ] Missing actor role is rejected.
+    - [ ] `CUSTOMER` role is rejected.
+    - [ ] `TELLER` role is rejected.
+    - [ ] `AUDITOR` role is rejected.
+    - [ ] `OPS_ADMIN` role is accepted.
+    - [ ] `SERVICE` role is accepted.
+- [ ] Reversal rollback:
+    - [ ] Failure after reversal request save rolls back reversal record.
+    - [ ] Failure after reversal ledger save rolls back ledger, journal, postings, audit, outbox, and transfer status.
+    - [ ] Original transfer remains `COMPLETED` after rollback.
+- [ ] Reversal audit and outbox:
+    - [ ] Successful reversal writes `TRANSFER_REVERSED` audit event.
+    - [ ] Audit event includes transfer id, reversal ledger transaction id, reason code, and correlation id.
+    - [ ] Successful reversal writes `LedgerTransactionReversed` outbox event.
+    - [ ] Rollback prevents audit and outbox rows from persisting.
+- [ ] Reversal persistence constraints:
+    - [ ] Unique reversal per original transfer is enforced.
+    - [ ] Unique reversal per original ledger transaction is enforced.
+    - [ ] Unique reversal ledger transaction id is enforced.
+    - [ ] Foreign key to original transfer is enforced.
+    - [ ] Foreign key to original ledger transaction is enforced.
+    - [ ] Foreign key to reversal ledger transaction is enforced.
+    - [ ] Completed reversal requires completed timestamp.
+    - [ ] Failed reversal requires failure reason.
+- [ ] Adjustment API success:
+    - [ ] `POST /api/v1/ops/adjustments` returns `201 Created`.
+    - [ ] Response includes adjustment id if an adjustment table exists.
+    - [ ] Response includes ledger transaction id.
+    - [ ] Response includes completed status.
+- [ ] Adjustment ledger behavior:
+    - [ ] Adjustment creates one new ledger transaction with type `ADJUSTMENT`.
+    - [ ] Adjustment creates all requested postings.
+    - [ ] Debit total equals credit total.
+    - [ ] Affected account balances are updated by posting direction.
+- [ ] Adjustment request validation:
+    - [ ] Missing currency code returns structured validation error.
+    - [ ] Invalid currency code returns structured validation error.
+    - [ ] Missing amount returns structured validation error.
+    - [ ] Non-positive amount returns structured validation error.
+    - [ ] Missing reason code returns structured validation error.
+    - [ ] Blank reason code returns structured validation error.
+    - [ ] Fewer than two posting lines returns structured validation error.
+    - [ ] Unbalanced posting lines return structured business error.
+    - [ ] Posting account not found returns structured not-found error.
+    - [ ] Posting account currency mismatch returns structured business error.
+    - [ ] Debit from frozen account is rejected.
+    - [ ] Credit to closed account is rejected.
+    - [ ] Insufficient funds on debit account is rejected.
+- [ ] Adjustment authorization:
+    - [ ] Missing actor role is rejected.
+    - [ ] `CUSTOMER` role is rejected.
+    - [ ] `TELLER` role is rejected unless explicitly allowed.
+    - [ ] `AUDITOR` role is rejected.
+    - [ ] `OPS_ADMIN` role is accepted.
+    - [ ] `SERVICE` role is accepted.
+- [ ] Adjustment rollback:
+    - [ ] Ledger posting failure rolls back adjustment record.
+    - [ ] Ledger posting failure rolls back ledger, journal, postings, audit, and outbox.
+    - [ ] Account balances remain unchanged after rollback.
+- [ ] Adjustment audit and outbox:
+    - [ ] Successful adjustment writes `ADJUSTMENT_POSTED` audit event.
+    - [ ] Audit event includes ledger transaction id, reason code, and correlation id.
+    - [ ] Successful adjustment writes `AdjustmentPosted` outbox event.
+- [ ] Adjustment persistence constraints, if an adjustment table exists:
+    - [ ] Ledger transaction uniqueness is enforced.
+    - [ ] Reason code is required.
+    - [ ] Completed adjustment requires completed timestamp.
+    - [ ] Failed adjustment requires failure reason.
 
 ### Acceptance Criteria
 
-- [ ] `POST /api/v1/transfers/{transferId}/reverse` reverses a posted transfer.
+- [ ] `POST /api/v1/transfers/{transferId}/reverse` reverses a completed transfer.
+- [ ] Reversal creates a new reversal ledger transaction.
 - [ ] Reversal creates equal and opposite postings.
 - [ ] Original ledger records remain unchanged.
+- [ ] Original transfer is marked `REVERSED`.
 - [ ] Duplicate reversal attempts are rejected.
-- [ ] Reversal requires a reason.
+- [ ] Reversal requires a valid reason code.
 - [ ] Unauthorized users cannot reverse transactions.
-- [ ] Reversal and adjustment tests cover success and failure paths.
+- [ ] `POST /api/v1/ops/adjustments` posts a balanced adjustment.
+- [ ] Adjustment creates a new adjustment ledger transaction.
+- [ ] Adjustment updates affected account balances through the ledger posting engine.
+- [ ] Unauthorized users cannot post adjustments.
+- [ ] Reversal and adjustment audit events are written.
+- [ ] Reversal and adjustment outbox events are written atomically.
+- [ ] Rollback tests prove no partial reversal or adjustment writes persist.
+- [ ] Persistence tests prove reversal and adjustment constraints reject invalid rows.
+- [ ] ADR documents immutable ledger reversal and adjustment design.
 
 ## Phase 7: Authentication, Authorization, And API Security
 

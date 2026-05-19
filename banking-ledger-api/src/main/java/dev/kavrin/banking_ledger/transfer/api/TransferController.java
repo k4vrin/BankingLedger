@@ -5,13 +5,18 @@ import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
 import dev.kavrin.banking_ledger.shared.error.BadRequestException;
 import dev.kavrin.banking_ledger.shared.money.CurrencyCode;
 import dev.kavrin.banking_ledger.transfer.api.dto.CreateTransferRequest;
+import dev.kavrin.banking_ledger.transfer.api.dto.TransferResponse;
 import dev.kavrin.banking_ledger.transfer.application.command.CreateTransferCommand;
+import dev.kavrin.banking_ledger.transfer.application.query.GetTransferByIdQuery;
 import dev.kavrin.banking_ledger.transfer.application.service.CreateTransferUseCase;
+import dev.kavrin.banking_ledger.transfer.application.service.TransferQueryUseCase;
 import dev.kavrin.banking_ledger.transfer.domain.model.RequestedByActorType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -20,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.util.Locale;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/transfers")
@@ -27,6 +33,7 @@ import java.util.Locale;
 public class TransferController {
 
     private final CreateTransferUseCase createTransferUseCase;
+    private final TransferQueryUseCase transferQueryUseCase;
     private final IdempotencyKeyValidator idempotencyKeyValidator;
 
     @PostMapping
@@ -57,6 +64,11 @@ public class TransferController {
         }
 
         return builder.body(result.responseBody());
+    }
+
+    @GetMapping("/{transferId}")
+    public TransferResponse getTransfer(@PathVariable UUID transferId) {
+        return transferQueryUseCase.getById(new GetTransferByIdQuery(transferId));
     }
 
     private RequestedByActorType parseActorType(String actorType) {

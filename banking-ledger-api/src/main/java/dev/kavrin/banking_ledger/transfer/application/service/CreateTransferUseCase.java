@@ -11,15 +11,13 @@ import dev.kavrin.banking_ledger.ledger.application.service.PostLedgerTransactio
 import dev.kavrin.banking_ledger.ledger.domain.model.PostingDirection;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.LedgerTransactionRepository;
 import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
-import dev.kavrin.banking_ledger.shared.error.BadRequestException;
-import dev.kavrin.banking_ledger.shared.error.BusinessRuleViolationException;
 import dev.kavrin.banking_ledger.shared.error.ConflictException;
 import dev.kavrin.banking_ledger.shared.error.ResourceNotFoundException;
 import dev.kavrin.banking_ledger.shared.money.CurrencyCode;
-import dev.kavrin.banking_ledger.transfer.api.dto.TransferResponse;
 import dev.kavrin.banking_ledger.transfer.application.command.CreateTransferCommand;
 import dev.kavrin.banking_ledger.transfer.domain.model.TransferStatus;
 import dev.kavrin.banking_ledger.transfer.domain.model.TransferType;
+import dev.kavrin.banking_ledger.transfer.domain.policy.TransferValidationPolicy;
 import dev.kavrin.banking_ledger.transfer.persistence.TransferRequestEntity;
 import dev.kavrin.banking_ledger.transfer.persistence.TransferRequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,10 +38,17 @@ public class CreateTransferUseCase {
     private final PostLedgerTransactionUseCase postLedgerTransactionUseCase;
     private final IdempotencyService idempotencyService;
     private final TransferRequestHasher transferRequestHasher;
+    private final TransferResponseMapper transferResponseMapper;
     private final ObjectMapper objectMapper;
 
     @Transactional
     public CreateTransferResult handle(CreateTransferCommand command) {
+        TransferValidationPolicy.validateRequest(
+                command.sourceAccountId(),
+                command.destinationAccountId(),
+                command.amountMinor()
+        );
+
         var requestHash = transferRequestHasher.hash(command);
         var existingIdempotencyRecord = idempotencyService.findTransferCreate(command.idempotencyKey());
         if (existingIdempotencyRecord.isPresent()) {
@@ -71,7 +76,8 @@ public class CreateTransferUseCase {
                 ));
 
         var currencyCode = CurrencyCode.of(command.currencyCode().value());
-        validate(command, source.getCurrencyCode(), destination.getCurrencyCode(), currencyCode.value());
+        validateDuplicateExternalReference(command);
+        TransferValidationPolicy.validateAccounts(source, destination, currencyCode, command.amountMinor());
 
         var transfer = transferRequestRepository.save(TransferRequestEntity.builder()
                 .sourceAccount(source)
@@ -106,7 +112,7 @@ public class CreateTransferUseCase {
         var completedTransfer = transferRequestRepository.save(transfer);
         transferRequestRepository.flush();
 
-        var responseBody = toJson(toResponse(completedTransfer));
+        var responseBody = toJson(transferResponseMapper.toResponse(completedTransfer));
         idempotencyService.createTransferCreateRecord(
                 command.idempotencyKey(),
                 requestHash,
@@ -123,28 +129,7 @@ public class CreateTransferUseCase {
         );
     }
 
-    private void validate(
-            CreateTransferCommand command,
-            String sourceCurrencyCode,
-            String destinationCurrencyCode,
-            String currencyCode
-    ) {
-        if (command.sourceAccountId().equals(command.destinationAccountId())) {
-            throw new BadRequestException(
-                    ApiErrorCode.Validation.INVALID_REQUEST,
-                    "Source and destination accounts must be different",
-                    "Source and destination accounts must be different."
-            );
-        }
-
-        if (!sourceCurrencyCode.equals(currencyCode) || !destinationCurrencyCode.equals(currencyCode)) {
-            throw new BusinessRuleViolationException(
-                    ApiErrorCode.Business.POSTING_ACCOUNT_CURRENCY_MISMATCH,
-                    "Transfer currency must match source and destination account currencies",
-                    "Transfer currency must match both accounts."
-            );
-        }
-
+    private void validateDuplicateExternalReference(CreateTransferCommand command) {
         if (command.externalReference() != null
                 && !command.externalReference().isBlank()
                 && transferRequestRepository.existsByExternalReference(command.externalReference().trim())) {
@@ -156,27 +141,7 @@ public class CreateTransferUseCase {
         }
     }
 
-    private TransferResponse toResponse(TransferRequestEntity transfer) {
-        return new TransferResponse(
-                transfer.getId(),
-                transfer.getSourceAccount().getId(),
-                transfer.getDestinationAccount().getId(),
-                transfer.getStatus(),
-                transfer.getCurrencyCode(),
-                transfer.getAmountMinor(),
-                transfer.getLedgerTransaction().getId(),
-                transfer.getExternalReference(),
-                transfer.getDescription(),
-                transfer.getRequestedAt(),
-                transfer.getCompletedAt(),
-                transfer.getCreatedAt(),
-                transfer.getUpdatedAt(),
-                transfer.getFailureReasonCode(),
-                transfer.getFailureReasonDetail()
-        );
-    }
-
-    private String toJson(TransferResponse response) {
+    private String toJson(Object response) {
         try {
             return objectMapper.writeValueAsString(response);
         } catch (JsonProcessingException exception) {
