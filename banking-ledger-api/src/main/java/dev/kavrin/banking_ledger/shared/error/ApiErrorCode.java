@@ -40,7 +40,8 @@ public sealed interface ApiErrorCode permits
         SUBSCRIPTION_EXPIRED,
         DUPLICATE_REQUEST,
         IDEMPOTENCY_KEY_CONFLICT,
-        INVALID_IDEMPOTENCY_KEY
+        INVALID_IDEMPOTENCY_KEY,
+        CONCURRENT_TRANSFER_CONFLICT
     }
 
     enum Security implements ApiErrorCode {

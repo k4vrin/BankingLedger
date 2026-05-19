@@ -1,11 +1,17 @@
 package dev.kavrin.banking_ledger.shared.error;
 
 import dev.kavrin.banking_ledger.shared.correlation.CorrelationIdFilter;
+import jakarta.persistence.LockTimeoutException;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -98,6 +104,48 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND,
                 ApiErrorCode.Business.RESOURCE_NOT_FOUND,
                 "Resource not found.",
+                request,
+                List.of()
+        );
+    }
+
+    @ExceptionHandler({
+            CannotAcquireLockException.class,
+            PessimisticLockingFailureException.class,
+            LockTimeoutException.class
+    })
+    ResponseEntity<ApiErrorResponse> handlePessimisticLockFailure(Exception exception, HttpServletRequest request) {
+        log.warn(
+                "Retryable pessimistic locking failure. correlationId={}, error={}",
+                CorrelationIdFilter.currentCorrelationId(),
+                exception.getClass().getSimpleName()
+        );
+
+        return response(
+                HttpStatus.CONFLICT,
+                ApiErrorCode.Business.CONCURRENT_TRANSFER_CONFLICT,
+                "Transfer could not be completed because the account is currently being modified. Please retry.",
+                request,
+                List.of()
+        );
+    }
+
+    @ExceptionHandler({
+            OptimisticLockingFailureException.class,
+            ObjectOptimisticLockingFailureException.class,
+            OptimisticLockException.class
+    })
+    ResponseEntity<ApiErrorResponse> handleOptimisticLockFailure(Exception exception, HttpServletRequest request) {
+        log.warn(
+                "Retryable optimistic locking failure. correlationId={}, error={}",
+                CorrelationIdFilter.currentCorrelationId(),
+                exception.getClass().getSimpleName()
+        );
+
+        return response(
+                HttpStatus.CONFLICT,
+                ApiErrorCode.Business.CONCURRENT_TRANSFER_CONFLICT,
+                "Transfer could not be completed because the account changed during processing. Please retry.",
                 request,
                 List.of()
         );

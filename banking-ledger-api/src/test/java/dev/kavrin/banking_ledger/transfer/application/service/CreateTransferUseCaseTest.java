@@ -25,6 +25,8 @@ import dev.kavrin.banking_ledger.transfer.domain.model.RequestedByActorType;
 import dev.kavrin.banking_ledger.transfer.persistence.TransferRequestEntity;
 import dev.kavrin.banking_ledger.transfer.persistence.TransferRequestRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.lang.reflect.Proxy;
 import java.time.OffsetDateTime;
@@ -88,8 +90,18 @@ class CreateTransferUseCaseTest {
                 new TransferRequestHasher(objectMapper),
                 new TransferResponseMapper(),
                 lockedAccountLoader,
+                passthroughTransactionTemplate(),
                 objectMapper
         );
+    }
+
+    private TransactionTemplate passthroughTransactionTemplate() {
+        return new TransactionTemplate() {
+            @Override
+            public <T> T execute(TransactionCallback<T> action) {
+                return action.doInTransaction(null);
+            }
+        };
     }
 
     private CreateTransferCommand validCommand(UUID sourceAccountId, UUID destinationAccountId) {

@@ -18,7 +18,8 @@ public interface AccountRepository extends JpaRepository<AccountEntity, UUID> {
     // When loading this row, acquire a database write lock.
     // Assume concurrent conflicts WILL happen, so lock early.
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    // Wait at most 3 seconds for the lock; if the lock can't be acquired in that time, throw a PessimisticLockingFailureException
+    // Wait at most 3 seconds for the lock. If the lock cannot be acquired,
+    // Spring/JPA will raise a concurrency exception that GlobalExceptionHandler maps to 409 Conflict.
     @QueryHints({
             @QueryHint(
                     name = "jakarta.persistence.lock.timeout",

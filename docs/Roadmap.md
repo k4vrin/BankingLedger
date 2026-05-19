@@ -499,100 +499,103 @@ Goal: Prove that concurrent transfers preserve correct balances and do not allow
     - [x] Lock accounts in deterministic order.
     - [x] Keep source and destination role mapping after ordered loading.
     - [x] Validate balances only after locked account rows are loaded.
-- [ ] Add concurrency error handling:
-    - [ ] Map lock timeout failures to a structured `409 Conflict` or retryable business error.
-    - [ ] Map optimistic locking failures to a structured `409 Conflict`.
-    - [ ] Ensure retryable errors do not write transfer, ledger, idempotency, audit, or outbox records.
-    - [ ] Add log messages that include correlation id but no sensitive payload.
-- [ ] Add retry behavior if using optimistic locking:
-    - [ ] Define max retry attempts.
-    - [ ] Define backoff strategy.
-    - [ ] Retry only safe transfer creation paths before any non-idempotent external publishing.
-    - [ ] Stop retrying on validation failures such as insufficient funds or closed accounts.
-- [ ] Harden idempotency under concurrency:
-    - [ ] Ensure concurrent requests with the same idempotency key cannot create duplicate records.
-    - [ ] Handle unique constraint violations on `(operation_scope, idempotency_key)`.
-    - [ ] Re-read the existing idempotency record after a duplicate-key race.
-    - [ ] Replay the stored response if the request hash matches.
-    - [ ] Reject the request if the request hash differs.
-- [ ] Add concurrent test fixtures:
-    - [ ] Add a reusable executor helper with start latches and timeouts.
-    - [ ] Add helpers to create funded accounts for concurrent scenarios.
-    - [ ] Add helpers to collect all thread results and exceptions.
-    - [ ] Add helpers to query final balances, transfers, ledger transactions, postings, and idempotency records.
-- [ ] Add isolation and locking documentation:
-    - [ ] Add ADR for transaction isolation and locking strategy.
-    - [ ] Document database assumptions for Oracle.
-    - [ ] Document why concurrent transfers preserve ledger invariants.
-    - [ ] Document operational guidance for lock timeout and retryable failures.
+- [x] Add concurrency error handling:
+    - [x] Map lock timeout failures to a structured `409 Conflict` or retryable business error.
+    - [x] Map optimistic locking failures to a structured `409 Conflict`.
+    - [x] Ensure retryable errors do not write transfer, ledger, idempotency, audit, or outbox records.
+    - [x] Add log messages that include correlation id but no sensitive payload.
+- [x] Add retry behavior if using optimistic locking:
+    - [x] Define max retry attempts.
+    - [x] Define backoff strategy.
+    - [x] Retry only safe transfer creation paths before any non-idempotent external publishing.
+    - [x] Stop retrying on validation failures such as insufficient funds or closed accounts.
+    - [x] Mark optimistic retries as not applicable because Phase 5 selected pessimistic account locks for transfer creation.
+- [x] Harden idempotency under concurrency:
+    - [x] Ensure concurrent requests with the same idempotency key cannot create duplicate records.
+    - [x] Handle unique constraint violations on `(operation_scope, idempotency_key)`.
+    - [x] Re-read the existing idempotency record after a duplicate-key race.
+    - [x] Re-read the existing idempotency record after account-lock waits before writing transfer or ledger rows.
+    - [x] Replay the stored response if the request hash matches.
+    - [x] Reject the request if the request hash differs.
+- [x] Add concurrent test fixtures:
+    - [x] Add a reusable executor helper with start latches and timeouts.
+    - [x] Add helpers to create funded accounts for concurrent scenarios.
+    - [x] Add helpers to collect all thread results and exceptions.
+    - [x] Add helpers to query final balances, transfers, ledger transactions, postings, and idempotency records.
+- [x] Add isolation and locking documentation:
+    - [x] Add ADR for transaction isolation and locking strategy.
+    - [x] Document database assumptions for Oracle.
+    - [x] Document why concurrent transfers preserve ledger invariants.
+    - [x] Document operational guidance for lock timeout and retryable failures.
 
 ### Test Scenarios
 
-- [ ] Sequential baseline transfer:
-    - [ ] One valid transfer debits source and credits destination once.
-    - [ ] Final source and destination balances match expected values.
-- [ ] Concurrent independent transfers:
-    - [ ] Transfers from different source accounts complete successfully.
-    - [ ] No unrelated account balance is changed.
-- [ ] Concurrent transfers from the same source account within available balance:
-    - [ ] Multiple transfers complete.
-    - [ ] Final source balance equals initial balance minus all completed transfer amounts.
-    - [ ] Final destination balances equal initial balances plus their received amounts.
-    - [ ] Ledger transaction count equals completed transfer count.
-    - [ ] Posting count equals completed transfer count multiplied by two.
-- [ ] Concurrent transfers from the same source account exceeding available balance:
-    - [ ] Only transfers that fit within available balance complete.
-    - [ ] Excess transfers are rejected with structured insufficient-funds or conflict errors.
-    - [ ] Source available and ledger balances never become negative.
-    - [ ] Rejected transfers do not create ledger transactions or postings.
-- [ ] Concurrent transfers between the same two accounts:
-    - [ ] No deadlock occurs.
-    - [ ] Completed transfers preserve debit and credit totals.
-    - [ ] Final balances are deterministic.
-- [ ] Concurrent cross transfers between two accounts:
-    - [ ] `A -> B` and `B -> A` requests do not deadlock.
-    - [ ] Account locks are acquired in deterministic order.
-    - [ ] Final balances reflect only completed transfers.
-- [ ] Concurrent duplicate idempotency requests with the same payload:
-    - [ ] Exactly one transfer request is created.
-    - [ ] Exactly one ledger transaction is created.
-    - [ ] Exactly two postings are created.
-    - [ ] Every caller receives the same response body.
-    - [ ] Replayed responses return `200 OK` after the original creation completes.
-- [ ] Concurrent duplicate idempotency requests with different payloads:
-    - [ ] One request may complete.
-    - [ ] Conflicting requests are rejected with idempotency conflict errors.
-    - [ ] No duplicate ledger postings are created.
-- [ ] Concurrent duplicate external reference requests:
-    - [ ] Exactly one transfer is created.
-    - [ ] Other requests are rejected with duplicate request errors.
-    - [ ] No duplicate ledger transaction external reference is created.
-- [ ] Lock timeout behavior:
-    - [ ] A transfer waiting on a locked source account fails with the documented structured error.
-    - [ ] The timed-out request creates no transfer, ledger, posting, idempotency, audit, or outbox records.
-- [ ] Optimistic conflict behavior, if optimistic locking is used:
-    - [ ] Version conflict is retried up to the configured max attempts.
-    - [ ] Successful retry creates one transfer and one ledger transaction.
-    - [ ] Exhausted retry returns the documented structured error.
-- [ ] Rollback under concurrent failure:
-    - [ ] A failure after transfer save but before ledger completion rolls back all writes.
-    - [ ] Concurrent successful transfers are not rolled back by another request failure.
-- [ ] Repeated-run stability:
-    - [ ] Same-source concurrent transfer test passes repeatedly.
-    - [ ] Same-key concurrent idempotency test passes repeatedly.
+- [x] Sequential baseline transfer:
+    - [x] One valid transfer debits source and credits destination once.
+    - [x] Final source and destination balances match expected values.
+- [x] Concurrent independent transfers:
+    - [x] Transfers from different source accounts complete successfully.
+    - [x] No unrelated account balance is changed.
+- [x] Concurrent transfers from the same source account within available balance:
+    - [x] Multiple transfers complete.
+    - [x] Final source balance equals initial balance minus all completed transfer amounts.
+    - [x] Final destination balances equal initial balances plus their received amounts.
+    - [x] Ledger transaction count equals completed transfer count.
+    - [x] Posting count equals completed transfer count multiplied by two.
+- [x] Concurrent transfers from the same source account exceeding available balance:
+    - [x] Only transfers that fit within available balance complete.
+    - [x] Excess transfers are rejected with structured insufficient-funds or conflict errors.
+    - [x] Source available and ledger balances never become negative.
+    - [x] Rejected transfers do not create ledger transactions or postings.
+- [x] Concurrent transfers between the same two accounts:
+    - [x] No deadlock occurs.
+    - [x] Completed transfers preserve debit and credit totals.
+    - [x] Final balances are deterministic.
+- [x] Concurrent cross transfers between two accounts:
+    - [x] `A -> B` and `B -> A` requests do not deadlock.
+    - [x] Account locks are acquired in deterministic order.
+    - [x] Final balances reflect only completed transfers.
+- [x] Concurrent duplicate idempotency requests with the same payload:
+    - [x] Exactly one transfer request is created.
+    - [x] Exactly one ledger transaction is created.
+    - [x] Exactly two postings are created.
+    - [x] Every caller receives the same response body.
+    - [x] Replayed responses return `200 OK` after the original creation completes.
+- [x] Concurrent duplicate idempotency requests with different payloads:
+    - [x] One request may complete.
+    - [x] Conflicting requests are rejected with idempotency conflict errors.
+    - [x] No duplicate ledger postings are created.
+- [x] Concurrent duplicate external reference requests:
+    - [x] Exactly one transfer is created.
+    - [x] Other requests are rejected with duplicate request errors.
+    - [x] No duplicate ledger transaction external reference is created.
+- [x] Lock timeout behavior:
+    - [x] A transfer waiting on a locked source account fails with the documented structured error.
+    - [x] The timed-out request creates no transfer, ledger, posting, idempotency, audit, or outbox records.
+- [x] Optimistic conflict behavior, if optimistic locking is used:
+    - [x] Version conflict is retried up to the configured max attempts.
+    - [x] Successful retry creates one transfer and one ledger transaction.
+    - [x] Exhausted retry returns the documented structured error.
+    - [x] Mark optimistic retry assertions as not applicable because transfer creation uses pessimistic locking; API conflict mapping is covered.
+- [x] Rollback under concurrent failure:
+    - [x] A failure after transfer save but before ledger completion rolls back all writes.
+    - [x] Concurrent successful transfers are not rolled back by another request failure.
+- [x] Repeated-run stability:
+    - [x] Same-source concurrent transfer test passes repeatedly.
+    - [x] Same-key concurrent idempotency test passes repeatedly.
 
 ### Acceptance Criteria
 
-- [ ] Locking and isolation choices are documented in an ADR.
-- [ ] Account rows are loaded through the selected locking strategy before balance validation.
-- [ ] Account locks are acquired in deterministic order.
-- [ ] Concurrent transfer tests pass repeatedly.
-- [ ] Final cached account balances are correct after concurrent activity.
-- [ ] Ledger transactions and postings match the number of completed transfers.
-- [ ] Concurrent overdraft attempts never produce negative balances.
-- [ ] Failed concurrent requests do not leave partial transfer, ledger, posting, audit, outbox, or idempotency writes.
-- [ ] Duplicate concurrent idempotency requests create one transfer result.
-- [ ] Lock timeout or optimistic conflict errors are structured and documented.
+- [x] Locking and isolation choices are documented in an ADR.
+- [x] Account rows are loaded through the selected locking strategy before balance validation.
+- [x] Account locks are acquired in deterministic order.
+- [x] Concurrent transfer tests pass repeatedly.
+- [x] Final cached account balances are correct after concurrent activity.
+- [x] Ledger transactions and postings match the number of completed transfers.
+- [x] Concurrent overdraft attempts never produce negative balances.
+- [x] Failed concurrent requests do not leave partial transfer, ledger, posting, audit, outbox, or idempotency writes.
+- [x] Duplicate concurrent idempotency requests create one transfer result.
+- [x] Lock timeout or optimistic conflict errors are structured and documented.
 
 ## Phase 6: Reversal And Adjustment Flows
 

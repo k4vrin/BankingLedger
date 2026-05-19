@@ -22,9 +22,10 @@ import dev.kavrin.banking_ledger.transfer.domain.policy.TransferValidationPolicy
 import dev.kavrin.banking_ledger.transfer.persistence.TransferRequestEntity;
 import dev.kavrin.banking_ledger.transfer.persistence.TransferRequestRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -40,12 +41,20 @@ public class CreateTransferUseCase {
     private final TransferRequestHasher transferRequestHasher;
     private final TransferResponseMapper transferResponseMapper;
     private final LockedAccountLoader lockedAccountLoader;
+    private final TransactionTemplate transactionTemplate;
     private final ObjectMapper objectMapper;
 
     // Uses Spring's default Propagation.REQUIRED so all transfer,
     // ledger, and idempotency writes commit atomically in one transaction.
-    @Transactional
     public CreateTransferResult handle(CreateTransferCommand command) {
+        try {
+            return transactionTemplate.execute(status -> handleInTransaction(command));
+        } catch (DataIntegrityViolationException exception) {
+            return handleDuplicateIdempotencyRace(command, exception);
+        }
+    }
+
+    private CreateTransferResult handleInTransaction(CreateTransferCommand command) {
         TransferValidationPolicy.validateRequest(
                 command.sourceAccountId(),
                 command.destinationAccountId(),
@@ -55,16 +64,13 @@ public class CreateTransferUseCase {
         var requestHash = transferRequestHasher.hash(command);
         var existingIdempotencyRecord = idempotencyService.findTransferCreate(command.idempotencyKey());
         if (existingIdempotencyRecord.isPresent()) {
-            var record = existingIdempotencyRecord.get();
-            idempotencyService.rejectIfHashMismatch(record, requestHash);
-            return new CreateTransferResult(
-                    HttpStatus.OK.value(),
-                    record.getResponseBody(),
-                    record.getResourceId(),
-                    true
-            );
+            return replayExistingIdempotencyRecord(requestHash, existingIdempotencyRecord.get());
         }
 
+        // Transfers use pessimistic row locking. If a row lock cannot be acquired,
+        // the exception is mapped to a retryable 409 response by GlobalExceptionHandler.
+        // Do not retry inside this @Transactional method; retrying here would reuse
+        // a transaction that may already be marked rollback-only.
         LockedTransferAccounts lockedAccounts =
                 lockedAccountLoader.loadForTransfer(
                         command.sourceAccountId(),
@@ -73,6 +79,11 @@ public class CreateTransferUseCase {
 
         var source = lockedAccounts.sourceAccount();
         var destination = lockedAccounts.destinationAccount();
+
+        existingIdempotencyRecord = idempotencyService.findTransferCreate(command.idempotencyKey());
+        if (existingIdempotencyRecord.isPresent()) {
+            return replayExistingIdempotencyRecord(requestHash, existingIdempotencyRecord.get());
+        }
 
         var currencyCode = CurrencyCode.of(command.currencyCode().value());
         validateDuplicateExternalReference(command);
@@ -125,6 +136,38 @@ public class CreateTransferUseCase {
                 responseBody,
                 completedTransfer.getId(),
                 false
+        );
+    }
+
+    private CreateTransferResult handleDuplicateIdempotencyRace(
+            CreateTransferCommand command,
+            DataIntegrityViolationException exception
+    ) {
+        var requestHash = transferRequestHasher.hash(command);
+
+        var existingRecord = idempotencyService.findTransferCreate(command.idempotencyKey())
+                .orElseThrow(() -> exception);
+
+        idempotencyService.rejectIfHashMismatch(existingRecord, requestHash);
+
+        return new CreateTransferResult(
+                HttpStatus.OK.value(),
+                existingRecord.getResponseBody(),
+                existingRecord.getResourceId(),
+                true
+        );
+    }
+
+    private CreateTransferResult replayExistingIdempotencyRecord(
+            String requestHash,
+            dev.kavrin.banking_ledger.idempotency.persistence.entity.IdempotencyRecordEntity record
+    ) {
+        idempotencyService.rejectIfHashMismatch(record, requestHash);
+        return new CreateTransferResult(
+                HttpStatus.OK.value(),
+                record.getResponseBody(),
+                record.getResourceId(),
+                true
         );
     }
 

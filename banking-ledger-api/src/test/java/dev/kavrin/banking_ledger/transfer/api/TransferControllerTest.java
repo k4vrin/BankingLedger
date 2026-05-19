@@ -14,7 +14,9 @@ import dev.kavrin.banking_ledger.transfer.application.service.TransferQueryUseCa
 import dev.kavrin.banking_ledger.transfer.domain.model.TransferStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.MediaType;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -23,12 +25,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class TransferControllerTest {
 
@@ -120,6 +119,36 @@ class TransferControllerTest {
     }
 
     @Test
+    void lockTimeoutReturnsStructuredConflictError() throws Exception {
+        createTransferUseCase.nextException = new CannotAcquireLockException("lock timeout");
+
+        mockMvc.perform(post("/api/v1/transfers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Idempotency-Key", "transfer-key")
+                        .content(validRequestBody()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("CONCURRENT_TRANSFER_CONFLICT"))
+                .andExpect(jsonPath("$.message").value(
+                        "Transfer could not be completed because the account is currently being modified. Please retry."
+                ));
+    }
+
+    @Test
+    void optimisticLockFailureReturnsStructuredConflictError() throws Exception {
+        createTransferUseCase.nextException = new ObjectOptimisticLockingFailureException("AccountEntity", UUID.randomUUID());
+
+        mockMvc.perform(post("/api/v1/transfers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Idempotency-Key", "transfer-key")
+                        .content(validRequestBody()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("CONCURRENT_TRANSFER_CONFLICT"))
+                .andExpect(jsonPath("$.message").value(
+                        "Transfer could not be completed because the account changed during processing. Please retry."
+                ));
+    }
+
+    @Test
     void getTransferReturnsTransferResponse() throws Exception {
         var transferId = UUID.randomUUID();
         var sourceAccountId = UUID.randomUUID();
@@ -175,14 +204,18 @@ class TransferControllerTest {
     private static class StubCreateTransferUseCase extends CreateTransferUseCase {
         private CreateTransferCommand lastCommand;
         private CreateTransferResult nextResult = new CreateTransferResult(201, "{}", UUID.randomUUID(), false);
+        private RuntimeException nextException;
 
         private StubCreateTransferUseCase() {
-            super(null, null, null, null, null, null, null, null);
+            super(null, null, null, null, null, null, null, null, null);
         }
 
         @Override
         public CreateTransferResult handle(CreateTransferCommand command) {
             lastCommand = command;
+            if (nextException != null) {
+                throw nextException;
+            }
             return nextResult;
         }
     }
