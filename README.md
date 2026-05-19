@@ -34,6 +34,63 @@ The backend API lives in `banking-ledger-api`.
     └── Project.md
 ```
 
+## End-State Architecture
+
+The project is designed as a modular Spring Boot core banking ledger. The API layer accepts operational requests, application services coordinate transactional workflows, domain policies enforce financial invariants, and Oracle remains the system of record for accounts, transfers, ledger postings, audit events, idempotency records, and outbox events.
+
+```mermaid
+flowchart TB
+    client["API Clients\nCustomer apps, teller tools, ops tools, service clients"]
+    auth["Security Boundary\nJWT authentication, role checks, ownership checks"]
+    api["REST API Layer\nAccounts, transfers, ledger operations, reversals, reconciliation, audit"]
+    app["Application Services\nUse cases, transaction boundaries, idempotency, orchestration"]
+    domain["Domain Layer\nDouble-entry rules, account status policy, transfer validation, reversal rules"]
+    ledger["Ledger Posting Engine\nBalanced journals, postings, cached balance updates, append-only writes"]
+    persistence["Persistence Layer\nSpring Data JPA repositories, entity mappers, Flyway-managed schema"]
+    oracle[("Oracle Database\nAccounts, ledger transactions, journal entries, postings,\ntransfers, audit events, idempotency records, outbox events")]
+    outbox["Transactional Outbox\nPending events committed with business data"]
+    publisher["Outbox Publisher\nRetry, dead-letter handling, metrics"]
+    kafka[("Kafka\nLedgerTransactionPosted, LedgerTransactionReversed,\nAccountBalanceChanged, ReconciliationMismatchFound")]
+    audit["Audit Trail\nActor, role, channel, correlation id, entity, payload"]
+    reconciliation["Reconciliation Jobs\nSettlement import, ledger comparison, mismatch reporting"]
+    reporting["Reporting and Investigation\nAccount history, ops ledger lookup, audit queries, SQL reports"]
+    observability["Observability\nCorrelation IDs, structured errors, actuator health, metrics"]
+
+    client --> auth
+    auth --> api
+    api --> app
+    app --> domain
+    domain --> ledger
+    app --> ledger
+    ledger --> persistence
+    app --> persistence
+    persistence --> oracle
+
+    app --> audit
+    audit --> oracle
+    app --> outbox
+    outbox --> oracle
+    publisher --> outbox
+    publisher --> kafka
+
+    reconciliation --> persistence
+    reconciliation --> oracle
+    reporting --> persistence
+    reporting --> oracle
+    api --> observability
+    app --> observability
+```
+
+Key architectural properties:
+
+- Double-entry posting is the only normal path for balance-changing financial activity.
+- Posted ledger records are append-only; corrections use reversals or adjustment entries.
+- Account balances are cached views updated inside the same database transaction as postings.
+- Idempotency protects write APIs from duplicate client retries.
+- Audit and outbox records are committed atomically with financial workflows.
+- Kafka publishing is decoupled through the transactional outbox so database commits are never dependent on broker availability.
+- Oracle constraints remain a final safety net for amount, status, currency, and relationship invariants.
+
 ## Prerequisites
 
 - JDK 21
@@ -310,6 +367,6 @@ See `docs/DatabaseDesign.md` for schema rationale, transaction isolation choices
 - Use reversals or adjustment entries instead of destructive updates.
 - Keep DTOs separate from JPA entities.
 - Use explicit transaction boundaries around posting, reversal, and transfer flows.
-- Store money using minor units or strict `BigDecimal` scale rules.
+- Store monetary amounts as integer minor units with explicit currency codes.
 - Do not log sensitive data.
 - Add integration tests for database constraints, rollback behavior, idempotency, and concurrent transfers.
