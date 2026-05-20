@@ -5,7 +5,8 @@ public enum OutboxEventType {
     LEDGER_TRANSACTION_REVERSED("LedgerTransactionReversed"),
     ADJUSTMENT_POSTED("AdjustmentPosted"),
     ACCOUNT_BALANCE_CHANGED("AccountBalanceChanged"),
-    RECONCILIATION_MISMATCH_FOUND("ReconciliationMismatchFound"),;
+    RECONCILIATION_MISMATCH_FOUND("ReconciliationMismatchFound"),
+    RECONCILIATION_COMPLETED("ReconciliationCompleted");
 
     private final String eventName;
 
@@ -23,7 +24,7 @@ public enum OutboxEventType {
                  LEDGER_TRANSACTION_REVERSED,
                  ADJUSTMENT_POSTED -> OutboxDestination.LEDGER_EVENTS;
             case ACCOUNT_BALANCE_CHANGED -> OutboxDestination.ACCOUNT_EVENTS;
-            case RECONCILIATION_MISMATCH_FOUND -> OutboxDestination.RECONCILIATION_EVENTS;
+            case RECONCILIATION_MISMATCH_FOUND, RECONCILIATION_COMPLETED -> OutboxDestination.RECONCILIATION_EVENTS;
         };
     }
 }

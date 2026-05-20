@@ -69,4 +69,19 @@ public class OutboxEventEntity {
     public void prePersist() {
         this.createdAt = OffsetDateTime.now();
     }
+
+
+    public void markPublished(OffsetDateTime publishedAt) {
+        this.status = OutboxStatus.PUBLISHED;
+        this.publishedAt = publishedAt;
+        this.nextRetryAt = null;
+        this.lastErrorMessage = null;
+    }
+
+    public void markFailed(String errorMessage, OffsetDateTime nextRetryAt) {
+        this.status = OutboxStatus.FAILED;
+        this.retryCount = this.retryCount + 1;
+        this.nextRetryAt = nextRetryAt;
+        this.lastErrorMessage = errorMessage;
+    }
 }

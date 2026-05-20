@@ -1379,35 +1379,35 @@ Goal: Publish financial events reliably without losing consistency between datab
     - [x] Add `OutboxPublishStatus` transition rules.
     - [x] Add payload envelope model with event id, event type, aggregate id, occurred timestamp, schema version, and data.
     - [x] Add event schema version constants.
-- [ ] Add outbox writer service:
-    - [ ] Centralize outbox row creation in one component.
-    - [ ] Accept aggregate metadata, event type, destination, correlation id, and payload.
-    - [ ] Serialize payload with `ObjectMapper`.
-    - [ ] Reject unserializable payloads.
-    - [ ] Write inside the caller transaction.
-    - [ ] Replace direct outbox repository writes in ledger, reversal, adjustment, and later reconciliation flows.
-- [ ] Ensure atomic financial writes:
-    - [ ] Confirm ledger posting writes outbox event in the same transaction.
-    - [ ] Confirm reversal writes outbox event in the same transaction.
-    - [ ] Confirm adjustment writes outbox event in the same transaction.
-    - [ ] Confirm rollback removes outbox rows when financial writes fail.
-    - [ ] Document which use cases write which event types.
-- [ ] Implement outbox publisher worker:
-    - [ ] Add scheduled publisher component.
-    - [ ] Select eligible events with `PENDING` or retryable `FAILED` status.
-    - [ ] Lock selected rows to prevent duplicate publisher instances from publishing the same event.
-    - [ ] Publish in deterministic batch order.
-    - [ ] Make batch size configurable.
-    - [ ] Make scheduler interval configurable.
-    - [ ] Skip publishing when worker is disabled by config.
-- [ ] Add Kafka publishing:
-    - [ ] Configure Kafka producer properties.
-    - [ ] Publish event payload to destination topic.
-    - [ ] Use outbox event id as Kafka message key or header.
-    - [ ] Include correlation id in Kafka headers.
-    - [ ] Include event type and schema version in Kafka headers.
-    - [ ] Mark event `PUBLISHED` only after successful send acknowledgement.
-    - [ ] Store published timestamp.
+- [x] Add outbox writer service:
+    - [x] Centralize outbox row creation in one component.
+    - [x] Accept aggregate metadata, event type, destination, correlation id, and payload.
+    - [x] Serialize payload with `ObjectMapper`.
+    - [x] Reject unserializable payloads.
+    - [x] Write inside the caller transaction.
+    - [x] Replace direct outbox repository writes in ledger, reversal, adjustment, and later reconciliation flows.
+- [x] Ensure atomic financial writes:
+    - [x] Confirm ledger posting writes outbox event in the same transaction.
+    - [x] Confirm reversal writes outbox event in the same transaction.
+    - [x] Confirm adjustment writes outbox event in the same transaction.
+    - [x] Confirm rollback removes outbox rows when financial writes fail.
+    - [x] Document which use cases write which event types.
+- [x] Implement outbox publisher worker:
+    - [x] Add scheduled publisher component.
+    - [x] Select eligible events with `PENDING` or retryable `FAILED` status.
+    - [x] Lock selected rows to prevent duplicate publisher instances from publishing the same event.
+    - [x] Publish in deterministic batch order.
+    - [x] Make batch size configurable.
+    - [x] Make scheduler interval configurable.
+    - [x] Skip publishing when worker is disabled by config.
+- [x] Add Kafka publishing:
+    - [x] Configure Kafka producer properties.
+    - [x] Publish event payload to destination topic.
+    - [x] Use outbox event id as Kafka message key or header.
+    - [x] Include correlation id in Kafka headers.
+    - [x] Include event type and schema version in Kafka headers.
+    - [x] Mark event `PUBLISHED` only after successful send acknowledgement.
+    - [x] Store published timestamp.
 - [ ] Publish required events:
     - [ ] `LedgerTransactionPosted`
     - [ ] `LedgerTransactionReversed`
