@@ -6,10 +6,12 @@ import dev.kavrin.banking_ledger.reconciliation.domain.model.ReconciliationSever
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.UUID;
 
-public interface ReconciliationResultRepository extends JpaRepository<ReconciliationResultEntity, UUID> {
+public interface ReconciliationResultRepository extends JpaRepository<ReconciliationResultEntity, UUID>,
+        JpaSpecificationExecutor<ReconciliationResultEntity> {
 
     Page<ReconciliationResultEntity> findByBatch_IdOrderByCreatedAtDescIdDesc(UUID batchId, Pageable pageable);
 

@@ -1555,61 +1555,61 @@ Goal: Simulate settlement batch import, compare external settlement data with in
     - [x] Reject non-positive amounts where settlement status requires an amount.
     - [x] Reject unsupported settlement statuses.
     - [x] Return structured validation errors.
-- [ ] Implement settlement batch creation use case:
-    - [ ] Save batch with `PENDING` or `IMPORTED` status.
-    - [ ] Save all settlement items.
-    - [ ] Store item raw line hash or canonical hash.
-    - [ ] Store imported actor and correlation id.
-    - [ ] Run reconciliation synchronously for portfolio simplicity or document async decision.
-    - [ ] Mark batch `COMPLETED` after reconciliation.
-    - [ ] Mark batch `FAILED` if reconciliation fails after import.
-    - [ ] Ensure failed transaction rolls back partial batch if synchronous.
-- [ ] Match settlement items to internal ledger transactions:
-    - [ ] Match by external reference.
-    - [ ] Optionally match by idempotency resource id if available.
-    - [ ] Ignore reversed transactions only if documented.
-    - [ ] Include reversal and adjustment transaction types in matching rules.
-    - [ ] Define how duplicate internal matches are handled.
-    - [ ] Define how duplicate external matches are handled.
-- [ ] Detect mismatches:
-    - [ ] Missing internal transaction.
-    - [ ] Missing external settlement item.
-    - [ ] Amount mismatch.
-    - [ ] Currency mismatch.
-    - [ ] Status mismatch.
-    - [ ] Duplicate external item.
-    - [ ] Duplicate internal transaction reference.
-    - [ ] Reversed transaction settled as successful.
-    - [ ] Settlement item outside expected date window.
-- [ ] Add reconciliation result query use cases:
-    - [ ] Query batch by id.
-    - [ ] Query batch list with filters.
-    - [ ] Query result list by batch id.
-    - [ ] Filter results by mismatch type.
-    - [ ] Filter results by severity.
-    - [ ] Filter results by status.
-    - [ ] Add pagination and deterministic sorting.
-- [ ] Add reconciliation REST endpoints:
-    - [ ] `POST /api/v1/ops/reconciliation/batches`.
-    - [ ] `GET /api/v1/ops/reconciliation/batches`.
-    - [ ] `GET /api/v1/ops/reconciliation/batches/{batchId}`.
-    - [ ] `GET /api/v1/ops/reconciliation/batches/{batchId}/results`.
-    - [ ] Require `OPS_ADMIN` or `SERVICE` for import.
-    - [ ] Require `AUDITOR` or `OPS_ADMIN` for queries.
-- [ ] Add audit events:
-    - [ ] Write `RECONCILIATION_BATCH_IMPORTED`.
-    - [ ] Write `RECONCILIATION_COMPLETED`.
-    - [ ] Write `RECONCILIATION_FAILED` if import or comparison fails.
-    - [ ] Include batch id, counts, mismatch count, source, actor, and correlation id.
-- [ ] Add outbox events:
-    - [ ] Publish `ReconciliationMismatchFound` for critical mismatches.
-    - [ ] Publish `ReconciliationCompleted` for completed batch.
-    - [ ] Ensure outbox rows commit atomically with reconciliation rows.
-- [ ] Add documentation:
-    - [ ] Add ADR for reconciliation design and matching rules.
-    - [ ] Document supported mismatch types.
-    - [ ] Document sample settlement batch payload.
-    - [ ] Document operational review flow for mismatches.
+- [x] Implement settlement batch creation use case:
+    - [x] Save batch with `PENDING` or `IMPORTED` status.
+    - [x] Save all settlement items.
+    - [x] Store item raw line hash or canonical hash.
+    - [x] Store imported actor and correlation id.
+    - [x] Run reconciliation synchronously for portfolio simplicity or document async decision.
+    - [x] Mark batch `COMPLETED` after reconciliation.
+    - [x] Roll back the batch transaction if synchronous reconciliation fails unexpectedly.
+    - [x] Ensure failed transaction rolls back partial batch if synchronous.
+- [x] Match settlement items to internal ledger transactions:
+    - [x] Match by external reference.
+    - [x] Optionally match by idempotency resource id if available.
+    - [x] Ignore reversed transactions only if documented.
+    - [x] Include reversal and adjustment transaction types in matching rules.
+    - [x] Define how duplicate internal matches are handled.
+    - [x] Define how duplicate external matches are handled.
+- [x] Detect mismatches:
+    - [x] Missing internal transaction.
+    - [x] Missing external settlement item.
+    - [x] Amount mismatch.
+    - [x] Currency mismatch.
+    - [x] Status mismatch.
+    - [x] Duplicate external item.
+    - [x] Duplicate internal transaction reference.
+    - [x] Reversed transaction settled as successful.
+    - [x] Settlement item outside expected date window.
+- [x] Add reconciliation result query use cases:
+    - [x] Query batch by id.
+    - [x] Query batch list with filters.
+    - [x] Query result list by batch id.
+    - [x] Filter results by mismatch type.
+    - [x] Filter results by severity.
+    - [x] Filter results by status.
+    - [x] Add pagination and deterministic sorting.
+- [x] Add reconciliation REST endpoints:
+    - [x] `POST /api/v1/ops/reconciliation/batches`.
+    - [x] `GET /api/v1/ops/reconciliation/batches`.
+    - [x] `GET /api/v1/ops/reconciliation/batches/{batchId}`.
+    - [x] `GET /api/v1/ops/reconciliation/batches/{batchId}/results`.
+    - [x] Require `OPS_ADMIN` or `SERVICE` for import.
+    - [x] Require `AUDITOR` or `OPS_ADMIN` for queries.
+- [x] Add audit events:
+    - [x] Write `RECONCILIATION_BATCH_IMPORTED`.
+    - [x] Write `RECONCILIATION_COMPLETED`.
+    - [x] Write `RECONCILIATION_FAILED` if import or comparison fails.
+    - [x] Include batch id, counts, mismatch count, source, actor, and correlation id.
+- [x] Add outbox events:
+    - [x] Publish `ReconciliationMismatchFound` for critical mismatches.
+    - [x] Publish `ReconciliationCompleted` for completed batch.
+    - [x] Ensure outbox rows commit atomically with reconciliation rows.
+- [x] Add documentation:
+    - [x] Add ADR for reconciliation design and matching rules.
+    - [x] Document supported mismatch types.
+    - [x] Document sample settlement batch payload.
+    - [x] Document operational review flow for mismatches.
 
 ### Test Scenarios
 
@@ -1626,48 +1626,48 @@ Goal: Simulate settlement batch import, compare external settlement data with in
     - [x] Invalid currency returns structured validation error.
     - [x] Duplicate external reference in request returns structured validation error.
     - [x] Unsupported settlement status returns structured validation error.
-- [ ] Matching behavior:
-    - [ ] Exact external reference, amount, currency, and status produces matched result.
-    - [ ] Missing internal ledger transaction produces missing-internal mismatch.
-    - [ ] Internal ledger transaction without external item produces missing-external mismatch.
-    - [ ] Amount mismatch is detected.
-    - [ ] Currency mismatch is detected.
-    - [ ] Status mismatch is detected.
-    - [ ] Duplicate external item is detected.
-    - [ ] Duplicate internal reference is detected.
-    - [ ] Reversed transaction settled as successful is detected.
-- [ ] API behavior:
-    - [ ] `POST /api/v1/ops/reconciliation/batches` returns created batch.
-    - [ ] Batch response includes item count and mismatch count.
-    - [ ] `GET /api/v1/ops/reconciliation/batches/{batchId}` returns batch summary.
-    - [ ] Unknown batch id returns structured `404`.
-    - [ ] Result list supports mismatch type filter.
-    - [ ] Result list supports severity filter.
-    - [ ] Result list supports pagination and sorting.
-- [ ] Authorization:
-    - [ ] `OPS_ADMIN` can import batch.
-    - [ ] `SERVICE` can import batch.
-    - [ ] `AUDITOR` can query batches and results.
-    - [ ] `CUSTOMER` cannot import or query reconciliation.
-    - [ ] `TELLER` cannot import unless explicitly allowed.
-- [ ] Audit and outbox:
-    - [ ] Import writes `RECONCILIATION_BATCH_IMPORTED`.
-    - [ ] Completed batch writes `RECONCILIATION_COMPLETED`.
-    - [ ] Critical mismatch writes `ReconciliationMismatchFound` outbox event.
-    - [ ] Failed reconciliation rolls back or marks failed according to documented transaction policy.
-    - [ ] Audit payload includes source, counts, mismatch count, and correlation id.
+- [x] Matching behavior:
+    - [x] Exact external reference, amount, currency, and status produces matched result.
+    - [x] Missing internal ledger transaction produces missing-internal mismatch.
+    - [x] Internal ledger transaction without external item produces missing-external mismatch.
+    - [x] Amount mismatch is detected.
+    - [x] Currency mismatch is detected.
+    - [x] Status mismatch is detected.
+    - [x] Duplicate external item is detected.
+    - [x] Duplicate internal reference is detected.
+    - [x] Reversed transaction settled as successful is detected.
+- [x] API behavior:
+    - [x] `POST /api/v1/ops/reconciliation/batches` returns created batch.
+    - [x] Batch response includes item count and mismatch count.
+    - [x] `GET /api/v1/ops/reconciliation/batches/{batchId}` returns batch summary.
+    - [x] Unknown batch id returns structured `404`.
+    - [x] Result list supports mismatch type filter.
+    - [x] Result list supports severity filter.
+    - [x] Result list supports pagination and sorting.
+- [x] Authorization:
+    - [x] `OPS_ADMIN` can import batch.
+    - [x] `SERVICE` can import batch.
+    - [x] `AUDITOR` can query batches and results.
+    - [x] `CUSTOMER` cannot import or query reconciliation.
+    - [x] `TELLER` cannot import unless explicitly allowed.
+- [x] Audit and outbox:
+    - [x] Import writes `RECONCILIATION_BATCH_IMPORTED`.
+    - [x] Completed batch writes `RECONCILIATION_COMPLETED`.
+    - [x] Critical mismatch writes `ReconciliationMismatchFound` outbox event.
+    - [x] Failed reconciliation rolls back or marks failed according to documented transaction policy.
+    - [x] Audit payload includes source, counts, mismatch count, and correlation id.
 
 ### Acceptance Criteria
 
-- [ ] `POST /api/v1/ops/reconciliation/batches` imports a settlement batch.
-- [ ] `GET /api/v1/ops/reconciliation/batches/{batchId}` returns reconciliation results.
-- [ ] Mismatches are detected and categorized.
-- [ ] Mismatch events are added to the outbox.
-- [ ] Reconciliation actions are audited.
-- [ ] Tests cover matched, missing, and mismatched settlement items.
-- [ ] Matching rules are documented and deterministic.
-- [ ] Reconciliation APIs are protected by role.
-- [ ] Batch and result queries support pagination and filtering.
+- [x] `POST /api/v1/ops/reconciliation/batches` imports a settlement batch.
+- [x] `GET /api/v1/ops/reconciliation/batches/{batchId}` returns reconciliation results.
+- [x] Mismatches are detected and categorized.
+- [x] Mismatch events are added to the outbox.
+- [x] Reconciliation actions are audited.
+- [x] Tests cover matched, missing, and mismatched settlement items.
+- [x] Matching rules are documented and deterministic.
+- [x] Reconciliation APIs are protected by role.
+- [x] Batch and result queries support pagination and filtering.
 
 ## Phase 11: Reporting And Oracle-Oriented SQL
 
