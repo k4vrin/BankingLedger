@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, UUID> {
@@ -33,4 +34,13 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, 
             OutboxStatus status,
             Pageable pageable
     );
+
+    long countByStatus(OutboxStatus status);
+
+    @Query("""
+    select min(e.createdAt)
+    from OutboxEventEntity e
+    where e.status = 'PENDING'
+""")
+    Optional<OffsetDateTime> findOldestPendingCreatedAt();
 }

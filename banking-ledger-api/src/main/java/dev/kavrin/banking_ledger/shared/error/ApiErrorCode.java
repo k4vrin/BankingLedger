@@ -43,7 +43,8 @@ public sealed interface ApiErrorCode permits
         INVALID_IDEMPOTENCY_KEY,
         CONCURRENT_TRANSFER_CONFLICT,
         TRANSFER_NOT_REVERSIBLE,
-        REVERSAL_ALREADY_EXISTS
+        REVERSAL_ALREADY_EXISTS,
+        OUTBOX_EVENT_NOT_REQUEUEABLE
     }
 
     enum Security implements ApiErrorCode {

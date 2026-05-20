@@ -1,5 +1,6 @@
 package dev.kavrin.banking_ledger.ledger.application.service;
 
+import dev.kavrin.banking_ledger.account.domain.model.AccountCategory;
 import dev.kavrin.banking_ledger.account.persistence.AccountEntity;
 import dev.kavrin.banking_ledger.account.persistence.AccountRepository;
 import dev.kavrin.banking_ledger.audit.application.command.WriteAuditEventCommand;
@@ -18,10 +19,7 @@ import dev.kavrin.banking_ledger.ledger.persistence.repository.LedgerTransaction
 import dev.kavrin.banking_ledger.ledger.persistence.repository.PostingRepository;
 import dev.kavrin.banking_ledger.outbox.application.command.WriteOutboxEventCommand;
 import dev.kavrin.banking_ledger.outbox.application.service.OutboxWriterService;
-import dev.kavrin.banking_ledger.outbox.domain.model.LedgerTransactionPostedPayload;
-import dev.kavrin.banking_ledger.outbox.domain.model.OutboxAggregateType;
-import dev.kavrin.banking_ledger.outbox.domain.model.OutboxDestination;
-import dev.kavrin.banking_ledger.outbox.domain.model.OutboxEventType;
+import dev.kavrin.banking_ledger.outbox.domain.model.*;
 import dev.kavrin.banking_ledger.shared.error.*;
 import dev.kavrin.banking_ledger.shared.money.CurrencyCode;
 import jakarta.persistence.EntityManager;
@@ -31,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.UUID;
 
@@ -87,13 +86,19 @@ public class PostLedgerTransactionUseCase {
         var postings = mapper.toPostingEntities(graph, savedJournalEntry, accountsById, postedAt);
         var savedPostings = postingRepository.saveAll(postings);
 
+        var changedCustomerAccountIds = new LinkedHashSet<UUID>();
         for (var posting : graph.journalEntry().getPostings()) {
-            balanceUpdater.apply(accountsById.get(posting.accountId()), posting);
+            var account = accountsById.get(posting.accountId());
+            balanceUpdater.apply(account, posting);
+            if (account.getAccountCategory() == AccountCategory.CUSTOMER) {
+                changedCustomerAccountIds.add(account.getId());
+            }
         }
 
         postingRepository.flush();
         writeAuditEvent(command, savedTransaction.getId());
         writeOutboxEvent(command, savedTransaction.getId(), postedAt);
+        writeAccountBalanceChangedEvents(command, accountsById, changedCustomerAccountIds, postedAt);
 
         return new PostedLedgerTransactionResult(
                 savedTransaction.getId(),
@@ -217,5 +222,30 @@ public class PostLedgerTransactionUseCase {
                         postedAt
                 )
         ));
+    }
+
+    private void writeAccountBalanceChangedEvents(
+            PostLedgerTransactionCommand command,
+            Map<UUID, AccountEntity> accountsById,
+            LinkedHashSet<UUID> changedCustomerAccountIds,
+            OffsetDateTime changedAt
+    ) {
+        for (UUID accountId : changedCustomerAccountIds) {
+            var account = accountsById.get(accountId);
+            outboxWriterService.write(new WriteOutboxEventCommand(
+                    OutboxAggregateType.ACCOUNT.name(),
+                    account.getId(),
+                    OutboxEventType.ACCOUNT_BALANCE_CHANGED,
+                    OutboxDestination.ACCOUNT_EVENTS,
+                    command.correlationId(),
+                    new AccountBalanceChangedPayload(
+                            account.getId(),
+                            account.getCurrencyCode(),
+                            account.getLedgerBalanceMinor(),
+                            account.getAvailableBalanceMinor(),
+                            changedAt
+                    )
+            ));
+        }
     }
 }

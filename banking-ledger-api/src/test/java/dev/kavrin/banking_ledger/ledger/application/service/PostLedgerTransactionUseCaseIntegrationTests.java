@@ -107,6 +107,10 @@ class PostLedgerTransactionUseCaseIntegrationTests {
         }
 
         for (UUID accountId : accountIds) {
+            jdbcTemplate.update(
+                    "delete from outbox_events where aggregate_id = hextoraw(?)",
+                    raw(accountId)
+            );
             jdbcTemplate.update("delete from accounts where id = hextoraw(?)", raw(accountId));
         }
         for (UUID customerId : customerIds) {
@@ -150,6 +154,27 @@ class PostLedgerTransactionUseCaseIntegrationTests {
             assertThat(event.getStatus()).isEqualTo(OutboxStatus.PENDING);
             assertThat(event.getEventPayload()).contains("\"amountMinor\":100");
                 });
+
+        assertThat(outboxEventRepository.findAll())
+                .filteredOn(event -> source.getId().equals(event.getAggregateId()) || destination.getId().equals(event.getAggregateId()))
+                .hasSize(2)
+                .allSatisfy(event -> {
+                    assertThat(event.getAggregateType()).isEqualTo("ACCOUNT");
+                    assertThat(event.getEventType()).isEqualTo("AccountBalanceChanged");
+                    assertThat(event.getDestination()).isEqualTo("banking-ledger.account-events");
+                    assertThat(event.getStatus()).isEqualTo(OutboxStatus.PENDING);
+                });
+
+        assertThat(outboxEventRepository.findAll())
+                .filteredOn(event -> source.getId().equals(event.getAggregateId()))
+                .singleElement()
+                .satisfies(event -> assertThat(event.getEventPayload())
+                        .contains("\"ledgerBalanceMinor\":900", "\"availableBalanceMinor\":900"));
+        assertThat(outboxEventRepository.findAll())
+                .filteredOn(event -> destination.getId().equals(event.getAggregateId()))
+                .singleElement()
+                .satisfies(event -> assertThat(event.getEventPayload())
+                        .contains("\"ledgerBalanceMinor\":1100", "\"availableBalanceMinor\":1100"));
     }
 
     @Test

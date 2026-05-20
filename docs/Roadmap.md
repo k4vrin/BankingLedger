@@ -1408,13 +1408,13 @@ Goal: Publish financial events reliably without losing consistency between datab
     - [x] Include event type and schema version in Kafka headers.
     - [x] Mark event `PUBLISHED` only after successful send acknowledgement.
     - [x] Store published timestamp.
-- [ ] Publish required events:
-    - [ ] `LedgerTransactionPosted`
-    - [ ] `LedgerTransactionReversed`
-    - [ ] `AdjustmentPosted`
-    - [ ] `AccountBalanceChanged`
-    - [ ] `ReconciliationMismatchFound`
-    - [ ] `ReconciliationCompleted`
+- [x] Publish required events:
+    - [x] `LedgerTransactionPosted`
+    - [x] `LedgerTransactionReversed`
+    - [x] `AdjustmentPosted`
+    - [x] `AccountBalanceChanged`
+    - [x] `ReconciliationMismatchFound`
+    - [x] `ReconciliationCompleted`
 - [x] Add retry handling:
     - [x] Increment retry count on publish failure.
     - [x] Store last error message with safe truncation.
@@ -1422,98 +1422,98 @@ Goal: Publish financial events reliably without losing consistency between datab
     - [x] Stop retrying after max attempts.
     - [x] Move exhausted events to `DEAD_LETTERED`.
     - [x] Make max attempts configurable.
-- [ ] Add dead-letter handling:
+- [x] Add dead-letter handling:
     - [x] Define when an event is dead-lettered.
     - [x] Keep dead-lettered rows queryable.
     - [x] Add optional admin endpoint or repository query for dead-lettered events.
     - [x] Ensure dead-lettering does not delete payloads.
-    - [ ] Document manual recovery steps.
-- [ ] Add replay strategy:
-    - [ ] Add admin use case to requeue dead-lettered or failed events.
-    - [ ] Require `OPS_ADMIN` or `SERVICE` for replay.
-    - [ ] Preserve original event id and payload.
-    - [ ] Reset retry count only when explicitly requested.
-    - [ ] Audit replay requests.
-    - [ ] Prevent replay of already published events unless explicitly forced.
-- [ ] Add observability:
-    - [ ] Add metric for pending outbox count.
-    - [ ] Add metric for oldest pending event age.
-    - [ ] Add metric for publish success count.
-    - [ ] Add metric for publish failure count.
-    - [ ] Add metric for dead-letter count.
-    - [ ] Log publish failures with correlation id and event id.
-    - [ ] Do not log full event payload by default.
-- [ ] Add documentation:
-    - [ ] Add ADR for outbox and Kafka publishing strategy.
-    - [ ] Document topic names and event schemas.
-    - [ ] Document retry and dead-letter policy.
-    - [ ] Document replay procedure.
+    - [x] Document manual recovery steps.
+- [x] Add replay strategy:
+    - [x] Add admin use case to requeue dead-lettered or failed events.
+    - [x] Require `OPS_ADMIN` or `SERVICE` for replay.
+    - [x] Preserve original event id and payload.
+    - [x] Reset retry count only when explicitly requested.
+    - [x] Audit replay requests.
+    - [x] Prevent replay of already published events unless explicitly forced.
+- [x] Add observability:
+    - [x] Add metric for pending outbox count.
+    - [x] Add metric for oldest pending event age.
+    - [x] Add metric for publish success count.
+    - [x] Add metric for publish failure count.
+    - [x] Add metric for dead-letter count.
+    - [x] Log publish failures with correlation id and event id.
+    - [x] Do not log full event payload by default.
+- [x] Add documentation:
+    - [x] Add ADR for outbox and Kafka publishing strategy.
+    - [x] Document topic names and event schemas.
+    - [x] Document retry and dead-letter policy.
+    - [x] Document replay procedure.
     - [x] Document local Kafka setup.
 
 ### Test Scenarios
 
-- [ ] Outbox schema and persistence:
-    - [ ] Valid outbox row persists with `PENDING` status.
-    - [ ] Invalid status is rejected by schema.
-    - [ ] Negative retry count is rejected.
-    - [ ] Event payload is required.
-    - [ ] Aggregate id is required.
-    - [ ] Status and retry indexes support publisher query.
-- [ ] Outbox writer:
-    - [ ] Writer persists expected aggregate metadata.
-    - [ ] Writer serializes payload.
-    - [ ] Writer rejects unserializable payload.
-    - [ ] Writer uses caller correlation id.
-    - [ ] Writer participates in caller transaction.
-    - [ ] Rollback removes outbox rows.
-- [ ] Financial event creation:
-    - [ ] Ledger posting creates `LedgerTransactionPosted`.
-    - [ ] Reversal creates `LedgerTransactionReversed`.
-    - [ ] Adjustment creates `AdjustmentPosted`.
-    - [ ] Balance-changing flow creates expected `AccountBalanceChanged` events if implemented.
-    - [ ] Reconciliation mismatch creates `ReconciliationMismatchFound`.
-- [ ] Publisher success:
-    - [ ] Pending event is sent to Kafka.
-    - [ ] Published event is marked `PUBLISHED`.
-    - [ ] Published timestamp is set.
-    - [ ] Kafka headers include event id, event type, schema version, and correlation id.
-    - [ ] Already published event is not republished by normal scheduler.
-- [ ] Publisher concurrency:
-    - [ ] Two publisher workers do not publish the same event.
-    - [ ] Row lock prevents duplicate processing.
-    - [ ] Failed lock acquisition is retried later.
-    - [ ] Batch ordering is deterministic.
-- [ ] Retry and dead-letter:
+- [x] Outbox schema and persistence:
+    - [x] Valid outbox row persists with `PENDING` status.
+    - [x] Invalid status is rejected by schema.
+    - [x] Negative retry count is rejected.
+    - [x] Event payload is required.
+    - [x] Aggregate id is required.
+    - [x] Status and retry indexes support publisher query.
+- [x] Outbox writer:
+    - [x] Writer persists expected aggregate metadata.
+    - [x] Writer serializes payload.
+    - [x] Writer rejects unserializable payload.
+    - [x] Writer uses caller correlation id.
+    - [x] Writer participates in caller transaction.
+    - [x] Rollback removes outbox rows.
+- [x] Financial event creation:
+    - [x] Ledger posting creates `LedgerTransactionPosted`.
+    - [x] Reversal creates `LedgerTransactionReversed`.
+    - [x] Adjustment creates `AdjustmentPosted`.
+    - [x] Balance-changing flow creates expected `AccountBalanceChanged` events if implemented.
+    - [x] Reconciliation mismatch creates `ReconciliationMismatchFound`.
+- [x] Publisher success:
+    - [x] Pending event is sent to Kafka.
+    - [x] Published event is marked `PUBLISHED`.
+    - [x] Published timestamp is set.
+    - [x] Kafka headers include event id, event type, schema version, and correlation id.
+    - [x] Already published event is not republished by normal scheduler.
+- [x] Publisher concurrency:
+    - [x] Two publisher workers do not publish the same event.
+    - [x] Row lock prevents duplicate processing.
+    - [x] Failed lock acquisition is retried later.
+    - [x] Batch ordering is deterministic.
+- [x] Retry and dead-letter:
     - [x] Publish failure increments retry count.
     - [x] Publish failure stores safe error message.
     - [x] Next retry timestamp uses backoff.
-    - [ ] Event is not retried before next retry timestamp.
+    - [x] Event is not retried before next retry timestamp.
     - [x] Event moves to `DEAD_LETTERED` after max attempts.
-    - [ ] Dead-lettered event is not published by normal scheduler.
-- [ ] Replay:
-    - [ ] Failed event can be requeued.
-    - [ ] Dead-lettered event can be requeued by authorized actor.
-    - [ ] Published event cannot be replayed without force.
-    - [ ] Unauthorized replay returns `403`.
-    - [ ] Replay request writes audit event.
-- [ ] Metrics and logging:
-    - [ ] Pending count metric is correct.
-    - [ ] Oldest pending age metric is correct.
-    - [ ] Success and failure counters increment.
-    - [ ] Logs include event id and correlation id.
-    - [ ] Logs do not include full payload by default.
+    - [x] Dead-lettered event is not published by normal scheduler.
+- [x] Replay:
+    - [x] Failed event can be requeued.
+    - [x] Dead-lettered event can be requeued by authorized actor.
+    - [x] Published event cannot be replayed without force.
+    - [x] Unauthorized replay returns `403`.
+    - [x] Replay request writes audit event.
+- [x] Metrics and logging:
+    - [x] Pending count metric is correct.
+    - [x] Oldest pending age metric is correct.
+    - [x] Success and failure counters increment.
+    - [x] Logs include event id and correlation id.
+    - [x] Logs do not include full payload by default.
 
 ### Acceptance Criteria
 
-- [ ] Financial transaction and outbox record commit atomically.
-- [ ] Kafka publishing marks outbox records as published.
-- [ ] Failed publish attempts are retried.
-- [ ] Poison messages are handled according to the dead-letter strategy.
-- [ ] Tests prove event records are not lost during rollback.
-- [ ] Outbox behavior is documented.
-- [ ] Concurrent publishers do not duplicate messages.
-- [ ] Replay is controlled, audited, and documented.
-- [ ] Metrics expose publish health and lag.
+- [x] Financial transaction and outbox record commit atomically.
+- [x] Kafka publishing marks outbox records as published.
+- [x] Failed publish attempts are retried.
+- [x] Poison messages are handled according to the dead-letter strategy.
+- [x] Tests prove event records are not lost during rollback.
+- [x] Outbox behavior is documented.
+- [x] Concurrent publishers do not duplicate messages.
+- [x] Replay is controlled, audited, and documented.
+- [x] Metrics expose publish health and lag.
 
 ## Phase 10: Reconciliation
 

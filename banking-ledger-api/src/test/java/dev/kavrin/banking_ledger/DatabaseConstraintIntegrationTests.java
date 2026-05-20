@@ -145,6 +145,38 @@ class DatabaseConstraintIntegrationTests {
         TestTransaction.flagForRollback();
     }
 
+    @Test
+    void rejectsInvalidOutboxStatus() {
+        assertThatThrownBy(() -> insertOutboxEvent("NOT_A_STATUS", 0, "{\"ok\":true}", UUID.randomUUID()))
+                .isInstanceOf(DataIntegrityViolationException.class);
+
+        TestTransaction.flagForRollback();
+    }
+
+    @Test
+    void rejectsNegativeOutboxRetryCount() {
+        assertThatThrownBy(() -> insertOutboxEvent("PENDING", -1, "{\"ok\":true}", UUID.randomUUID()))
+                .isInstanceOf(DataIntegrityViolationException.class);
+
+        TestTransaction.flagForRollback();
+    }
+
+    @Test
+    void rejectsOutboxEventWithoutPayload() {
+        assertThatThrownBy(() -> insertOutboxEvent("PENDING", 0, null, UUID.randomUUID()))
+                .isInstanceOf(DataIntegrityViolationException.class);
+
+        TestTransaction.flagForRollback();
+    }
+
+    @Test
+    void rejectsOutboxEventWithoutAggregateId() {
+        assertThatThrownBy(() -> insertOutboxEvent("PENDING", 0, "{\"ok\":true}", null))
+                .isInstanceOf(DataIntegrityViolationException.class);
+
+        TestTransaction.flagForRollback();
+    }
+
     private TestIds insertPostedJournal(String journalCurrency, String sourceAccountCurrency) {
         UUID customerId = UUID.randomUUID();
         UUID sourceAccountId = UUID.randomUUID();
@@ -238,6 +270,25 @@ class DatabaseConstraintIntegrationTests {
                 raw(customerId),
                 accountNumber,
                 currencyCode
+        );
+    }
+
+    private void insertOutboxEvent(String status, int retryCount, String payload, UUID aggregateId) {
+        jdbcTemplate.update(
+                """
+                insert into outbox_events (
+                    id, aggregate_type, aggregate_id, event_type, destination, correlation_id, event_payload,
+                    status, retry_count, next_retry_at, created_at, version
+                ) values (
+                    hextoraw(?), 'LEDGER_TRANSACTION', hextoraw(?), 'LedgerTransactionPosted',
+                    'banking-ledger.ledger-events', 'corr-constraint', ?, ?, ?, null, systimestamp, 0
+                )
+                """,
+                raw(UUID.randomUUID()),
+                aggregateId == null ? null : raw(aggregateId),
+                payload,
+                status,
+                retryCount
         );
     }
 

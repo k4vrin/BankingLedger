@@ -29,6 +29,9 @@ class OutboxPublisherWorkerTest {
     @Mock
     private OutboxEventPublisher outboxEventPublisher;
 
+    @Mock
+    private OutboxMetrics outboxMetrics;
+
     @Test
     void publishBatchMarksEventPublishedAfterSuccessfulPublish() {
         OutboxEventEntity event = pendingEvent();
@@ -42,6 +45,7 @@ class OutboxPublisherWorkerTest {
         worker.publishBatch();
 
         verify(outboxEventPublisher).publish(event);
+        verify(outboxMetrics).recordPublishSuccess();
         assertThat(event.getStatus()).isEqualTo(OutboxStatus.PUBLISHED);
         assertThat(event.getPublishedAt()).isAfterOrEqualTo(beforePublish);
         assertThat(event.getNextRetryAt()).isNull();
@@ -64,6 +68,7 @@ class OutboxPublisherWorkerTest {
         worker.publishBatch();
 
         assertThat(event.getStatus()).isEqualTo(OutboxStatus.FAILED);
+        verify(outboxMetrics).recordPublishFailure();
         assertThat(event.getRetryCount()).isEqualTo(1);
         assertThat(event.getLastErrorMessage()).isEqualTo("broker unavailable");
         assertThat(event.getNextRetryAt()).isAfterOrEqualTo(beforePublish.plusSeconds(30));
@@ -86,6 +91,8 @@ class OutboxPublisherWorkerTest {
         worker.publishBatch();
 
         assertThat(event.getStatus()).isEqualTo(OutboxStatus.DEAD_LETTER);
+        verify(outboxMetrics).recordPublishFailure();
+        verify(outboxMetrics).recordDeadLetter();
         assertThat(event.getRetryCount()).isEqualTo(5);
         assertThat(event.getNextRetryAt()).isNull();
         assertThat(event.getLastErrorMessage()).hasSize(1_000);
@@ -99,6 +106,7 @@ class OutboxPublisherWorkerTest {
 
         verify(outboxEventRepository, never()).findPublishableEventsForUpdate(any(), any());
         verify(outboxEventPublisher, never()).publish(any());
+        verifyNoInteractions(outboxMetrics);
     }
 
     @Test
@@ -116,7 +124,7 @@ class OutboxPublisherWorkerTest {
     }
 
     private OutboxPublisherWorker worker(OutboxPublisherProperties properties) {
-        return new OutboxPublisherWorker(outboxEventRepository, outboxEventPublisher, properties);
+        return new OutboxPublisherWorker(outboxEventRepository, outboxEventPublisher, properties, outboxMetrics);
     }
 
     private OutboxPublisherProperties properties(boolean enabled, int batchSize) {

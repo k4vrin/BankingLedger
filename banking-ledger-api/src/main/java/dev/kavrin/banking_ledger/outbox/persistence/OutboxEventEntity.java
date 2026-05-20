@@ -91,4 +91,14 @@ public class OutboxEventEntity {
         this.nextRetryAt = null;
         this.lastErrorMessage = errorMessage;
     }
+
+    public void markPendingForReplay(boolean resetRetryCount) {
+        this.status = OutboxStatus.PENDING;
+        if (resetRetryCount) {
+            this.retryCount = 0;
+        }
+        this.nextRetryAt = null;
+        this.lastErrorMessage = null;
+        this.publishedAt = null;
+    }
 }

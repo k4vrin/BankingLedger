@@ -24,6 +24,7 @@ public class OutboxPublisherWorker {
     private final OutboxEventRepository outboxEventRepository;
     private final OutboxEventPublisher outboxEventPublisher;
     private final OutboxPublisherProperties properties;
+    private final OutboxMetrics outboxMetrics;
 
     @Scheduled(fixedDelayString = "${banking-ledger.outbox.publisher.interval:5s}")
     @Transactional
@@ -49,7 +50,9 @@ public class OutboxPublisherWorker {
         try {
             outboxEventPublisher.publish(event);
             event.markPublished(now);
+            outboxMetrics.recordPublishSuccess();
         } catch (Exception ex) {
+            outboxMetrics.recordPublishFailure();
             String safeErrorMessage = safeErrorMessage(ex);
             int nextRetryCount = event.getRetryCount() + 1;
 
@@ -65,6 +68,7 @@ public class OutboxPublisherWorker {
 
             if (nextRetryCount >= properties.maxAttempts()) {
                 event.markDeadLettered(safeErrorMessage);
+                outboxMetrics.recordDeadLetter();
                 return;
             }
 
