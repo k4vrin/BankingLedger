@@ -1675,28 +1675,28 @@ Goal: Demonstrate Oracle-friendly reporting and operational SQL skills.
 
 ### Steps
 
-- [ ] Define reporting folder structure:
-    - [ ] Add `reports/sql/` for standalone SQL.
-    - [ ] Add `reports/plsql/` for PL/SQL-style scripts.
-    - [ ] Add `reports/README.md`.
-    - [ ] Document required schema and sample data assumptions.
-- [ ] Add report query conventions:
-    - [ ] Use Oracle-compatible SQL.
-    - [ ] Use bind variables for date ranges and account ids.
-    - [ ] Avoid vendor-neutral syntax that Oracle does not support.
-    - [ ] Include comments describing each report purpose.
-    - [ ] Include expected columns in each report file.
-- [ ] Add daily trial balance report:
-    - [ ] Group by currency and account category.
-    - [ ] Sum debit and credit postings.
-    - [ ] Calculate net movement.
-    - [ ] Include opening and closing balances if practical.
-    - [ ] Filter by report date.
-- [ ] Add account statement summary report:
-    - [ ] Filter by account id.
-    - [ ] Filter by date range.
-    - [ ] Include ledger transaction id, posting direction, amount, currency, description, and timestamp.
-    - [ ] Include running balance if practical with analytic functions.
+- [x] Define reporting folder structure:
+    - [x] Add `reports/sql/` for standalone SQL.
+    - [x] Add `reports/plsql/` for PL/SQL-style scripts.
+    - [x] Add `reports/README.md`.
+    - [x] Document required schema and sample data assumptions.
+- [x] Add report query conventions:
+    - [x] Use Oracle-compatible SQL.
+    - [x] Use bind variables for date ranges and account ids.
+    - [x] Avoid vendor-neutral syntax that Oracle does not support.
+    - [x] Include comments describing each report purpose.
+    - [x] Include expected columns in each report file.
+- [x] Add daily trial balance report:
+    - [x] Group by currency and account category.
+    - [x] Sum debit and credit postings.
+    - [x] Calculate net movement.
+    - [x] Include opening and closing balances if practical.
+    - [x] Filter by report date.
+- [x] Add account statement summary report:
+    - [x] Filter by account id.
+    - [x] Filter by date range.
+    - [x] Include ledger transaction id, posting direction, amount, currency, description, and timestamp.
+    - [x] Include running balance if practical with analytic functions.
 - [ ] Add reconciliation mismatch report:
     - [ ] Filter by batch id.
     - [ ] Filter by mismatch type.
