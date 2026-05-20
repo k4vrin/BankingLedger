@@ -1521,40 +1521,40 @@ Goal: Simulate settlement batch import, compare external settlement data with in
 
 ### Steps
 
-- [ ] Add reconciliation schema:
-    - [ ] `settlement_batches`
-    - [ ] `settlement_items`
-    - [ ] `reconciliation_results`
-    - [ ] Add batch id, source, file/reference name, imported by actor, status, imported timestamp, completed timestamp, counts, and version.
-    - [ ] Add item id, batch id, external transaction reference, amount, currency, status, settlement date, raw line hash, and metadata.
-    - [ ] Add result id, batch id, item id, ledger transaction id, mismatch type, severity, status, detail, and timestamps.
-    - [ ] Add uniqueness for batch source plus external transaction reference.
-    - [ ] Add indexes for batch id, external reference, mismatch type, and status.
-- [ ] Define reconciliation domain model:
-    - [ ] Add `SettlementBatchStatus`.
-    - [ ] Add `SettlementItemStatus`.
-    - [ ] Add `ReconciliationResultStatus`.
-    - [ ] Add `ReconciliationMismatchType`.
-    - [ ] Add severity enum for informational, warning, and critical mismatches.
-- [ ] Add settlement batch import DTOs:
-    - [ ] Add `CreateSettlementBatchRequest`.
-    - [ ] Add `SettlementItemRequest`.
-    - [ ] Require source.
-    - [ ] Require external transaction reference.
-    - [ ] Require amount and currency.
-    - [ ] Require settlement status.
-    - [ ] Require settlement date.
-    - [ ] Validate max batch size.
-    - [ ] Add response DTOs for batch, item, and result summaries.
-- [ ] Add settlement batch validation policy:
-    - [ ] Reject missing source.
-    - [ ] Reject empty item list.
-    - [ ] Reject batch larger than configured maximum.
-    - [ ] Reject duplicate external references in the same batch.
-    - [ ] Reject invalid currency codes.
-    - [ ] Reject non-positive amounts where settlement status requires an amount.
-    - [ ] Reject unsupported settlement statuses.
-    - [ ] Return structured validation errors.
+- [x] Add reconciliation schema:
+    - [x] `settlement_batches`
+    - [x] `settlement_items`
+    - [x] `reconciliation_results`
+    - [x] Add batch id, source, file/reference name, imported by actor, status, imported timestamp, completed timestamp, counts, and version.
+    - [x] Add item id, batch id, external transaction reference, amount, currency, status, settlement date, raw line hash, and metadata.
+    - [x] Add result id, batch id, item id, ledger transaction id, mismatch type, severity, status, detail, and timestamps.
+    - [x] Add uniqueness for batch source plus external transaction reference.
+    - [x] Add indexes for batch id, external reference, mismatch type, and status.
+- [x] Define reconciliation domain model:
+    - [x] Add `SettlementBatchStatus`.
+    - [x] Add `SettlementItemStatus`.
+    - [x] Add `ReconciliationResultStatus`.
+    - [x] Add `ReconciliationMismatchType`.
+    - [x] Add severity enum for informational, warning, and critical mismatches.
+- [x] Add settlement batch import DTOs:
+    - [x] Add `CreateSettlementBatchRequest`.
+    - [x] Add `SettlementItemRequest`.
+    - [x] Require source.
+    - [x] Require external transaction reference.
+    - [x] Require amount and currency.
+    - [x] Require settlement status.
+    - [x] Require settlement date.
+    - [x] Validate max batch size.
+    - [x] Add response DTOs for batch, item, and result summaries.
+- [x] Add settlement batch validation policy:
+    - [x] Reject missing source.
+    - [x] Reject empty item list.
+    - [x] Reject batch larger than configured maximum.
+    - [x] Reject duplicate external references in the same batch.
+    - [x] Reject invalid currency codes.
+    - [x] Reject non-positive amounts where settlement status requires an amount.
+    - [x] Reject unsupported settlement statuses.
+    - [x] Return structured validation errors.
 - [ ] Implement settlement batch creation use case:
     - [ ] Save batch with `PENDING` or `IMPORTED` status.
     - [ ] Save all settlement items.
@@ -1620,12 +1620,12 @@ Goal: Simulate settlement batch import, compare external settlement data with in
     - [ ] Duplicate external reference in same source is rejected or handled according to policy.
     - [ ] Batch version increments on status change.
 - [ ] Import validation:
-    - [ ] Missing source returns structured validation error.
-    - [ ] Empty item list returns structured validation error.
-    - [ ] Batch above max size returns structured validation error.
-    - [ ] Invalid currency returns structured validation error.
-    - [ ] Duplicate external reference in request returns structured validation error.
-    - [ ] Unsupported settlement status returns structured validation error.
+    - [x] Missing source returns structured validation error.
+    - [x] Empty item list returns structured validation error.
+    - [x] Batch above max size returns structured validation error.
+    - [x] Invalid currency returns structured validation error.
+    - [x] Duplicate external reference in request returns structured validation error.
+    - [x] Unsupported settlement status returns structured validation error.
 - [ ] Matching behavior:
     - [ ] Exact external reference, amount, currency, and status produces matched result.
     - [ ] Missing internal ledger transaction produces missing-internal mismatch.

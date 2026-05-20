@@ -54,6 +54,9 @@ banking-ledger:
       max-attempts: 5
       initial-retry-delay: 30s
       max-retry-delay: 10m
+  reconciliation:
+    import:
+      max-batch-size: 500
   security:
     jwt:
       issuer: ${JWT_ISSUER:banking-ledger-local}
