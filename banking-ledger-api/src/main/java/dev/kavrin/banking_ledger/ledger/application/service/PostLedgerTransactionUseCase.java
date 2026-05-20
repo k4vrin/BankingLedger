@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.kavrin.banking_ledger.account.persistence.AccountEntity;
 import dev.kavrin.banking_ledger.account.persistence.AccountRepository;
 import dev.kavrin.banking_ledger.audit.application.service.AuditEventWriter;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditChannel;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
 import dev.kavrin.banking_ledger.ledger.application.command.PostLedgerTransactionCommand;
@@ -186,10 +187,10 @@ public class PostLedgerTransactionUseCase {
                 AuditEntityType.LEDGER_TRANSACTION,
                 transactionId,
                 command.actorType(),
-                null,
-                null,
+                command.actorRole(),
+                command.actorId(),
                 command.correlationId(),
-                "API",
+                AuditChannel.API,
                 Map.of(
                         "transactionId", transactionId.toString(),
                         "externalReference", command.externalReference() == null ? "" : command.externalReference()

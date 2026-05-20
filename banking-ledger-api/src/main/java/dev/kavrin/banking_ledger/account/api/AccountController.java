@@ -51,6 +51,8 @@ public class AccountController {
                 request.accountType(),
                 CurrencyCode.of(request.currencyCode()),
                 principal.actorType().name(),
+                principal.auditActorRole(),
+                principal.actorId(),
                 correlationId
         ));
 

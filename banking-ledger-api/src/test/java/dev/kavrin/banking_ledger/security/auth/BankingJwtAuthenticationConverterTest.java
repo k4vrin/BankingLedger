@@ -4,7 +4,7 @@ import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
 import dev.kavrin.banking_ledger.security.domain.AuthenticatedPrincipal;
 import dev.kavrin.banking_ledger.security.domain.SecurityRole;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.oauth2.jwt.BadJwtException;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.time.Instant;
@@ -68,7 +68,7 @@ class BankingJwtAuthenticationConverterTest {
     @Test
     void rejectsMissingSubject() {
         assertThatThrownBy(() -> converter.convert(jwt(Map.of("roles", List.of("SERVICE")))))
-                .isInstanceOf(BadJwtException.class)
+                .isInstanceOf(OAuth2AuthenticationException.class)
                 .hasMessageContaining("subject");
     }
 
@@ -78,7 +78,7 @@ class BankingJwtAuthenticationConverterTest {
                 "sub", "unknown-subject",
                 "roles", List.of("UNKNOWN")
         ))))
-                .isInstanceOf(BadJwtException.class)
+                .isInstanceOf(OAuth2AuthenticationException.class)
                 .hasMessageContaining("recognized role");
     }
 
@@ -88,7 +88,7 @@ class BankingJwtAuthenticationConverterTest {
                 "sub", "customer-subject",
                 "roles", List.of("CUSTOMER")
         ))))
-                .isInstanceOf(BadJwtException.class)
+                .isInstanceOf(OAuth2AuthenticationException.class)
                 .hasMessageContaining("customerId");
     }
 
@@ -99,7 +99,7 @@ class BankingJwtAuthenticationConverterTest {
                 "roles", List.of("CUSTOMER"),
                 "customerId", "not-a-uuid"
         ))))
-                .isInstanceOf(BadJwtException.class)
+                .isInstanceOf(OAuth2AuthenticationException.class)
                 .hasMessageContaining("UUID");
     }
 

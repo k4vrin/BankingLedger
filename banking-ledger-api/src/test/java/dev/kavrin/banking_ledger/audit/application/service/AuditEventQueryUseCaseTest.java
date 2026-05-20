@@ -114,6 +114,34 @@ class AuditEventQueryUseCaseTest {
                 0,
                 101
         ))).isInstanceOf(BadRequestException.class);
+
+        assertThatThrownBy(() -> useCase.search(new SearchAuditEventsQuery(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                -1,
+                20
+        ))).isInstanceOf(BadRequestException.class);
+
+        assertThatThrownBy(() -> useCase.search(new SearchAuditEventsQuery(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                0,
+                -1
+        ))).isInstanceOf(BadRequestException.class);
     }
 
     @Test

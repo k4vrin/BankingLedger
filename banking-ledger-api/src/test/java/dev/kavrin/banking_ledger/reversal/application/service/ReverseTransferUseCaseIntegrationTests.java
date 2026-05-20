@@ -235,6 +235,8 @@ class ReverseTransferUseCaseIntegrationTests {
                 "test transfer",
                 idempotencyKey,
                 RequestedByActorType.OPS_ADMIN,
+                AuditActorRole.OPS_ADMIN,
+                "ops-1",
                 "corr-" + externalReference
         ));
 

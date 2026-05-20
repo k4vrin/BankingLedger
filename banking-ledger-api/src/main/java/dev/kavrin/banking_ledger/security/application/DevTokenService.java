@@ -21,6 +21,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DevTokenService {
 
+    private static final UUID SAMPLE_CUSTOMER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
     private final JwtEncoder jwtEncoder;
     private final JwtSecurityProperties properties;
 
@@ -54,5 +56,23 @@ public class DevTokenService {
         }
 
         return new DevTokenResponse("Bearer", jwtEncoder.encode(JwtEncoderParameters.from(claims.build())).getTokenValue(), ttl.toSeconds());
+    }
+
+    public List<SampleDevUser> sampleUsers() {
+        return List.of(
+                new SampleDevUser(SecurityRole.CUSTOMER, "dev-customer", "customer-user-1", SAMPLE_CUSTOMER_ID),
+                new SampleDevUser(SecurityRole.TELLER, "dev-teller", "teller-user-1", null),
+                new SampleDevUser(SecurityRole.AUDITOR, "dev-auditor", "auditor-user-1", null),
+                new SampleDevUser(SecurityRole.OPS_ADMIN, "dev-ops-admin", "ops-user-1", null),
+                new SampleDevUser(SecurityRole.SERVICE, "dev-service", "service-client-1", null)
+        );
+    }
+
+    public record SampleDevUser(
+            SecurityRole role,
+            String subject,
+            String actorId,
+            UUID customerId
+    ) {
     }
 }

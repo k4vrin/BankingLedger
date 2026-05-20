@@ -10,6 +10,7 @@ import dev.kavrin.banking_ledger.adjustment.persistence.AdjustmentRequestEntity;
 import dev.kavrin.banking_ledger.adjustment.persistence.AdjustmentRequestRepository;
 import dev.kavrin.banking_ledger.adjustment.persistence.mapper.AdjustmentResponseMapper;
 import dev.kavrin.banking_ledger.audit.application.service.AuditEventWriter;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditChannel;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
 import dev.kavrin.banking_ledger.ledger.application.command.PostLedgerTransactionCommand;
@@ -65,6 +66,8 @@ public class CreateAdjustmentUseCase {
                 command.amountMinor(),
                 adjustmentDescription(command),
                 command.actorType().toAuditActorType(),
+                command.actorRole(),
+                command.actorId(),
                 command.correlationId(),
                 command.postingLines()
         );
@@ -109,7 +112,7 @@ public class CreateAdjustmentUseCase {
                 command.actorRole(),
                 command.actorId(),
                 command.correlationId(),
-                "API",
+                AuditChannel.API,
                 Map.of(
                         "adjustmentId", adjustment.getId().toString(),
                         "ledgerTransactionId", adjustment.getLedgerTransaction().getId().toString(),

@@ -9,6 +9,7 @@ import dev.kavrin.banking_ledger.account.persistence.AccountEntity;
 import dev.kavrin.banking_ledger.account.persistence.AccountRepository;
 import dev.kavrin.banking_ledger.audit.application.service.AuditEventWriter;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditChannel;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
 import dev.kavrin.banking_ledger.customer.persistence.CustomerRepository;
@@ -73,10 +74,10 @@ public class CreateAccountUseCase {
                 AuditEntityType.ACCOUNT,
                 savedAccount.getId(),
                 actorType,
-                null,
-                null,
+                command.actorRole(),
+                command.actorId(),
                 command.correlationId(),
-                "API",
+                AuditChannel.API,
                 java.util.Map.of("accountId", savedAccount.getId().toString())
         );
 

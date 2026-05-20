@@ -47,6 +47,8 @@ public class TransferController {
                 request.description(),
                 normalizedIdempotencyKey,
                 principal.requestedByActorType(),
+                principal.auditActorRole(),
+                principal.actorId(),
                 correlationId
         ));
 

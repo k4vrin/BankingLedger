@@ -878,12 +878,12 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
     - [x] Document accepted JWT issuer, audience, subject, role, customer id, and actor id claims.
     - [x] Decide token lifetime for local development tokens.
     - [x] Decide whether service-to-service clients use a dedicated `SERVICE` role claim.
-- [ ] Add security dependencies and configuration properties:
+- [x] Add security dependencies and configuration properties:
     - [x] Add Spring Security resource server dependencies if missing.
     - [x] Add local JWT signing key or JWK configuration for `dev`.
     - [x] Add issuer and audience properties.
     - [x] Add token clock skew property.
-    - [ ] Add configuration properties tests for required security settings.
+    - [x] Add configuration properties tests for required security settings.
 - [x] Add JWT resource server configuration:
     - [x] Configure stateless session policy.
     - [x] Disable CSRF for stateless REST APIs.
@@ -905,9 +905,9 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
     - [x] Reject tokens with no recognized roles.
     - [x] Reject customer tokens that do not include `customerId`.
     - [x] Reject malformed `customerId` claim.
-- [ ] Add development authentication support:
+- [x] Add development authentication support:
     - [x] Add local token factory for tests.
-    - [ ] Add sample development users for customer, teller, auditor, ops admin, and service.
+    - [x] Add sample development users for customer, teller, auditor, ops admin, and service.
     - [x] Add optional dev-only endpoint or command for issuing sample tokens.
     - [x] Ensure dev token issuance is disabled outside development profile.
     - [x] Add README or docs snippet showing how to get sample tokens locally.
@@ -931,29 +931,29 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
     - [x] Keep `X-Correlation-Id` as a request tracing header.
     - [x] Ensure audit events use principal-derived actor fields.
 - [ ] Define endpoint authorization matrix:
-    - [ ] Public endpoints: health, OpenAPI docs, Swagger UI.
-    - [ ] Customer account read endpoints require `CUSTOMER` and ownership.
-    - [ ] Customer transfer creation requires `CUSTOMER` and source account ownership.
-    - [ ] Teller customer/account management endpoints require `TELLER` or `OPS_ADMIN`.
-    - [ ] Auditor read-only ledger and audit endpoints require `AUDITOR` or `OPS_ADMIN`.
-    - [ ] Transfer reversal endpoint requires `OPS_ADMIN` or `SERVICE`.
-    - [ ] Adjustment endpoint requires `OPS_ADMIN` or `SERVICE`.
+    - [x] Public endpoints: health, OpenAPI docs, Swagger UI.
+    - [x] Customer account read endpoints require `CUSTOMER` and ownership.
+    - [x] Customer transfer creation requires `CUSTOMER` and source account ownership.
+    - [x] Teller customer/account management endpoints require `TELLER` or `OPS_ADMIN`.
+    - [x] Auditor read-only ledger and audit endpoints require `AUDITOR` or `OPS_ADMIN`.
+    - [x] Transfer reversal endpoint requires `OPS_ADMIN` or `SERVICE`.
+    - [x] Adjustment endpoint requires `OPS_ADMIN` or `SERVICE`.
     - [ ] Reconciliation operation endpoints require `OPS_ADMIN` or `SERVICE`.
     - [ ] Internal publishing or integration endpoints require `SERVICE`.
     - [ ] Deny access by default for unclassified endpoints.
-- [ ] Add method-level authorization:
+- [x] Add method-level authorization:
     - [x] Enable method security.
     - [x] Add authorization annotations to use cases or controllers.
     - [x] Prefer method-level checks for ownership-sensitive business operations.
     - [x] Keep HTTP route rules coarse and method rules domain-specific.
-    - [ ] Add authorization tests at controller and use-case boundaries.
-- [ ] Add customer ownership checks:
+    - [x] Add authorization tests at controller and use-case boundaries.
+- [x] Add customer ownership checks:
     - [x] Add service to check account ownership by customer id.
     - [x] Add ownership check for account detail lookup.
     - [x] Add ownership check for account transaction list.
     - [x] Add ownership check for customer-initiated transfer source account.
     - [x] Reject access to another customer's account with structured `403`.
-    - [ ] Avoid returning `404` for authorization failures unless explicitly documented.
+    - [x] Avoid returning `404` for authorization failures unless explicitly documented.
 - [x] Protect account and customer endpoints:
     - [x] Require authentication for account creation.
     - [x] Allow `TELLER` or `OPS_ADMIN` to create customer accounts.
@@ -961,7 +961,7 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
     - [x] Prevent `CUSTOMER` from creating accounts for other customers.
     - [x] Prevent `AUDITOR` from mutating accounts.
     - [x] Prevent `SERVICE` from customer-facing account operations unless explicitly allowed.
-- [ ] Protect transfer endpoints:
+- [x] Protect transfer endpoints:
     - [x] Require authentication for transfer creation.
     - [x] Allow customer transfer only from owned source account.
     - [x] Allow teller or ops workflows only if intentionally supported.
@@ -975,29 +975,29 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
     - [x] Use principal actor fields in reversal and adjustment command objects.
     - [x] Ensure unauthorized requests do not create reversal or adjustment request rows.
     - [x] Ensure unauthorized requests do not create ledger, audit, or outbox rows.
-- [ ] Protect audit and investigation endpoints:
-    - [ ] Require `AUDITOR` or `OPS_ADMIN` for audit event queries.
-    - [ ] Require `AUDITOR`, `OPS_ADMIN`, or `SERVICE` for ledger transaction investigation lookup.
-    - [ ] Ensure read-only roles cannot call mutating endpoints.
-    - [ ] Add paging limits to prevent broad unrestricted reads.
-- [ ] Add CORS configuration:
+- [x] Protect audit and investigation endpoints:
+    - [x] Require `AUDITOR` or `OPS_ADMIN` for audit event queries.
+    - [x] Require `AUDITOR`, `OPS_ADMIN`, or `SERVICE` for ledger transaction investigation lookup.
+    - [x] Ensure read-only roles cannot call mutating endpoints.
+    - [x] Add paging limits to prevent broad unrestricted reads.
+- [x] Add CORS configuration:
     - [x] Allow configured local frontend origins in development.
     - [x] Do not allow wildcard origins with credentials.
     - [x] Allow `Authorization`, `Content-Type`, `Idempotency-Key`, and `X-Correlation-Id` headers.
-    - [ ] Add preflight tests for protected endpoints.
-- [ ] Add security logging and privacy guardrails:
-    - [ ] Log authentication failures without token content.
-    - [ ] Log authorization failures with subject, roles, endpoint, and correlation id.
-    - [ ] Do not log bearer tokens.
-    - [ ] Do not log raw JWT claims containing sensitive values.
-    - [ ] Add test or static check for accidental token logging where practical.
-- [ ] Add security test utilities:
+    - [x] Add preflight tests for protected endpoints.
+- [x] Add security logging and privacy guardrails:
+    - [x] Log authentication failures without token content.
+    - [x] Log authorization failures with subject, roles, endpoint, and correlation id.
+    - [x] Do not log bearer tokens.
+    - [x] Do not log raw JWT claims containing sensitive values.
+    - [x] Add test or static check for accidental token logging where practical.
+- [x] Add security test utilities:
     - [x] Add test JWT builder.
     - [x] Add helpers for each role.
     - [x] Add helper for customer token with customer id.
-    - [ ] Add helper for expired token.
-    - [ ] Add helper for invalid issuer or audience.
-    - [ ] Add helper for token signed with wrong key.
+    - [x] Add helper for expired token.
+    - [x] Add helper for invalid issuer or audience.
+    - [x] Add helper for token signed with wrong key.
 - [x] Add security documentation:
     - [x] Add ADR for authentication and authorization design.
     - [x] Document JWT claims and role mapping.
@@ -1007,98 +1007,98 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
 
 ### Test Scenarios
 
-- [ ] JWT validation:
-    - [ ] Missing `Authorization` header returns `401`.
-    - [ ] Non-bearer `Authorization` header returns `401`.
-    - [ ] Malformed bearer token returns `401`.
-    - [ ] Token signed with the wrong key returns `401`.
-    - [ ] Expired token returns `401`.
-    - [ ] Token used before `nbf` returns `401`.
-    - [ ] Token with invalid issuer returns `401`.
-    - [ ] Token with invalid audience returns `401`.
-    - [ ] Token with missing subject returns `401`.
-    - [ ] Token with no recognized roles returns `403` or `401` according to documented policy.
-- [ ] Principal mapping:
-    - [ ] `CUSTOMER` role maps to customer authority.
-    - [ ] `TELLER` role maps to teller authority.
-    - [ ] `AUDITOR` role maps to auditor authority.
-    - [ ] `OPS_ADMIN` role maps to ops admin authority.
-    - [ ] `SERVICE` role maps to service authority.
-    - [ ] Multiple roles map to multiple authorities.
-    - [ ] Customer token requires valid customer id.
-    - [ ] Non-customer token may omit customer id.
-    - [ ] Principal exposes actor id for audit.
-- [ ] Public endpoint access:
-    - [ ] Health endpoint is accessible without token.
-    - [ ] OpenAPI docs are accessible without token.
-    - [ ] Swagger UI is accessible without token.
-    - [ ] Business endpoint without token is rejected.
-- [ ] Account endpoint authorization:
-    - [ ] Customer can read an owned account.
-    - [ ] Customer cannot read another customer's account.
-    - [ ] Customer can list transactions only for an owned account.
-    - [ ] Customer cannot list transactions for another customer's account.
-    - [ ] Teller can create an account for a customer.
-    - [ ] Auditor cannot create an account.
-    - [ ] Service role cannot call customer account mutation endpoints unless explicitly allowed.
-- [ ] Transfer authorization:
-    - [ ] Customer can create a transfer from an owned source account.
-    - [ ] Customer cannot create a transfer from another customer's account.
-    - [ ] Unauthorized transfer attempt does not create idempotency record.
-    - [ ] Unauthorized transfer attempt does not create transfer request.
-    - [ ] Unauthorized transfer attempt does not create ledger rows.
-    - [ ] Unauthorized transfer attempt does not change balances.
-- [ ] Reversal authorization:
-    - [ ] `OPS_ADMIN` can reverse a completed transfer.
-    - [ ] `SERVICE` can reverse a completed transfer.
-    - [ ] `CUSTOMER` cannot reverse a transfer.
-    - [ ] `TELLER` cannot reverse a transfer.
-    - [ ] `AUDITOR` cannot reverse a transfer.
-    - [ ] Unauthorized reversal attempt does not create reversal, ledger, audit, or outbox rows.
-- [ ] Adjustment authorization:
-    - [ ] `OPS_ADMIN` can post an adjustment.
-    - [ ] `SERVICE` can post an adjustment.
-    - [ ] `CUSTOMER` cannot post an adjustment.
-    - [ ] `TELLER` cannot post an adjustment.
-    - [ ] `AUDITOR` cannot post an adjustment.
-    - [ ] Unauthorized adjustment attempt does not create adjustment, ledger, audit, or outbox rows.
-- [ ] Audit and investigation authorization:
-    - [ ] `AUDITOR` can query audit events.
-    - [ ] `OPS_ADMIN` can query audit events.
-    - [ ] `CUSTOMER` cannot query audit events.
-    - [ ] `TELLER` cannot query audit events unless explicitly allowed.
-    - [ ] `AUDITOR` can query ledger transaction investigation details.
-    - [ ] Read-only roles cannot mutate reversal, adjustment, or reconciliation resources.
-- [ ] Structured security errors:
-    - [ ] Authentication failures use `ApiErrorResponse`.
-    - [ ] Authorization failures use `ApiErrorResponse`.
-    - [ ] Security error responses include correlation id.
-    - [ ] Security error responses do not include token text.
-    - [ ] Security error responses do not expose signing key, algorithm details, or stack traces.
-- [ ] CORS:
-    - [ ] Allowed dev origin receives expected CORS headers.
-    - [ ] Disallowed origin is rejected or omitted from CORS headers.
-    - [ ] Preflight allows `Authorization`, `Idempotency-Key`, and `X-Correlation-Id`.
-    - [ ] Wildcard origin is not used with credentials.
+- [x] JWT validation:
+    - [x] Missing `Authorization` header returns `401`.
+    - [x] Non-bearer `Authorization` header returns `401`.
+    - [x] Malformed bearer token returns `401`.
+    - [x] Token signed with the wrong key returns `401`.
+    - [x] Expired token returns `401`.
+    - [x] Token used before `nbf` returns `401`.
+    - [x] Token with invalid issuer returns `401`.
+    - [x] Token with invalid audience returns `401`.
+    - [x] Token with missing subject returns `401`.
+    - [x] Token with no recognized roles returns `403` or `401` according to documented policy.
+- [x] Principal mapping:
+    - [x] `CUSTOMER` role maps to customer authority.
+    - [x] `TELLER` role maps to teller authority.
+    - [x] `AUDITOR` role maps to auditor authority.
+    - [x] `OPS_ADMIN` role maps to ops admin authority.
+    - [x] `SERVICE` role maps to service authority.
+    - [x] Multiple roles map to multiple authorities.
+    - [x] Customer token requires valid customer id.
+    - [x] Non-customer token may omit customer id.
+    - [x] Principal exposes actor id for audit.
+- [x] Public endpoint access:
+    - [x] Health endpoint is accessible without token.
+    - [x] OpenAPI docs are accessible without token.
+    - [x] Swagger UI is accessible without token.
+    - [x] Business endpoint without token is rejected.
+- [x] Account endpoint authorization:
+    - [x] Customer can read an owned account.
+    - [x] Customer cannot read another customer's account.
+    - [x] Customer can list transactions only for an owned account.
+    - [x] Customer cannot list transactions for another customer's account.
+    - [x] Teller can create an account for a customer.
+    - [x] Auditor cannot create an account.
+    - [x] Service role cannot call customer account mutation endpoints unless explicitly allowed.
+- [x] Transfer authorization:
+    - [x] Customer can create a transfer from an owned source account.
+    - [x] Customer cannot create a transfer from another customer's account.
+    - [x] Unauthorized transfer attempt does not create idempotency record.
+    - [x] Unauthorized transfer attempt does not create transfer request.
+    - [x] Unauthorized transfer attempt does not create ledger rows.
+    - [x] Unauthorized transfer attempt does not change balances.
+- [x] Reversal authorization:
+    - [x] `OPS_ADMIN` can reverse a completed transfer.
+    - [x] `SERVICE` can reverse a completed transfer.
+    - [x] `CUSTOMER` cannot reverse a transfer.
+    - [x] `TELLER` cannot reverse a transfer.
+    - [x] `AUDITOR` cannot reverse a transfer.
+    - [x] Unauthorized reversal attempt does not create reversal, ledger, audit, or outbox rows.
+- [x] Adjustment authorization:
+    - [x] `OPS_ADMIN` can post an adjustment.
+    - [x] `SERVICE` can post an adjustment.
+    - [x] `CUSTOMER` cannot post an adjustment.
+    - [x] `TELLER` cannot post an adjustment.
+    - [x] `AUDITOR` cannot post an adjustment.
+    - [x] Unauthorized adjustment attempt does not create adjustment, ledger, audit, or outbox rows.
+- [x] Audit and investigation authorization:
+    - [x] `AUDITOR` can query audit events.
+    - [x] `OPS_ADMIN` can query audit events.
+    - [x] `CUSTOMER` cannot query audit events.
+    - [x] `TELLER` cannot query audit events unless explicitly allowed.
+    - [x] `AUDITOR` can query ledger transaction investigation details.
+    - [x] Read-only roles cannot mutate reversal, adjustment, or reconciliation resources.
+- [x] Structured security errors:
+    - [x] Authentication failures use `ApiErrorResponse`.
+    - [x] Authorization failures use `ApiErrorResponse`.
+    - [x] Security error responses include correlation id.
+    - [x] Security error responses do not include token text.
+    - [x] Security error responses do not expose signing key, algorithm details, or stack traces.
+- [x] CORS:
+    - [x] Allowed dev origin receives expected CORS headers.
+    - [x] Disallowed origin is rejected or omitted from CORS headers.
+    - [x] Preflight allows `Authorization`, `Idempotency-Key`, and `X-Correlation-Id`.
+    - [x] Wildcard origin is not used with credentials.
 
 ### Acceptance Criteria
 
-- [ ] Unauthenticated requests are rejected.
-- [ ] Invalid or expired JWTs are rejected.
-- [ ] Valid JWTs are converted into the correct authenticated principal.
-- [ ] Customer users can only access permitted customer APIs.
-- [ ] Customer users cannot access another customer's account data.
-- [ ] Tellers can perform teller workflows but cannot perform auditor-only or ops-admin-only actions.
-- [ ] Auditors can query ledger and audit data.
+- [x] Unauthenticated requests are rejected.
+- [x] Invalid or expired JWTs are rejected.
+- [x] Valid JWTs are converted into the correct authenticated principal.
+- [x] Customer users can only access permitted customer APIs.
+- [x] Customer users cannot access another customer's account data.
+- [x] Tellers can perform teller workflows but cannot perform auditor-only or ops-admin-only actions.
+- [x] Auditors can query ledger and audit data.
 - [ ] Ops admins can perform reversal and reconciliation workflows.
 - [ ] Service role access is limited to internal service endpoints.
-- [ ] Unauthorized role access returns `403`.
-- [ ] Missing or invalid credentials return `401`.
-- [ ] Security tests cover authentication and authorization rules.
-- [ ] Actor fields are derived from JWT claims, not trusted request headers.
-- [ ] Customer ownership checks prevent cross-customer account access.
-- [ ] Unauthorized requests do not produce financial writes.
-- [ ] Security ADR and endpoint authorization matrix are documented.
+- [x] Unauthorized role access returns `403`.
+- [x] Missing or invalid credentials return `401`.
+- [x] Security tests cover authentication and authorization rules.
+- [x] Actor fields are derived from JWT claims, not trusted request headers.
+- [x] Customer ownership checks prevent cross-customer account access.
+- [x] Unauthorized requests do not produce financial writes.
+- [x] Security ADR and endpoint authorization matrix are documented.
 
 ## Phase 8: Audit Trail And Investigation APIs
 
@@ -1131,13 +1131,13 @@ Goal: Provide traceability for financial operations and operational troubleshoot
     - [x] Add `RECONCILIATION_BATCH_IMPORTED` for future reconciliation.
     - [x] Add `RECONCILIATION_COMPLETED` for future reconciliation.
     - [x] Add tests that fail on unsupported audit event strings.
-- [ ] Capture actor and request context consistently:
-    - [ ] Add request context accessor for current principal.
-    - [ ] Add request context accessor for current correlation id.
-    - [ ] Add request channel value such as `API`, `SYSTEM`, or `BATCH`.
-    - [ ] Ensure audit writer uses principal-derived actor fields from Phase 7.
-    - [ ] Use `SYSTEM` actor for internal scheduled/system work.
-    - [ ] Ensure missing actor context is explicit and not silently null for protected endpoints.
+- [x] Capture actor and request context consistently:
+    - [x] Add request context accessor for current principal.
+    - [x] Add request context accessor for current correlation id.
+    - [x] Add request channel value such as `API`, `SYSTEM`, or `BATCH`.
+    - [x] Ensure audit writer uses principal-derived actor fields from Phase 7.
+    - [x] Use `SYSTEM` actor for internal scheduled/system work.
+    - [x] Ensure missing actor context is explicit and not silently null for protected endpoints.
 - [x] Define audit payload policy:
     - [x] Allow identifiers, reason codes, status, amount, currency, and high-level metadata.
     - [x] Do not store bearer tokens.
@@ -1174,7 +1174,7 @@ Goal: Provide traceability for financial operations and operational troubleshoot
     - [x] Ensure filters compose correctly.
     - [ ] Add indexes if query performance requires them.
     - [ ] Avoid loading large payloads unnecessarily if a summary endpoint is added.
-    - [ ] Add repository tests for each important filter.
+    - [x] Add repository tests for each important filter.
 - [x] Add audit event query use case:
     - [x] Validate filter command.
     - [x] Enforce maximum page size.
@@ -1197,8 +1197,8 @@ Goal: Provide traceability for financial operations and operational troubleshoot
 - [x] Enforce audit immutability through application workflows:
     - [x] Do not expose update endpoint for audit events.
     - [x] Do not expose delete endpoint for audit events.
-    - [ ] Keep repository package-private where practical or document service-only usage.
-    - [ ] Add tests proving unsupported update/delete routes return `404` or `405`.
+    - [x] Keep repository package-private where practical or document service-only usage.
+    - [x] Add tests proving unsupported update/delete routes return `404` or `405`.
     - [ ] Consider database trigger or permissions later if required.
 - [x] Add ledger transaction investigation query model:
     - [x] Add `LedgerTransactionInvestigationResponse`.
@@ -1259,92 +1259,92 @@ Goal: Provide traceability for financial operations and operational troubleshoot
 
 ### Test Scenarios
 
-- [ ] Audit writer:
-    - [ ] Writer persists event type, entity type, entity id, actor fields, channel, correlation id, payload, and timestamp.
-    - [ ] Writer serializes structured payload correctly.
-    - [ ] Writer rejects unserializable payload with a clear exception.
-    - [ ] Writer participates in caller transaction.
-    - [ ] Rollback of caller transaction rolls back audit event.
-    - [ ] Writer does not persist bearer token or secret fields.
+- [x] Audit writer:
+    - [x] Writer persists event type, entity type, entity id, actor fields, channel, correlation id, payload, and timestamp.
+    - [x] Writer serializes structured payload correctly.
+    - [x] Writer rejects unserializable payload with a clear exception.
+    - [x] Writer participates in caller transaction.
+    - [x] Rollback of caller transaction rolls back audit event.
+    - [x] Writer does not persist bearer token or secret fields.
 - [ ] Audit event creation coverage:
-    - [ ] Account creation writes expected audit event.
-    - [ ] Ledger transaction posting writes expected audit event.
+    - [x] Account creation writes expected audit event.
+    - [x] Ledger transaction posting writes expected audit event.
     - [ ] Transfer creation writes expected audit event if business-level transfer auditing is added.
-    - [ ] Transfer reversal writes `TRANSFER_REVERSED`.
-    - [ ] Adjustment posting writes `ADJUSTMENT_POSTED`.
-    - [ ] Audit event contains principal-derived actor fields.
-    - [ ] Audit event contains correlation id.
-    - [ ] Audit event payload includes safe identifiers and reason codes.
-- [ ] Audit query filters:
-    - [ ] Query by event type returns matching events only.
-    - [ ] Query by entity type returns matching events only.
-    - [ ] Query by entity id returns matching events only.
-    - [ ] Query by actor type returns matching events only.
-    - [ ] Query by actor role returns matching events only.
-    - [ ] Query by actor id returns matching events only.
-    - [ ] Query by correlation id returns matching events only.
-    - [ ] Query by created-from excludes older events.
-    - [ ] Query by created-to excludes newer events.
-    - [ ] Combined filters are applied with `AND` semantics.
-    - [ ] Empty result returns an empty page.
-- [ ] Audit query pagination and sorting:
-    - [ ] Default page size is applied when size is omitted.
-    - [ ] Maximum page size is enforced.
-    - [ ] Invalid negative page returns structured validation error.
-    - [ ] Invalid zero or negative size returns structured validation error.
-    - [ ] `createdFrom > createdTo` returns structured validation error.
-    - [ ] Results sort deterministically by created timestamp and id.
-    - [ ] Page metadata includes page number, size, total elements, and total pages.
-- [ ] Audit event REST endpoint:
-    - [ ] `GET /api/v1/audit/events` returns `200` for `AUDITOR`.
-    - [ ] `GET /api/v1/audit/events` returns `200` for `OPS_ADMIN`.
-    - [ ] `CUSTOMER` receives `403`.
-    - [ ] `TELLER` receives `403` unless explicitly allowed.
-    - [ ] Missing token receives `401`.
-    - [ ] Invalid filter returns structured `400`.
-    - [ ] Response does not include sensitive payload fields.
-- [ ] Audit event detail endpoint:
-    - [ ] Existing audit event id returns `200`.
-    - [ ] Missing audit event id returns structured `404`.
-    - [ ] Invalid UUID returns structured `400`.
-    - [ ] `AUDITOR` and `OPS_ADMIN` can access detail.
-    - [ ] Unauthorized roles receive `403`.
-- [ ] Audit immutability:
-    - [ ] `POST /api/v1/audit/events` is not available.
-    - [ ] `PUT /api/v1/audit/events/{id}` is not available.
-    - [ ] `PATCH /api/v1/audit/events/{id}` is not available.
-    - [ ] `DELETE /api/v1/audit/events/{id}` is not available.
-    - [ ] Normal application workflows never update existing audit event rows.
-- [ ] Ledger transaction investigation:
-    - [ ] Existing ledger transaction returns transaction details.
-    - [ ] Response includes journal entry details.
-    - [ ] Response includes all postings.
-    - [ ] Response includes related transfer for transfer ledger transaction.
-    - [ ] Response includes related reversal for reversal ledger transaction.
-    - [ ] Response includes related adjustment for adjustment ledger transaction.
-    - [ ] Response includes related audit event ids.
-    - [ ] Response includes related outbox event ids and statuses.
-    - [ ] Unknown ledger transaction id returns structured `404`.
-    - [ ] Invalid UUID returns structured `400`.
-- [ ] Ledger investigation authorization:
-    - [ ] `AUDITOR` can query ledger investigation endpoint.
-    - [ ] `OPS_ADMIN` can query ledger investigation endpoint.
-    - [ ] `SERVICE` can query ledger investigation endpoint if allowed by matrix.
-    - [ ] `CUSTOMER` receives `403`.
-    - [ ] `TELLER` receives `403` unless explicitly allowed.
-    - [ ] Missing token receives `401`.
-- [ ] Correlation id behavior:
-    - [ ] Query response includes request correlation id.
-    - [ ] Audit filters can find events by correlation id.
-    - [ ] Investigation response includes operation correlation ids.
-    - [ ] Missing `X-Correlation-Id` uses generated correlation id if current filter behavior supports it.
-- [ ] Privacy and redaction:
-    - [ ] Audit payloads do not include bearer token.
-    - [ ] Audit payloads do not include password-like fields.
-    - [ ] Audit payloads do not include verification codes.
-    - [ ] Audit payloads do not include signing keys or secrets.
-    - [ ] Error responses from audit endpoints do not include stack traces.
-    - [ ] Logs for audit queries include correlation id but not sensitive query payloads.
+    - [x] Transfer reversal writes `TRANSFER_REVERSED`.
+    - [x] Adjustment posting writes `ADJUSTMENT_POSTED`.
+    - [x] Audit event contains principal-derived actor fields.
+    - [x] Audit event contains correlation id.
+    - [x] Audit event payload includes safe identifiers and reason codes.
+- [x] Audit query filters:
+    - [x] Query by event type returns matching events only.
+    - [x] Query by entity type returns matching events only.
+    - [x] Query by entity id returns matching events only.
+    - [x] Query by actor type returns matching events only.
+    - [x] Query by actor role returns matching events only.
+    - [x] Query by actor id returns matching events only.
+    - [x] Query by correlation id returns matching events only.
+    - [x] Query by created-from excludes older events.
+    - [x] Query by created-to excludes newer events.
+    - [x] Combined filters are applied with `AND` semantics.
+    - [x] Empty result returns an empty page.
+- [x] Audit query pagination and sorting:
+    - [x] Default page size is applied when size is omitted.
+    - [x] Maximum page size is enforced.
+    - [x] Invalid negative page returns structured validation error.
+    - [x] Invalid zero or negative size returns structured validation error.
+    - [x] `createdFrom > createdTo` returns structured validation error.
+    - [x] Results sort deterministically by created timestamp and id.
+    - [x] Page metadata includes page number, size, total elements, and total pages.
+- [x] Audit event REST endpoint:
+    - [x] `GET /api/v1/audit/events` returns `200` for `AUDITOR`.
+    - [x] `GET /api/v1/audit/events` returns `200` for `OPS_ADMIN`.
+    - [x] `CUSTOMER` receives `403`.
+    - [x] `TELLER` receives `403` unless explicitly allowed.
+    - [x] Missing token receives `401`.
+    - [x] Invalid filter returns structured `400`.
+    - [x] Response does not include sensitive payload fields.
+- [x] Audit event detail endpoint:
+    - [x] Existing audit event id returns `200`.
+    - [x] Missing audit event id returns structured `404`.
+    - [x] Invalid UUID returns structured `400`.
+    - [x] `AUDITOR` and `OPS_ADMIN` can access detail.
+    - [x] Unauthorized roles receive `403`.
+- [x] Audit immutability:
+    - [x] `POST /api/v1/audit/events` is not available.
+    - [x] `PUT /api/v1/audit/events/{id}` is not available.
+    - [x] `PATCH /api/v1/audit/events/{id}` is not available.
+    - [x] `DELETE /api/v1/audit/events/{id}` is not available.
+    - [x] Normal application workflows never update existing audit event rows.
+- [x] Ledger transaction investigation:
+    - [x] Existing ledger transaction returns transaction details.
+    - [x] Response includes journal entry details.
+    - [x] Response includes all postings.
+    - [x] Response includes related transfer for transfer ledger transaction.
+    - [x] Response includes related reversal for reversal ledger transaction.
+    - [x] Response includes related adjustment for adjustment ledger transaction.
+    - [x] Response includes related audit event ids.
+    - [x] Response includes related outbox event ids and statuses.
+    - [x] Unknown ledger transaction id returns structured `404`.
+    - [x] Invalid UUID returns structured `400`.
+- [x] Ledger investigation authorization:
+    - [x] `AUDITOR` can query ledger investigation endpoint.
+    - [x] `OPS_ADMIN` can query ledger investigation endpoint.
+    - [x] `SERVICE` can query ledger investigation endpoint if allowed by matrix.
+    - [x] `CUSTOMER` receives `403`.
+    - [x] `TELLER` receives `403` unless explicitly allowed.
+    - [x] Missing token receives `401`.
+- [x] Correlation id behavior:
+    - [x] Query response includes request correlation id.
+    - [x] Audit filters can find events by correlation id.
+    - [x] Investigation response includes operation correlation ids.
+    - [x] Missing `X-Correlation-Id` uses generated correlation id if current filter behavior supports it.
+- [x] Privacy and redaction:
+    - [x] Audit payloads do not include bearer token.
+    - [x] Audit payloads do not include password-like fields.
+    - [x] Audit payloads do not include verification codes.
+    - [x] Audit payloads do not include signing keys or secrets.
+    - [x] Error responses from audit endpoints do not include stack traces.
+    - [x] Logs for audit queries include correlation id but not sensitive query payloads.
 
 ### Acceptance Criteria
 

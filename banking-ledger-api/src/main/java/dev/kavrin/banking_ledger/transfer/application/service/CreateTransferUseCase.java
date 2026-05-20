@@ -110,6 +110,8 @@ public class CreateTransferUseCase {
                 transfer.getAmountMinor(),
                 transfer.getDescription(),
                 command.actorType().toAuditActorType(),
+                command.actorRole(),
+                command.actorId(),
                 command.correlationId(),
                 List.of(
                         new PostingLineCommand(source.getId(), PostingDirection.DEBIT, transfer.getAmountMinor(), transfer.getCurrencyCode()),

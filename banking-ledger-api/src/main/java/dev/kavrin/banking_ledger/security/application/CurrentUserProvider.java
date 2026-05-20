@@ -7,10 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -18,30 +15,36 @@ public class CurrentUserProvider {
 
     public AuthenticatedPrincipal getCurrentUser(Authentication authentication) {
 
+        if (authentication.getPrincipal() instanceof AuthenticatedPrincipal principal) {
+            return principal;
+        }
+
         if (!(authentication.getPrincipal() instanceof Jwt jwt)) {
             throw new IllegalStateException(
                     "Authentication principal is not a JWT"
             );
         }
 
-        List<String> roleClaims = Optional.ofNullable(
-                jwt.getClaimAsStringList("roles")
-        ).orElse(List.of());
+        List<String> roleClaims = Optional.ofNullable(jwt.getClaimAsStringList("roles"))
+                .or(() -> Optional.ofNullable(jwt.getClaimAsStringList("role")))
+                .orElse(List.of());
 
         Set<SecurityRole> roles = roleClaims.stream()
+                .map(role -> role.trim().toUpperCase(Locale.ROOT))
+                .map(role -> role.startsWith("ROLE_") ? role.substring("ROLE_".length()) : role)
                 .map(SecurityRole::valueOf)
                 .collect(Collectors.toSet());
 
-        String customerIdClaim = jwt.getClaimAsString("customer_id");
+        String customerIdClaim = firstClaim(jwt, "customerId", "customer_id");
 
         UUID customerId = customerIdClaim == null
                 || customerIdClaim.isBlank()
                 ? null
                 : UUID.fromString(customerIdClaim);
 
-        String actorId = jwt.getClaimAsString("actor_id");
+        String actorId = firstClaim(jwt, "actorId", "actor_id");
 
-        String actorTypeClaim = jwt.getClaimAsString("actor_type");
+        String actorTypeClaim = firstClaim(jwt, "actorType", "actor_type");
 
         AuditActorType actorType = actorTypeClaim == null
                 || actorTypeClaim.isBlank()
@@ -58,5 +61,10 @@ public class CurrentUserProvider {
                 customerId,
                 tokenId
         );
+    }
+
+    private String firstClaim(Jwt jwt, String first, String second) {
+        var value = jwt.getClaimAsString(first);
+        return value == null || value.isBlank() ? jwt.getClaimAsString(second) : value;
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -149,6 +150,20 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND,
                 ApiErrorCode.Business.RESOURCE_NOT_FOUND,
                 "Resource not found.",
+                request,
+                List.of()
+        );
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    ResponseEntity<ApiErrorResponse> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException exception,
+            HttpServletRequest request
+    ) {
+        return response(
+                HttpStatus.METHOD_NOT_ALLOWED,
+                ApiErrorCode.Validation.INVALID_REQUEST,
+                "Request method is not supported.",
                 request,
                 List.of()
         );

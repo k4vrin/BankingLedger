@@ -52,7 +52,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/api/v1/dev/auth/tokens"
+                                "/api/v1/dev/auth/**"
                         ).permitAll()
                         .requestMatchers("/api/v1/ops/**").hasAnyRole("OPS_ADMIN", "AUDITOR", "SERVICE")
                         .requestMatchers("/api/v1/transfers/**").hasAnyRole("CUSTOMER", "TELLER", "OPS_ADMIN", "SERVICE")

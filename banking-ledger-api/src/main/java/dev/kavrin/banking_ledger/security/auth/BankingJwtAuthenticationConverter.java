@@ -7,7 +7,8 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.BadJwtException;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
@@ -20,12 +21,12 @@ public class BankingJwtAuthenticationConverter implements Converter<Jwt, Abstrac
     public AbstractAuthenticationToken convert(Jwt jwt) {
         var subject = jwt.getSubject();
         if (subject == null || subject.isBlank()) {
-            throw new BadJwtException("JWT subject is required");
+            throw invalidToken("JWT subject is required");
         }
 
         var roles = roles(jwt);
         if (roles.isEmpty()) {
-            throw new BadJwtException("JWT must contain at least one recognized role");
+            throw invalidToken("JWT must contain at least one recognized role");
         }
 
         UUID customerId = parseCustomerId(jwt.getClaimAsString("customerId"), roles);
@@ -79,12 +80,12 @@ public class BankingJwtAuthenticationConverter implements Converter<Jwt, Abstrac
             return null;
         }
         if (customerId == null || customerId.isBlank()) {
-            throw new BadJwtException("Customer tokens require customerId");
+            throw invalidToken("Customer tokens require customerId");
         }
         try {
             return UUID.fromString(customerId.trim());
         } catch (IllegalArgumentException exception) {
-            throw new BadJwtException("customerId claim must be a UUID");
+            throw invalidToken("customerId claim must be a UUID");
         }
     }
 
@@ -104,5 +105,9 @@ public class BankingJwtAuthenticationConverter implements Converter<Jwt, Abstrac
             return AuditActorType.SERVICE;
         }
         return AuditActorType.SYSTEM;
+    }
+
+    private OAuth2AuthenticationException invalidToken(String message) {
+        return new OAuth2AuthenticationException(new OAuth2Error("invalid_token"), message);
     }
 }

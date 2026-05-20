@@ -3,6 +3,7 @@ package dev.kavrin.banking_ledger.reversal.application.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.kavrin.banking_ledger.audit.application.service.AuditEventWriter;
+import dev.kavrin.banking_ledger.audit.domain.model.AuditChannel;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
 import dev.kavrin.banking_ledger.ledger.application.command.PostLedgerTransactionCommand;
@@ -112,6 +113,8 @@ public class ReverseTransferUseCase {
                         originalLedgerTransaction.getAmountMinor(),
                         reversalDescription(transfer, command.reasonDetail()),
                         command.actorType().toAuditActorType(),
+                        command.actorRole(),
+                        command.actorId(),
                         command.correlationId(),
                         buildReversalPostingLines(originalPostings)
                 );
@@ -180,7 +183,7 @@ public class ReverseTransferUseCase {
                 command.actorRole(),
                 command.actorId(),
                 command.correlationId(),
-                "API",
+                AuditChannel.API,
                 Map.of(
                         "reversalId", reversal.getId().toString(),
                         "originalTransferId", reversal.getOriginalTransfer().getId().toString(),

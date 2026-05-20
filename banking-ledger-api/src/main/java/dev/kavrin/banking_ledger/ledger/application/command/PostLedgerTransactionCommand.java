@@ -1,6 +1,7 @@
 package dev.kavrin.banking_ledger.ledger.application.command;
 
 
+import dev.kavrin.banking_ledger.audit.domain.model.AuditActorRole;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
 import dev.kavrin.banking_ledger.ledger.domain.model.LedgerTransactionType;
 
@@ -22,15 +23,35 @@ public record PostLedgerTransactionCommand(
 
         AuditActorType actorType,
 
+        AuditActorRole actorRole,
+
+        String actorId,
+
         String correlationId,
 
         List<PostingLineCommand> postingLines
 
 ) {
+    public PostLedgerTransactionCommand(
+            String externalReference,
+            LedgerTransactionType transactionType,
+            String currencyCode,
+            long amountMinor,
+            String description,
+            AuditActorType actorType,
+            String correlationId,
+            List<PostingLineCommand> postingLines
+    ) {
+        this(externalReference, transactionType, currencyCode, amountMinor, description, actorType, null, null,
+                correlationId, postingLines);
+    }
+
     public PostLedgerTransactionCommand {
         Objects.requireNonNull(transactionType, "transactionType is required");
         currencyCode = requireText(currencyCode, "currencyCode");
         actorType = actorType == null ? AuditActorType.SYSTEM : actorType;
+        actorRole = actorRole == null ? AuditActorRole.SYSTEM : actorRole;
+        actorId = actorId == null || actorId.isBlank() ? null : actorId.trim();
         correlationId = correlationId == null ? null : correlationId.trim();
 
         if (externalReference != null) {

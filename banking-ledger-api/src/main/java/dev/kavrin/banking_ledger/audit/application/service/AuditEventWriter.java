@@ -2,10 +2,7 @@ package dev.kavrin.banking_ledger.audit.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.kavrin.banking_ledger.audit.domain.model.AuditActorRole;
-import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
-import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
-import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
+import dev.kavrin.banking_ledger.audit.domain.model.*;
 import dev.kavrin.banking_ledger.audit.persistence.AuditEventEntity;
 import dev.kavrin.banking_ledger.audit.persistence.AuditEventRepository;
 import dev.kavrin.banking_ledger.shared.correlation.CorrelationIdFilter;
@@ -22,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuditEventWriter {
 
-    private static final String DEFAULT_CHANNEL = "API";
+    private static final String SYSTEM_ACTOR_ID = "system";
 
     private final AuditEventRepository auditEventRepository;
     private final ObjectMapper objectMapper;
@@ -36,23 +33,77 @@ public class AuditEventWriter {
             AuditActorRole actorRole,
             String actorId,
             String correlationId,
-            String channel,
+            AuditChannel channel,
             Map<String, ?> payload
     ) {
+        var actorContext = normalizeActor(actorType, actorRole, actorId, channel);
         var serializedPayload = serializePayload(payload);
         var event = AuditEventEntity.builder()
                 .eventType(eventType.name())
                 .entityType(entityType.name())
                 .entityId(entityId)
-                .actorType(actorType)
-                .actorRole(actorRole)
-                .actorId(actorId)
+                .actorType(actorContext.actorType())
+                .actorRole(actorContext.actorRole())
+                .actorId(actorContext.actorId())
                 .correlationId(resolveCorrelationId(correlationId))
-                .channel(channel == null || channel.isBlank() ? DEFAULT_CHANNEL : channel.trim())
+                .channel(resolveChannel(channel).name())
                 .eventPayload(serializedPayload)
                 .build();
 
         return auditEventRepository.save(event);
+    }
+
+    // Propagation.MANDATORY is used to ensure that the audit event is only written within an existing transaction context,
+    // which is important for maintaining data integrity and consistency in the auditing process.
+    // This means that if this method is called without an active transaction, it will throw an exception,
+    // preventing the audit event from being written outside a transactional scope.
+    @Transactional(propagation = Propagation.MANDATORY)
+    public AuditEventEntity write(
+            AuditEventType eventType,
+            AuditEntityType entityType,
+            UUID entityId,
+            AuditRequestContext context,
+            Map<String, ?> payload
+    ) {
+        return write(
+                eventType,
+                entityType,
+                entityId,
+                context.actorType(),
+                context.actorRole(),
+                context.actorId(),
+                context.correlationId(),
+                context.channel(),
+                payload
+        );
+    }
+
+    private ActorContext normalizeActor(
+            AuditActorType actorType,
+            AuditActorRole actorRole,
+            String actorId,
+            AuditChannel channel
+    ) {
+        var resolvedChannel = resolveChannel(channel);
+        if (resolvedChannel != AuditChannel.API || actorType == null || actorType == AuditActorType.SYSTEM) {
+            return new ActorContext(AuditActorType.SYSTEM, AuditActorRole.SYSTEM, SYSTEM_ACTOR_ID);
+        }
+
+        if (actorRole == null) {
+            throw new IllegalArgumentException("Audit actor role is required for API audit events.");
+        }
+        if (actorId == null || actorId.isBlank()) {
+            throw new IllegalArgumentException("Audit actor id is required for API audit events.");
+        }
+
+        return new ActorContext(actorType, actorRole, actorId.trim());
+    }
+
+    private AuditChannel resolveChannel(AuditChannel channel) {
+        return channel == null ? AuditChannel.API : channel;
+    }
+
+    private record ActorContext(AuditActorType actorType, AuditActorRole actorRole, String actorId) {
     }
 
     private String serializePayload(Map<String, ?> payload) {
