@@ -84,4 +84,11 @@ public class OutboxEventEntity {
         this.nextRetryAt = nextRetryAt;
         this.lastErrorMessage = errorMessage;
     }
+
+    public void markDeadLettered(String errorMessage) {
+        this.status = OutboxStatus.DEAD_LETTER;
+        this.retryCount = this.retryCount + 1;
+        this.nextRetryAt = null;
+        this.lastErrorMessage = errorMessage;
+    }
 }

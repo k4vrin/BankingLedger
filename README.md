@@ -27,7 +27,7 @@ The backend API lives in `banking-ledger-api`.
 │   ├── compose.prod.yaml
 │   ├── compose.yaml
 │   ├── Dockerfile
-│   ├── env.example
+│   ├── .env.example
 │   ├── pom.xml
 │   └── src/
 └── docs/
@@ -108,7 +108,7 @@ From the API folder:
 
 ```bash
 cd banking-ledger-api
-cp env.example .env
+cp .env.example .env
 ```
 
 The default development values are:
@@ -287,6 +287,12 @@ kafka:9092
 
 Topic auto-creation is disabled. Create topics explicitly when event publishing is implemented.
 
+The development and production compose files include a one-shot `kafka-init` service that creates these topics:
+
+- `banking-ledger.ledger-events`
+- `banking-ledger.account-events`
+- `banking-ledger.reconciliation-events`
+
 ## Production Compose
 
 The production compose file builds and runs the API container with Oracle and Kafka.
@@ -295,7 +301,7 @@ Create an environment file first:
 
 ```bash
 cd banking-ledger-api
-cp env.example .env
+cp .env.example .env
 ```
 
 Edit `.env` and replace development passwords before running production services.

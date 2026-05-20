@@ -1415,18 +1415,18 @@ Goal: Publish financial events reliably without losing consistency between datab
     - [ ] `AccountBalanceChanged`
     - [ ] `ReconciliationMismatchFound`
     - [ ] `ReconciliationCompleted`
-- [ ] Add retry handling:
-    - [ ] Increment retry count on publish failure.
-    - [ ] Store last error message with safe truncation.
-    - [ ] Compute next retry timestamp with bounded exponential backoff.
-    - [ ] Stop retrying after max attempts.
-    - [ ] Move exhausted events to `DEAD_LETTERED`.
-    - [ ] Make max attempts configurable.
+- [x] Add retry handling:
+    - [x] Increment retry count on publish failure.
+    - [x] Store last error message with safe truncation.
+    - [x] Compute next retry timestamp with bounded exponential backoff.
+    - [x] Stop retrying after max attempts.
+    - [x] Move exhausted events to `DEAD_LETTERED`.
+    - [x] Make max attempts configurable.
 - [ ] Add dead-letter handling:
-    - [ ] Define when an event is dead-lettered.
-    - [ ] Keep dead-lettered rows queryable.
-    - [ ] Add optional admin endpoint or repository query for dead-lettered events.
-    - [ ] Ensure dead-lettering does not delete payloads.
+    - [x] Define when an event is dead-lettered.
+    - [x] Keep dead-lettered rows queryable.
+    - [x] Add optional admin endpoint or repository query for dead-lettered events.
+    - [x] Ensure dead-lettering does not delete payloads.
     - [ ] Document manual recovery steps.
 - [ ] Add replay strategy:
     - [ ] Add admin use case to requeue dead-lettered or failed events.
@@ -1448,7 +1448,7 @@ Goal: Publish financial events reliably without losing consistency between datab
     - [ ] Document topic names and event schemas.
     - [ ] Document retry and dead-letter policy.
     - [ ] Document replay procedure.
-    - [ ] Document local Kafka setup.
+    - [x] Document local Kafka setup.
 
 ### Test Scenarios
 
@@ -1484,11 +1484,11 @@ Goal: Publish financial events reliably without losing consistency between datab
     - [ ] Failed lock acquisition is retried later.
     - [ ] Batch ordering is deterministic.
 - [ ] Retry and dead-letter:
-    - [ ] Publish failure increments retry count.
-    - [ ] Publish failure stores safe error message.
-    - [ ] Next retry timestamp uses backoff.
+    - [x] Publish failure increments retry count.
+    - [x] Publish failure stores safe error message.
+    - [x] Next retry timestamp uses backoff.
     - [ ] Event is not retried before next retry timestamp.
-    - [ ] Event moves to `DEAD_LETTERED` after max attempts.
+    - [x] Event moves to `DEAD_LETTERED` after max attempts.
     - [ ] Dead-lettered event is not published by normal scheduler.
 - [ ] Replay:
     - [ ] Failed event can be requeued.

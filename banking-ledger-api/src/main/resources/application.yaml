@@ -51,6 +51,9 @@ banking-ledger:
       enabled: true
       batch-size: 50
       interval: 5s
+      max-attempts: 5
+      initial-retry-delay: 30s
+      max-retry-delay: 10m
   security:
     jwt:
       issuer: ${JWT_ISSUER:banking-ledger-local}

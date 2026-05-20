@@ -75,6 +75,22 @@ services:
       - kafka-prod-data:/var/lib/kafka/data
     restart: unless-stopped
 
+  kafka-init:
+    image: apache/kafka:3.9.1
+    container_name: banking-ledger-kafka-init-prod
+    depends_on:
+      - kafka
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        until /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list >/dev/null 2>&1; do
+          sleep 2
+        done
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic banking-ledger.ledger-events --partitions ${KAFKA_TOPIC_PARTITIONS:-3} --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic banking-ledger.account-events --partitions ${KAFKA_TOPIC_PARTITIONS:-3} --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic banking-ledger.reconciliation-events --partitions ${KAFKA_TOPIC_PARTITIONS:-3} --replication-factor 1
+    restart: "no"
+
 volumes:
   oracle-prod-data:
   cloudbeaver-prod-data:

@@ -1,6 +1,8 @@
 package dev.kavrin.banking_ledger.outbox.persistence;
 
+import dev.kavrin.banking_ledger.outbox.domain.model.OutboxStatus;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -24,6 +26,11 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, 
 """)
     List<OutboxEventEntity> findPublishableEventsForUpdate(
             @Param("now") OffsetDateTime now,
+            Pageable pageable
+    );
+
+    Page<OutboxEventEntity> findByStatusOrderByCreatedAtDescIdDesc(
+            OutboxStatus status,
             Pageable pageable
     );
 }
