@@ -34,7 +34,7 @@ public class DevTokenService {
         }
 
         var now = Instant.now();
-        var ttl = properties.devTokenTtl();
+        var ttl = properties.accessTokenTtl();
         var effectiveSubject = subject == null || subject.isBlank()
                 ? "dev-" + role.name().toLowerCase().replace('_', '-')
                 : subject.trim();

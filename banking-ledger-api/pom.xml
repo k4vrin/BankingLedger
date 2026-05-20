@@ -11,8 +11,8 @@
 	<groupId>dev.kavrin</groupId>
 	<artifactId>banking-ledger</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<name>banking-ledger</name>
+	<description>Mini core banking ledger API with double-entry accounting, transfers, audit, reconciliation, and security.</description>
 	<url/>
 	<licenses>
 		<license/>

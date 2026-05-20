@@ -11,7 +11,7 @@ public record JwtSecurityProperties(
         String audience,
         String secret,
         Duration clockSkew,
-        Duration devTokenTtl,
+        Duration accessTokenTtl,
         List<String> allowedCorsOrigins
 ) {
 }

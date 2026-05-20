@@ -1,7 +1,6 @@
 package dev.kavrin.banking_ledger.security.config;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
-import com.nimbusds.jose.proc.SecurityContext;
 import dev.kavrin.banking_ledger.security.auth.BankingJwtAuthenticationConverter;
 import dev.kavrin.banking_ledger.security.auth.SecurityErrorHandlers;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -54,6 +54,9 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api/v1/dev/auth/tokens"
                         ).permitAll()
+                        .requestMatchers("/api/v1/ops/**").hasAnyRole("OPS_ADMIN", "AUDITOR", "SERVICE")
+                        .requestMatchers("/api/v1/transfers/**").hasAnyRole("CUSTOMER", "TELLER", "OPS_ADMIN", "SERVICE")
+                        .requestMatchers("/api/v1/accounts/**").hasAnyRole("CUSTOMER", "TELLER", "OPS_ADMIN", "AUDITOR", "SERVICE")
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(resourceServer -> resourceServer
@@ -66,14 +69,17 @@ public class SecurityConfig {
 
     @Bean
     JwtDecoder jwtDecoder() {
-        var decoder = NimbusJwtDecoder.withSecretKey(jwtSecretKey()).build();
+        var decoder = NimbusJwtDecoder
+                .withSecretKey(jwtSecretKey())
+                .macAlgorithm(MacAlgorithm.HS256)
+                .build();
         OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<List<String>>(
                 "aud",
                 audiences -> audiences != null && audiences.contains(properties.audience())
         );
         decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
                 new JwtTimestampValidator(properties.clockSkew()),
-                new org.springframework.security.oauth2.jwt.JwtIssuerValidator(properties.issuer()),
+                new JwtIssuerValidator(properties.issuer()),
                 audienceValidator
         ));
         return decoder;
@@ -81,7 +87,9 @@ public class SecurityConfig {
 
     @Bean
     JwtEncoder jwtEncoder() {
-        return new NimbusJwtEncoder(new ImmutableSecret<SecurityContext>(jwtSecretKey().getEncoded()));
+        return new NimbusJwtEncoder(
+                new ImmutableSecret<>(jwtSecretKey())
+        );
     }
 
     @Bean
@@ -91,6 +99,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Idempotency-Key", "X-Correlation-Id"));
         configuration.setExposedHeaders(List.of("Location", "X-Correlation-Id"));
+        configuration.setMaxAge(3600L);
         configuration.setAllowCredentials(true);
 
         var source = new UrlBasedCorsConfigurationSource();

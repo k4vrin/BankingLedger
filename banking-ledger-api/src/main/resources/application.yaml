@@ -37,7 +37,8 @@ banking-ledger:
       audience: ${JWT_AUDIENCE:banking-ledger-api}
       secret: ${JWT_SECRET:local-development-secret-key-for-banking-ledger-phase-seven}
       clock-skew: ${JWT_CLOCK_SKEW:30s}
-      dev-token-ttl: ${JWT_DEV_TOKEN_TTL:1h}
+      access-token-ttl: ${JWT_ACCESS_TOKEN_TTL:15m}
+      refresh-token-ttl: ${JWT_REFRESH_TOKEN_TTL:0}
       allowed-cors-origins:
         - ${APP_CORS_ORIGIN:http://localhost:3000}
 

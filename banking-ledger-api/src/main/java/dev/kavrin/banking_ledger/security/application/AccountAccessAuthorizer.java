@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Component("accountOwnership")
 @RequiredArgsConstructor
-public class AccountOwnershipAuthorizer {
+public class AccountAccessAuthorizer {
 
     private final AccountRepository accountRepository;
     private final TransferRequestRepository transferRequestRepository;
