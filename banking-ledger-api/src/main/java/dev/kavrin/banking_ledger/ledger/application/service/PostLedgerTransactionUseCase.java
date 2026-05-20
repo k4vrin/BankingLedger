@@ -1,13 +1,13 @@
 package dev.kavrin.banking_ledger.ledger.application.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.kavrin.banking_ledger.account.persistence.AccountEntity;
 import dev.kavrin.banking_ledger.account.persistence.AccountRepository;
+import dev.kavrin.banking_ledger.audit.application.command.WriteAuditEventCommand;
 import dev.kavrin.banking_ledger.audit.application.service.AuditEventWriter;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditChannel;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
+import dev.kavrin.banking_ledger.audit.domain.model.LedgerTransactionPostedAuditPayload;
 import dev.kavrin.banking_ledger.ledger.application.command.PostLedgerTransactionCommand;
 import dev.kavrin.banking_ledger.ledger.domain.factory.JournalEntryFactory;
 import dev.kavrin.banking_ledger.ledger.domain.factory.PostedLedgerGraph;
@@ -16,12 +16,12 @@ import dev.kavrin.banking_ledger.ledger.persistence.mapper.LedgerPersistenceMapp
 import dev.kavrin.banking_ledger.ledger.persistence.repository.JournalEntryRepository;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.LedgerTransactionRepository;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.PostingRepository;
-import dev.kavrin.banking_ledger.outbox.OutboxAggregateType;
-import dev.kavrin.banking_ledger.outbox.OutboxDestination;
-import dev.kavrin.banking_ledger.outbox.OutboxEventType;
-import dev.kavrin.banking_ledger.outbox.OutboxStatus;
-import dev.kavrin.banking_ledger.outbox.persistence.OutboxEventEntity;
-import dev.kavrin.banking_ledger.outbox.persistence.OutboxEventRepository;
+import dev.kavrin.banking_ledger.outbox.application.command.WriteOutboxEventCommand;
+import dev.kavrin.banking_ledger.outbox.application.service.OutboxWriterService;
+import dev.kavrin.banking_ledger.outbox.domain.model.LedgerTransactionPostedPayload;
+import dev.kavrin.banking_ledger.outbox.domain.model.OutboxAggregateType;
+import dev.kavrin.banking_ledger.outbox.domain.model.OutboxDestination;
+import dev.kavrin.banking_ledger.outbox.domain.model.OutboxEventType;
 import dev.kavrin.banking_ledger.shared.error.*;
 import dev.kavrin.banking_ledger.shared.money.CurrencyCode;
 import jakarta.persistence.EntityManager;
@@ -43,10 +43,9 @@ public class PostLedgerTransactionUseCase {
     private final PostingRepository postingRepository;
     private final AccountRepository accountRepository;
     private final AuditEventWriter auditEventWriter;
-    private final OutboxEventRepository outboxEventRepository;
+    private final OutboxWriterService outboxWriterService;
     private final LedgerPersistenceMapper mapper;
     private final AccountBalanceUpdater balanceUpdater;
-    private final ObjectMapper objectMapper;
     private final EntityManager entityManager;
     private final JournalEntryFactory journalEntryFactory = new JournalEntryFactory();
 
@@ -94,7 +93,7 @@ public class PostLedgerTransactionUseCase {
 
         postingRepository.flush();
         writeAuditEvent(command, savedTransaction.getId());
-        outboxEventRepository.save(outboxEvent(command, savedTransaction.getId(), postedAt));
+        writeOutboxEvent(command, savedTransaction.getId(), postedAt);
 
         return new PostedLedgerTransactionResult(
                 savedTransaction.getId(),
@@ -182,7 +181,7 @@ public class PostLedgerTransactionUseCase {
     }
 
     private void writeAuditEvent(PostLedgerTransactionCommand command, UUID transactionId) {
-        auditEventWriter.write(
+        auditEventWriter.write(new WriteAuditEventCommand(
                 AuditEventType.LEDGER_TRANSACTION_POSTED,
                 AuditEntityType.LEDGER_TRANSACTION,
                 transactionId,
@@ -191,42 +190,32 @@ public class PostLedgerTransactionUseCase {
                 command.actorId(),
                 command.correlationId(),
                 AuditChannel.API,
-                Map.of(
-                        "transactionId", transactionId.toString(),
-                        "externalReference", command.externalReference() == null ? "" : command.externalReference()
+                new LedgerTransactionPostedAuditPayload(
+                        transactionId,
+                        command.externalReference()
                 )
-        );
+        ));
     }
 
-    private OutboxEventEntity outboxEvent(
+    private void writeOutboxEvent(
             PostLedgerTransactionCommand command,
             UUID transactionId,
             OffsetDateTime postedAt
     ) {
         var currencyCode = CurrencyCode.of(command.currencyCode()).value();
-        return OutboxEventEntity.builder()
-                .aggregateType(OutboxAggregateType.LEDGER_TRANSACTION.name())
-                .aggregateId(transactionId)
-                .eventType(OutboxEventType.LEDGER_TRANSACTION_POSTED.eventName())
-                .destination(OutboxDestination.LEDGER_EVENTS.destinationName())
-                .correlationId(command.correlationId())
-                .eventPayload(toJson(Map.of(
-                        "transactionId", transactionId.toString(),
-                        "currencyCode", currencyCode,
-                        "amountMinor", command.amountMinor(),
-                        "transactionType", command.transactionType().name(),
-                        "postedAt", postedAt.toString()
-                )))
-                .status(OutboxStatus.PENDING)
-                .retryCount(0)
-                .build();
-    }
-
-    private String toJson(Map<String, ?> payload) {
-        try {
-            return objectMapper.writeValueAsString(payload);
-        } catch (JsonProcessingException exception) {
-            throw new IllegalStateException("Failed to serialize event payload", exception);
-        }
+        outboxWriterService.write(new WriteOutboxEventCommand(
+                OutboxAggregateType.LEDGER_TRANSACTION.name(),
+                transactionId,
+                OutboxEventType.LEDGER_TRANSACTION_POSTED,
+                OutboxDestination.LEDGER_EVENTS,
+                command.correlationId(),
+                new LedgerTransactionPostedPayload(
+                        transactionId,
+                        command.externalReference(),
+                        currencyCode,
+                        command.amountMinor(),
+                        postedAt
+                )
+        ));
     }
 }

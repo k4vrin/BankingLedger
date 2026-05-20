@@ -159,7 +159,7 @@ class TransferReversalControllerTest {
         private ReversalResponse nextResponse;
 
         private StubReverseTransferUseCase() {
-            super(null, null, null, null, null, null, null, null, null);
+            super(null, null, null, null, null, null, null, null);
         }
 
         @Override

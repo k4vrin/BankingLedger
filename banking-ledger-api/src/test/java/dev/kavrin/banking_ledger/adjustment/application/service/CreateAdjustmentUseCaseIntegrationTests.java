@@ -19,7 +19,7 @@ import dev.kavrin.banking_ledger.ledger.domain.model.LedgerTransactionType;
 import dev.kavrin.banking_ledger.ledger.domain.model.PostingDirection;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.LedgerTransactionRepository;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.PostingRepository;
-import dev.kavrin.banking_ledger.outbox.OutboxStatus;
+import dev.kavrin.banking_ledger.outbox.domain.model.OutboxStatus;
 import dev.kavrin.banking_ledger.outbox.persistence.OutboxEventRepository;
 import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
 import dev.kavrin.banking_ledger.shared.error.BadRequestException;

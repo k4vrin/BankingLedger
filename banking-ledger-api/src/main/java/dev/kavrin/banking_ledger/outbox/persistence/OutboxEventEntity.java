@@ -1,21 +1,8 @@
 package dev.kavrin.banking_ledger.outbox.persistence;
 
-import dev.kavrin.banking_ledger.outbox.OutboxStatus;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
+import dev.kavrin.banking_ledger.outbox.domain.model.OutboxStatus;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.OffsetDateTime;
@@ -51,7 +38,7 @@ public class OutboxEventEntity {
     private String correlationId;
 
     @Lob
-    @Column(name = "event_payload", nullable = false)
+    @Column(name = "event_payload", nullable = false, columnDefinition = "CLOB")
     private String eventPayload;
 
     @Enumerated(EnumType.STRING)
@@ -67,7 +54,6 @@ public class OutboxEventEntity {
     @Column(name = "last_error_message", length = 1000)
     private String lastErrorMessage;
 
-    @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
@@ -77,4 +63,10 @@ public class OutboxEventEntity {
     @Version
     @Column(name = "version", nullable = false)
     private long version;
+
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = OffsetDateTime.now();
+    }
 }

@@ -1,7 +1,9 @@
 package dev.kavrin.banking_ledger.audit.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.kavrin.banking_ledger.audit.application.command.WriteAuditEventCommand;
 import dev.kavrin.banking_ledger.audit.domain.model.*;
 import dev.kavrin.banking_ledger.audit.persistence.AuditEventEntity;
 import dev.kavrin.banking_ledger.audit.persistence.AuditEventRepository;
@@ -20,9 +22,30 @@ import java.util.UUID;
 public class AuditEventWriter {
 
     private static final String SYSTEM_ACTOR_ID = "system";
+    private static final TypeReference<Map<String, Object>> PAYLOAD_MAP_TYPE = new TypeReference<>() {
+    };
 
     private final AuditEventRepository auditEventRepository;
     private final ObjectMapper objectMapper;
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public AuditEventEntity write(WriteAuditEventCommand command) {
+        var actorContext = normalizeActor(command.actorType(), command.actorRole(), command.actorId(), command.channel());
+        var serializedPayload = serializePayload(command.payload());
+        var event = AuditEventEntity.builder()
+                .eventType(command.eventType().name())
+                .entityType(command.entityType().name())
+                .entityId(command.entityId())
+                .actorType(actorContext.actorType())
+                .actorRole(actorContext.actorRole())
+                .actorId(actorContext.actorId())
+                .correlationId(resolveCorrelationId(command.correlationId()))
+                .channel(resolveChannel(command.channel()).name())
+                .eventPayload(serializedPayload)
+                .build();
+
+        return auditEventRepository.save(event);
+    }
 
     @Transactional(propagation = Propagation.MANDATORY)
     public AuditEventEntity write(
@@ -36,27 +59,19 @@ public class AuditEventWriter {
             AuditChannel channel,
             Map<String, ?> payload
     ) {
-        var actorContext = normalizeActor(actorType, actorRole, actorId, channel);
-        var serializedPayload = serializePayload(payload);
-        var event = AuditEventEntity.builder()
-                .eventType(eventType.name())
-                .entityType(entityType.name())
-                .entityId(entityId)
-                .actorType(actorContext.actorType())
-                .actorRole(actorContext.actorRole())
-                .actorId(actorContext.actorId())
-                .correlationId(resolveCorrelationId(correlationId))
-                .channel(resolveChannel(channel).name())
-                .eventPayload(serializedPayload)
-                .build();
-
-        return auditEventRepository.save(event);
+        return write(new WriteAuditEventCommand(
+                eventType,
+                entityType,
+                entityId,
+                actorType,
+                actorRole,
+                actorId,
+                correlationId,
+                channel,
+                payload
+        ));
     }
 
-    // Propagation.MANDATORY is used to ensure that the audit event is only written within an existing transaction context,
-    // which is important for maintaining data integrity and consistency in the auditing process.
-    // This means that if this method is called without an active transaction, it will throw an exception,
-    // preventing the audit event from being written outside a transactional scope.
     @Transactional(propagation = Propagation.MANDATORY)
     public AuditEventEntity write(
             AuditEventType eventType,
@@ -106,11 +121,15 @@ public class AuditEventWriter {
     private record ActorContext(AuditActorType actorType, AuditActorRole actorRole, String actorId) {
     }
 
-    private String serializePayload(Map<String, ?> payload) {
-        if (payload == null || payload.isEmpty()) {
+    private String serializePayload(Object payload) {
+        if (payload == null) {
             return "{}";
         }
-        payload.keySet().forEach(this::rejectSensitivePayloadKey);
+        var payloadMap = objectMapper.convertValue(payload, PAYLOAD_MAP_TYPE);
+        if (payloadMap.isEmpty()) {
+            return "{}";
+        }
+        payloadMap.keySet().forEach(this::rejectSensitivePayloadKey);
         try {
             return objectMapper.writeValueAsString(payload);
         } catch (JsonProcessingException exception) {

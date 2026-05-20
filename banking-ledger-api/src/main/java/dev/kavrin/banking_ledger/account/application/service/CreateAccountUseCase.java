@@ -7,11 +7,9 @@ import dev.kavrin.banking_ledger.account.domain.model.AccountStatus;
 import dev.kavrin.banking_ledger.account.domain.model.AccountType;
 import dev.kavrin.banking_ledger.account.persistence.AccountEntity;
 import dev.kavrin.banking_ledger.account.persistence.AccountRepository;
+import dev.kavrin.banking_ledger.audit.application.command.WriteAuditEventCommand;
 import dev.kavrin.banking_ledger.audit.application.service.AuditEventWriter;
-import dev.kavrin.banking_ledger.audit.domain.model.AuditActorType;
-import dev.kavrin.banking_ledger.audit.domain.model.AuditChannel;
-import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
-import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
+import dev.kavrin.banking_ledger.audit.domain.model.*;
 import dev.kavrin.banking_ledger.customer.persistence.CustomerRepository;
 import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
 import dev.kavrin.banking_ledger.shared.error.BadRequestException;
@@ -69,7 +67,7 @@ public class CreateAccountUseCase {
 
         var savedAccount = accountRepository.save(account);
 
-        auditEventWriter.write(
+        auditEventWriter.write(new WriteAuditEventCommand(
                 AuditEventType.ACCOUNT_CREATED,
                 AuditEntityType.ACCOUNT,
                 savedAccount.getId(),
@@ -78,8 +76,8 @@ public class CreateAccountUseCase {
                 command.actorId(),
                 command.correlationId(),
                 AuditChannel.API,
-                java.util.Map.of("accountId", savedAccount.getId().toString())
-        );
+                new AccountCreatedAuditPayload(savedAccount.getId())
+        ));
 
         return toResponse(savedAccount);
 

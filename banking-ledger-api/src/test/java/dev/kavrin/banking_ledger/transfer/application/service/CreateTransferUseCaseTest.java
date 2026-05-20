@@ -226,7 +226,7 @@ class CreateTransferUseCaseTest {
         private PreloadedPostingAccounts lastPreloadedAccounts;
 
         private RecordingPostLedgerTransactionUseCase() {
-            super(null, null, null, null, null, null, null, null, null, null);
+            super(null, null, null, null, null, null, null, null, null);
         }
 
         @Override

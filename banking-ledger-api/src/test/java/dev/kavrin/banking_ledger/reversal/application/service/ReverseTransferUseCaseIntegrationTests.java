@@ -14,7 +14,7 @@ import dev.kavrin.banking_ledger.customer.persistence.CustomerRepository;
 import dev.kavrin.banking_ledger.ledger.domain.model.LedgerTransactionType;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.LedgerTransactionRepository;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.PostingRepository;
-import dev.kavrin.banking_ledger.outbox.OutboxStatus;
+import dev.kavrin.banking_ledger.outbox.domain.model.OutboxStatus;
 import dev.kavrin.banking_ledger.outbox.persistence.OutboxEventRepository;
 import dev.kavrin.banking_ledger.reversal.application.command.ReverseTransferCommand;
 import dev.kavrin.banking_ledger.reversal.domain.model.ReversalReasonCode;

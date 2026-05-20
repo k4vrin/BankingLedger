@@ -21,7 +21,7 @@ import dev.kavrin.banking_ledger.ledger.persistence.entity.PostingEntity;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.JournalEntryRepository;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.LedgerTransactionRepository;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.PostingRepository;
-import dev.kavrin.banking_ledger.outbox.OutboxStatus;
+import dev.kavrin.banking_ledger.outbox.domain.model.OutboxStatus;
 import dev.kavrin.banking_ledger.outbox.persistence.OutboxEventEntity;
 import dev.kavrin.banking_ledger.outbox.persistence.OutboxEventRepository;
 import dev.kavrin.banking_ledger.reversal.persistence.ReversalRepository;

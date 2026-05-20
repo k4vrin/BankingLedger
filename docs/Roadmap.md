@@ -1365,20 +1365,20 @@ Goal: Publish financial events reliably without losing consistency between datab
 
 ### Steps
 
-- [ ] Finalize outbox schema:
-    - [ ] Confirm `outbox_events` has aggregate type, aggregate id, event type, destination, correlation id, payload, status, retry count, retry timestamp, error message, created timestamp, published timestamp, and version.
-    - [ ] Add status values for `PENDING`, `PUBLISHED`, `FAILED`, and `DEAD_LETTERED` if missing.
-    - [ ] Add indexes for status and next retry timestamp.
-    - [ ] Add index for aggregate type and aggregate id.
-    - [ ] Add index for event type.
-    - [ ] Add check constraints for status and retry count.
-    - [ ] Add optimistic version column if missing.
-- [ ] Define outbox domain model:
-    - [ ] Add `OutboxEventType` values for all published events.
-    - [ ] Add `OutboxDestination` values for Kafka topics.
-    - [ ] Add `OutboxPublishStatus` transition rules.
-    - [ ] Add payload envelope model with event id, event type, aggregate id, occurred timestamp, schema version, and data.
-    - [ ] Add event schema version constants.
+- [x] Finalize outbox schema:
+    - [x] Confirm `outbox_events` has aggregate type, aggregate id, event type, destination, correlation id, payload, status, retry count, retry timestamp, error message, created timestamp, published timestamp, and version.
+    - [x] Add status values for `PENDING`, `PUBLISHED`, `FAILED`, and `DEAD_LETTERED` if missing.
+    - [x] Add indexes for status and next retry timestamp.
+    - [x] Add index for aggregate type and aggregate id.
+    - [x] Add index for event type.
+    - [x] Add check constraints for status and retry count.
+    - [x] Add optimistic version column if missing.
+- [x] Define outbox domain model:
+    - [x] Add `OutboxEventType` values for all published events.
+    - [x] Add `OutboxDestination` values for Kafka topics.
+    - [x] Add `OutboxPublishStatus` transition rules.
+    - [x] Add payload envelope model with event id, event type, aggregate id, occurred timestamp, schema version, and data.
+    - [x] Add event schema version constants.
 - [ ] Add outbox writer service:
     - [ ] Centralize outbox row creation in one component.
     - [ ] Accept aggregate metadata, event type, destination, correlation id, and payload.

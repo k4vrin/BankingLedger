@@ -1,7 +1,5 @@
 package dev.kavrin.banking_ledger.adjustment.application.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.kavrin.banking_ledger.adjustment.api.dto.AdjustmentResponse;
 import dev.kavrin.banking_ledger.adjustment.application.command.CreateAdjustmentCommand;
 import dev.kavrin.banking_ledger.adjustment.domain.model.AdjustmentStatus;
@@ -9,7 +7,9 @@ import dev.kavrin.banking_ledger.adjustment.domain.policy.AdjustmentValidationPo
 import dev.kavrin.banking_ledger.adjustment.persistence.AdjustmentRequestEntity;
 import dev.kavrin.banking_ledger.adjustment.persistence.AdjustmentRequestRepository;
 import dev.kavrin.banking_ledger.adjustment.persistence.mapper.AdjustmentResponseMapper;
+import dev.kavrin.banking_ledger.audit.application.command.WriteAuditEventCommand;
 import dev.kavrin.banking_ledger.audit.application.service.AuditEventWriter;
+import dev.kavrin.banking_ledger.audit.domain.model.AdjustmentPostedAuditPayload;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditChannel;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEntityType;
 import dev.kavrin.banking_ledger.audit.domain.model.AuditEventType;
@@ -17,18 +17,17 @@ import dev.kavrin.banking_ledger.ledger.application.command.PostLedgerTransactio
 import dev.kavrin.banking_ledger.ledger.application.service.PostLedgerTransactionUseCase;
 import dev.kavrin.banking_ledger.ledger.domain.model.LedgerTransactionType;
 import dev.kavrin.banking_ledger.ledger.persistence.repository.LedgerTransactionRepository;
-import dev.kavrin.banking_ledger.outbox.OutboxAggregateType;
-import dev.kavrin.banking_ledger.outbox.OutboxDestination;
-import dev.kavrin.banking_ledger.outbox.OutboxEventType;
-import dev.kavrin.banking_ledger.outbox.OutboxStatus;
-import dev.kavrin.banking_ledger.outbox.persistence.OutboxEventEntity;
-import dev.kavrin.banking_ledger.outbox.persistence.OutboxEventRepository;
+import dev.kavrin.banking_ledger.outbox.application.command.WriteOutboxEventCommand;
+import dev.kavrin.banking_ledger.outbox.application.service.OutboxWriterService;
+import dev.kavrin.banking_ledger.outbox.domain.model.AdjustmentPostedPayload;
+import dev.kavrin.banking_ledger.outbox.domain.model.OutboxAggregateType;
+import dev.kavrin.banking_ledger.outbox.domain.model.OutboxDestination;
+import dev.kavrin.banking_ledger.outbox.domain.model.OutboxEventType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +38,7 @@ public class CreateAdjustmentUseCase {
     private final LedgerTransactionRepository ledgerTransactionRepository;
     private final AdjustmentResponseMapper adjustmentResponseMapper;
     private final AuditEventWriter auditEventWriter;
-    private final OutboxEventRepository outboxEventRepository;
-    private final ObjectMapper objectMapper;
+    private final OutboxWriterService outboxWriterService;
 
     @Transactional
     public AdjustmentResponse handle(CreateAdjustmentCommand command) {
@@ -86,7 +84,7 @@ public class CreateAdjustmentUseCase {
                 adjustmentRequestRepository.save(adjustment);
 
         writeAuditEvent(command, completedAdjustment);
-        outboxEventRepository.save(outboxEvent(command, completedAdjustment));
+        writeOutboxEvent(command, completedAdjustment);
 
         return adjustmentResponseMapper.toResponse(completedAdjustment);
     }
@@ -104,7 +102,7 @@ public class CreateAdjustmentUseCase {
     }
 
     private void writeAuditEvent(CreateAdjustmentCommand command, AdjustmentRequestEntity adjustment) {
-        auditEventWriter.write(
+        auditEventWriter.write(new WriteAuditEventCommand(
                 AuditEventType.ADJUSTMENT_POSTED,
                 AuditEntityType.ADJUSTMENT,
                 adjustment.getId(),
@@ -113,37 +111,27 @@ public class CreateAdjustmentUseCase {
                 command.actorId(),
                 command.correlationId(),
                 AuditChannel.API,
-                Map.of(
-                        "adjustmentId", adjustment.getId().toString(),
-                        "ledgerTransactionId", adjustment.getLedgerTransaction().getId().toString(),
-                        "reasonCode", command.reasonCode().name()
+                new AdjustmentPostedAuditPayload(
+                        adjustment.getId(),
+                        adjustment.getLedgerTransaction().getId(),
+                        command.reasonCode().name()
                 )
-        );
+        ));
     }
 
-    private OutboxEventEntity outboxEvent(CreateAdjustmentCommand command, AdjustmentRequestEntity adjustment) {
-        return OutboxEventEntity.builder()
-                .aggregateType(OutboxAggregateType.ADJUSTMENT.name())
-                .aggregateId(adjustment.getId())
-                .eventType(OutboxEventType.ADJUSTMENT_POSTED.eventName())
-                .destination(OutboxDestination.LEDGER_EVENTS.destinationName())
-                .correlationId(command.correlationId())
-                .eventPayload(toJson(Map.of(
-                        "adjustmentId", adjustment.getId().toString(),
-                        "ledgerTransactionId", adjustment.getLedgerTransaction().getId().toString(),
-                        "reasonCode", command.reasonCode().name(),
-                        "postedAt", adjustment.getCompletedAt().toString()
-                )))
-                .status(OutboxStatus.PENDING)
-                .retryCount(0)
-                .build();
-    }
-
-    private String toJson(Map<String, ?> payload) {
-        try {
-            return objectMapper.writeValueAsString(payload);
-        } catch (JsonProcessingException exception) {
-            throw new IllegalStateException("Failed to serialize event payload", exception);
-        }
+    private void writeOutboxEvent(CreateAdjustmentCommand command, AdjustmentRequestEntity adjustment) {
+        outboxWriterService.write(new WriteOutboxEventCommand(
+                OutboxAggregateType.ADJUSTMENT.name(),
+                adjustment.getId(),
+                OutboxEventType.ADJUSTMENT_POSTED,
+                OutboxDestination.LEDGER_EVENTS,
+                command.correlationId(),
+                new AdjustmentPostedPayload(
+                        adjustment.getId(),
+                        adjustment.getLedgerTransaction().getId(),
+                        command.reasonCode().name(),
+                        adjustment.getCompletedAt()
+                )
+        ));
     }
 }

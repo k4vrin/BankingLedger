@@ -227,7 +227,7 @@ class AdjustmentControllerTest {
         private AdjustmentResponse nextResponse;
 
         private StubCreateAdjustmentUseCase() {
-            super(null, null, null, null, null, null, null);
+            super(null, null, null, null, null, null);
         }
 
         @Override

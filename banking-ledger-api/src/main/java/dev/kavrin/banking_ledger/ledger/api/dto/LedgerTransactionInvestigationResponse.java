@@ -6,7 +6,7 @@ import dev.kavrin.banking_ledger.ledger.domain.model.JournalEntryType;
 import dev.kavrin.banking_ledger.ledger.domain.model.LedgerTransactionType;
 import dev.kavrin.banking_ledger.ledger.domain.model.PostingDirection;
 import dev.kavrin.banking_ledger.ledger.domain.model.TransactionStatus;
-import dev.kavrin.banking_ledger.outbox.OutboxStatus;
+import dev.kavrin.banking_ledger.outbox.domain.model.OutboxStatus;
 import dev.kavrin.banking_ledger.reversal.domain.model.ReversalReasonCode;
 import dev.kavrin.banking_ledger.reversal.domain.model.ReversalStatus;
 import dev.kavrin.banking_ledger.transfer.domain.model.TransferStatus;

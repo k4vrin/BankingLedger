@@ -81,6 +81,8 @@ class AuditEventWriterTest {
     @Test
     void writerRejectsUnserializablePayload() throws Exception {
         var objectMapper = org.mockito.Mockito.mock(ObjectMapper.class);
+        when(objectMapper.convertValue(any(), org.mockito.ArgumentMatchers.<com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>>any()))
+                .thenReturn(Map.of("accountId", UUID.randomUUID().toString()));
         when(objectMapper.writeValueAsString(any()))
                 .thenThrow(new com.fasterxml.jackson.core.JsonProcessingException("boom") {
                 });
