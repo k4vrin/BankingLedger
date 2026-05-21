@@ -165,6 +165,12 @@ class ReportJdbcIntegrationTest {
             delete from settlement_batches
             """);
         jdbc.getJdbcTemplate().execute("""
+            delete from reversals
+            """);
+        jdbc.getJdbcTemplate().execute("""
+            delete from adjustment_requests
+            """);
+        jdbc.getJdbcTemplate().execute("""
             delete from transfer_requests
             """);
         jdbc.getJdbcTemplate().execute("""
