@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant Ops as Ops admin or service client
+    participant API as TransferReversalController
+    participant Policy as ReversalValidationPolicy
+    participant Ledger as LedgerPostingUseCase
+    participant Audit as AuditEventWriter
+    participant Outbox as OutboxWriterService
+    participant DB as Oracle
+
+    Ops->>API: POST /api/v1/transfers/{id}/reverse
+    API->>Policy: validate original transfer can be reversed
+    Policy->>DB: read original transfer and ledger transaction
+    API->>Ledger: post opposite journal lines
+    Ledger->>DB: insert reversal ledger transaction and postings
+    API->>DB: insert reversal request and mark original transfer reversed
+    API->>Audit: write reversal audit event
+    Audit->>DB: insert audit event
+    API->>Outbox: write reversal and balance events
+    Outbox->>DB: insert pending outbox events
+    API-->>Ops: 201 reversal response

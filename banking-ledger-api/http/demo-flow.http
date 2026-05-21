@@ -1,0 +1,222 @@
+@baseUrl = http://localhost:8080
+@customerId = 00000000-0000-0000-0000-000000000001
+@sourceAccountId = 00000000-0000-0000-0000-000000001001
+@destinationAccountId = 00000000-0000-0000-0000-000000001002
+@thirdAccountId = 00000000-0000-0000-0000-000000001003
+@suspenseAccountId = 00000000-0000-0000-0000-000000001101
+@seededTransferId = 00000000-0000-0000-0000-000000005001
+@seededReversedTransferId = 00000000-0000-0000-0000-000000005002
+@seededLedgerTransactionId = 00000000-0000-0000-0000-000000002001
+@seededBatchId = 00000000-0000-0000-0000-000000008001
+@correlationId = demo-flow-001
+@idempotencyKey = demo-transfer-key-001
+@transferExternalReference = demo-http-transfer-001
+
+### Issue customer token
+# @name customerToken
+POST {{baseUrl}}/api/v1/dev/auth/tokens
+Content-Type: application/json
+
+{
+  "role": "CUSTOMER",
+  "subject": "dev-customer",
+  "actorId": "customer-user-1",
+  "customerId": "{{customerId}}"
+}
+
+### Issue teller token
+# @name tellerToken
+POST {{baseUrl}}/api/v1/dev/auth/tokens
+Content-Type: application/json
+
+{
+  "role": "TELLER",
+  "subject": "dev-teller",
+  "actorId": "teller-user-1"
+}
+
+### Issue ops token
+# @name opsToken
+POST {{baseUrl}}/api/v1/dev/auth/tokens
+Content-Type: application/json
+
+{
+  "role": "OPS_ADMIN",
+  "subject": "dev-ops-admin",
+  "actorId": "ops-user-1"
+}
+
+### Issue auditor token
+# @name auditorToken
+POST {{baseUrl}}/api/v1/dev/auth/tokens
+Content-Type: application/json
+
+{
+  "role": "AUDITOR",
+  "subject": "dev-auditor",
+  "actorId": "auditor-user-1"
+}
+
+### Lookup seeded account
+GET {{baseUrl}}/api/v1/accounts/{{sourceAccountId}}
+Authorization: Bearer {{customerToken.response.body.accessToken}}
+X-Correlation-Id: {{correlationId}}
+
+### Create account
+POST {{baseUrl}}/api/v1/accounts
+Authorization: Bearer {{tellerToken.response.body.accessToken}}
+Content-Type: application/json
+X-Correlation-Id: demo-create-account-001
+
+{
+  "customerId": "{{customerId}}",
+  "accountNumber": "DEMO-NEW-{{$timestamp}}",
+  "accountType": "SAVINGS",
+  "currencyCode": "USD"
+}
+
+### Create transfer
+# @name createTransfer
+POST {{baseUrl}}/api/v1/transfers
+Authorization: Bearer {{customerToken.response.body.accessToken}}
+Content-Type: application/json
+Idempotency-Key: {{idempotencyKey}}
+X-Correlation-Id: demo-transfer-correlation-001
+
+{
+  "sourceAccountId": "{{sourceAccountId}}",
+  "destinationAccountId": "{{destinationAccountId}}",
+  "currencyCode": "USD",
+  "amountMinor": 1500,
+  "externalReference": "{{transferExternalReference}}",
+  "description": "HTTP demo transfer"
+}
+
+### Replay transfer with same idempotency key and body
+POST {{baseUrl}}/api/v1/transfers
+Authorization: Bearer {{customerToken.response.body.accessToken}}
+Content-Type: application/json
+Idempotency-Key: {{idempotencyKey}}
+X-Correlation-Id: demo-transfer-correlation-001
+
+{
+  "sourceAccountId": "{{sourceAccountId}}",
+  "destinationAccountId": "{{destinationAccountId}}",
+  "currencyCode": "USD",
+  "amountMinor": 1500,
+  "externalReference": "{{transferExternalReference}}",
+  "description": "HTTP demo transfer"
+}
+
+### Prove idempotency conflict with same key but different amount
+POST {{baseUrl}}/api/v1/transfers
+Authorization: Bearer {{customerToken.response.body.accessToken}}
+Content-Type: application/json
+Idempotency-Key: {{idempotencyKey}}
+X-Correlation-Id: demo-transfer-correlation-001
+
+{
+  "sourceAccountId": "{{sourceAccountId}}",
+  "destinationAccountId": "{{destinationAccountId}}",
+  "currencyCode": "USD",
+  "amountMinor": 2500,
+  "externalReference": "demo-http-transfer-conflict-{{$timestamp}}",
+  "description": "HTTP demo transfer conflict"
+}
+
+### Query seeded transfer
+GET {{baseUrl}}/api/v1/transfers/{{seededTransferId}}
+Authorization: Bearer {{customerToken.response.body.accessToken}}
+X-Correlation-Id: demo-query-transfer-001
+
+### Reverse seeded completed transfer
+POST {{baseUrl}}/api/v1/transfers/{{seededTransferId}}/reverse
+Authorization: Bearer {{opsToken.response.body.accessToken}}
+Content-Type: application/json
+X-Correlation-Id: demo-reversal-001
+
+{
+  "reasonCode": "CUSTOMER_REQUESTED",
+  "reasonDetail": "Customer requested reversal during local demo"
+}
+
+### Post adjustment
+POST {{baseUrl}}/api/v1/ops/adjustments
+Authorization: Bearer {{opsToken.response.body.accessToken}}
+Content-Type: application/json
+X-Correlation-Id: demo-adjustment-001
+
+{
+  "currencyCode": "USD",
+  "amountMinor": 250,
+  "reasonCode": "MANUAL_CORRECTION",
+  "reasonDetail": "Local demo adjustment",
+  "postingLines": [
+    {
+      "accountId": "{{suspenseAccountId}}",
+      "direction": "DEBIT",
+      "amountMinor": 250,
+      "currencyCode": "USD"
+    },
+    {
+      "accountId": "{{sourceAccountId}}",
+      "direction": "CREDIT",
+      "amountMinor": 250,
+      "currencyCode": "USD"
+    }
+  ]
+}
+
+### Import reconciliation batch with one mismatch
+POST {{baseUrl}}/api/v1/ops/reconciliation/batches
+Authorization: Bearer {{opsToken.response.body.accessToken}}
+Content-Type: application/json
+X-Correlation-Id: demo-reconciliation-001
+
+{
+  "source": "DEMO_CLEARING",
+  "referenceName": "demo-http-batch",
+  "importedByActor": "dev-ops-admin",
+  "items": [
+    {
+      "externalTransactionReference": "demo-transfer-completed-001",
+      "amountMinor": 1500,
+      "currencyCode": "USD",
+      "status": "SETTLED",
+      "settlementDate": "2026-05-21",
+      "metadata": {
+        "sourceFile": "demo-flow.http"
+      }
+    },
+    {
+      "externalTransactionReference": "external-only-demo-http",
+      "amountMinor": 999,
+      "currencyCode": "USD",
+      "status": "SETTLED",
+      "settlementDate": "2026-05-21",
+      "metadata": {
+        "sourceFile": "demo-flow.http"
+      }
+    }
+  ]
+}
+
+### Query reconciliation results
+GET {{baseUrl}}/api/v1/ops/reconciliation/batches/{{seededBatchId}}/results?status=OPEN&page=0&size=20
+Authorization: Bearer {{auditorToken.response.body.accessToken}}
+X-Correlation-Id: demo-reconciliation-query-001
+
+### Investigate ledger transaction
+GET {{baseUrl}}/api/v1/ops/ledger/transactions/{{seededLedgerTransactionId}}
+Authorization: Bearer {{auditorToken.response.body.accessToken}}
+X-Correlation-Id: demo-ledger-investigation-001
+
+### Query audit events
+GET {{baseUrl}}/api/v1/audit/events?correlationId=seed-reversal-correlation&page=0&size=20
+Authorization: Bearer {{auditorToken.response.body.accessToken}}
+X-Correlation-Id: demo-audit-query-001
+
+### Query outbox events
+GET {{baseUrl}}/api/v1/ops/outbox/events?status=PENDING&page=0&size=20
+Authorization: Bearer {{auditorToken.response.body.accessToken}}
+X-Correlation-Id: demo-outbox-query-001

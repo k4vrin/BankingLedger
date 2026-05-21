@@ -2,6 +2,8 @@
 
 This roadmap is optional and separate from the backend roadmap. Its purpose is to create a polished Compose Multiplatform demo client for the Banking Ledger API with Android and iOS customer apps plus a desktop admin app.
 
+Architectural decisions for this roadmap are locked in [ADR: Compose Multiplatform Client Architecture](ADR-ComposeMultiplatformArchitecture.md). The Compose client lives in this monorepo at `banking-ledger-compose/`, uses shared Compose Multiplatform UI, treats customer mobile and desktop admin as equal first-class targets, and does not implement offline financial data caching in v1.
+
 Use the checkboxes as the implementation tracker.
 
 ## Phase 0: Compose Multiplatform Project Foundation
@@ -10,9 +12,10 @@ Goal: Create a reliable Kotlin Multiplatform foundation that can target Android,
 
 ### Steps
 
-- [ ] Choose repository layout:
-    - [ ] Decide whether the Compose app lives in this repository or a separate repository.
-    - [ ] If in this repository, choose `banking-ledger-compose/` or `compose-app/`.
+- [ ] Create repository layout:
+    - [ ] Add the Compose app root at `banking-ledger-compose/`.
+    - [ ] Keep `banking-ledger-api/` as the Spring Boot backend.
+    - [ ] Keep architecture, roadmap, and demo documentation in `docs/`.
     - [ ] Document backend API base URL configuration per platform.
     - [ ] Document required JDK, Kotlin, Gradle, Android Studio, and Xcode versions.
 - [ ] Scaffold the Compose Multiplatform app:
@@ -22,7 +25,8 @@ Goal: Create a reliable Kotlin Multiplatform foundation that can target Android,
     - [ ] Add shared `commonMain` source set for business, networking, state, and reusable UI.
     - [ ] Add platform source sets only for platform bridges and launchers.
 - [ ] Configure build conventions:
-    - [ ] Add version catalog entries for Kotlin, Compose Multiplatform, Ktor, coroutines, serialization, lifecycle, DI, and testing libraries.
+    - [ ] Add version catalog entries for Kotlin, Compose Multiplatform, Compose Material 3, Compose Resources, Ktor Client, Kotlinx Serialization, coroutines, Koin, AndroidX/KMP ViewModel, AndroidX Navigation 3, DataStore, and testing libraries.
+    - [ ] Do not pin dependency versions from the ADR; verify current coordinates during implementation.
     - [ ] Verify every dependency added to `commonMain` supports Android, iOS, and desktop.
     - [ ] Keep Android-only and desktop-only dependencies out of `commonMain`.
     - [ ] Add Gradle tasks for Android build, iOS framework build, desktop run, and shared tests.
@@ -30,7 +34,9 @@ Goal: Create a reliable Kotlin Multiplatform foundation that can target Android,
     - [ ] `shared:core:model` for domain-facing models and value objects.
     - [ ] `shared:core:network` for API client infrastructure.
     - [ ] `shared:core:security` for token, role, and request context models.
+    - [ ] `shared:core:persistence` for DataStore preferences and token-store abstractions.
     - [ ] `shared:core:designsystem` for theme, typography, dimensions, and reusable components.
+    - [ ] `shared:core:navigation` for type-safe route objects.
     - [ ] `shared:feature:customer` for customer presentation state and screens.
     - [ ] `shared:feature:admin` for admin presentation state and screens.
     - [ ] Platform app modules for Android, iOS, and desktop launchers.
@@ -53,6 +59,7 @@ Goal: Create a reliable Kotlin Multiplatform foundation that can target Android,
 ### Acceptance Criteria
 
 - [ ] Compose Multiplatform project exists and builds for all planned targets.
+- [ ] Project layout follows `banking-ledger-compose/` as required by the CMP architecture ADR.
 - [ ] Shared source sets are clearly separated from platform source sets.
 - [ ] Dependency target support is documented before libraries are used in `commonMain`.
 - [ ] Local setup commands are documented.
@@ -63,24 +70,32 @@ Goal: Establish predictable unidirectional data flow for customer and admin work
 
 ### Steps
 
-- [ ] Choose the presentation pattern:
-    - [ ] Use MVI by default for financial workflows.
+- [ ] Implement the ADR presentation pattern:
+    - [ ] Use MVI for customer, admin, and auditor workflows.
     - [ ] Model each screen with `State`, `Event`, and `Effect`.
-    - [ ] Use one ViewModel per screen or workflow.
+    - [ ] Use AndroidX/KMP ViewModel for shared presentation state.
+    - [ ] Use one shared ViewModel per screen or workflow where behavior can run in common code.
     - [ ] Keep business rules out of composables.
 - [ ] Add shared state primitives:
     - [ ] Immutable screen state data classes.
     - [ ] Sealed event interfaces for user actions.
     - [ ] One-shot effects for navigation, snackbar, dialog triggers, and platform actions.
     - [ ] Loading, refreshing, empty, forbidden, and error state models.
+- [ ] Add shared public contracts:
+    - [ ] `SessionState` for unauthenticated, authenticated, and expired sessions.
+    - [ ] `UserRole` with backend-compatible `CUSTOMER`, `OPS_ADMIN`, and `AUDITOR` values.
+    - [ ] `UiError` mapped from backend errors and network failures.
+    - [ ] `FieldValidationError` for form validation.
+    - [ ] `OperationResult` for financial mutation success, replay, conflict, and failure states.
 - [ ] Add route and screen boundaries:
     - [ ] Route composables collect state and effects.
     - [ ] Screen composables render state and emit callbacks.
     - [ ] Leaf composables receive narrow state and specific callbacks.
     - [ ] Keep scroll, focus, and animation state local unless business-significant.
 - [ ] Define navigation models:
-    - [ ] Customer navigation destinations for mobile.
-    - [ ] Admin navigation destinations for desktop.
+    - [ ] Use AndroidX Navigation 3 for type-safe multiplatform navigation.
+    - [ ] Add type-safe route objects for customer destinations.
+    - [ ] Add type-safe route objects for admin and auditor destinations.
     - [ ] Semantic navigation effects from ViewModels.
     - [ ] Platform navigation adapters in launcher modules.
 - [ ] Add role-aware access model:
@@ -101,6 +116,7 @@ Goal: Establish predictable unidirectional data flow for customer and admin work
 
 - [ ] Customer and admin features follow one coherent MVI structure.
 - [ ] Presentation state is testable in `commonTest`.
+- [ ] AndroidX Navigation 3 route objects are defined for customer and admin destinations.
 - [ ] Platform-specific navigation remains outside core ViewModel logic.
 - [ ] Composables are stateless except for visual-local state.
 
@@ -121,6 +137,10 @@ Goal: Build a shared visual foundation that supports calm customer mobile workfl
     - [ ] Spacing and size tokens.
     - [ ] Status badge variants for account, transfer, reversal, adjustment, outbox, and reconciliation statuses.
     - [ ] Money, date, and relative time display utilities.
+- [ ] Add shared resource strategy:
+    - [ ] Use Compose Multiplatform Resources with `Res` for shared strings and drawables.
+    - [ ] Keep Android `R` resource access out of shared UI code.
+    - [ ] Add platform-only resources only when the resource cannot be shared.
 - [ ] Build shared components:
     - [ ] App top bar.
     - [ ] Mobile bottom navigation or navigation drawer.
@@ -150,6 +170,7 @@ Goal: Build a shared visual foundation that supports calm customer mobile workfl
 ### Acceptance Criteria
 
 - [ ] Shared design system supports all target platforms.
+- [ ] Shared strings and drawables use Compose Multiplatform Resources.
 - [ ] Customer and admin shells reuse common primitives where useful.
 - [ ] UI states are consistent across workflows.
 - [ ] Accessibility expectations are documented for controls, dialogs, lists, and tables.
@@ -162,20 +183,24 @@ Goal: Connect the Compose clients to the backend with consistent request, auth, 
 
 - [ ] Add shared API client:
     - [ ] Centralize backend base URL.
+    - [ ] Add `BankingApiClient` facade for account, transfer, admin operation, audit, outbox, ledger investigation, and reconciliation calls.
+    - [ ] Add `ApiResult<Success, Failure>` or equivalent sealed result for success and failure handling.
     - [ ] Use typed DTOs with Kotlin serialization.
     - [ ] Parse backend `ApiErrorResponse`.
     - [ ] Add request timeout and cancellation behavior.
     - [ ] Avoid leaking bearer tokens in logs.
 - [ ] Add request context:
+    - [ ] Add `RequestContext` containing token, correlation id, and optional idempotency key.
     - [ ] Attach bearer token to protected requests.
     - [ ] Generate and attach `X-Correlation-Id` for mutating requests.
-    - [ ] Generate and attach `Idempotency-Key` for transfer creation.
+    - [ ] Generate and reuse `Idempotency-Key` for the current transfer submit attempt.
     - [ ] Preserve correlation id for operation result screens.
 - [ ] Add demo authentication:
     - [ ] Login screen for demo roles.
     - [ ] Customer role for mobile app.
     - [ ] Ops admin and auditor roles for desktop app.
-    - [ ] Secure-enough local token storage for demo constraints using platform adapters.
+    - [ ] Use backend-issued dev JWT tokens for demo authentication.
+    - [ ] Add `TokenStore` interface or `expect`/`actual` abstraction for secure token persistence.
     - [ ] Logout and expired token handling.
 - [ ] Add error mapping:
     - [ ] Map validation errors to form fields.
@@ -185,15 +210,17 @@ Goal: Connect the Compose clients to the backend with consistent request, auth, 
     - [ ] Map `409` to conflict alerts.
     - [ ] Map server errors to supportable error states with correlation id.
 - [ ] Add local persistence:
-    - [ ] Store demo role and token through an abstract settings interface.
-    - [ ] Store non-sensitive demo preferences.
-    - [ ] Do not persist customer financial data beyond demo requirements unless explicitly needed.
+    - [ ] Store tokens and session material only through secure platform token adapters.
+    - [ ] Store non-sensitive demo preferences through DataStore.
+    - [ ] Do not implement offline financial data caching in v1.
+    - [ ] Do not store bearer tokens, customer private data, or sensitive payloads in DataStore.
 
 ### Test Scenarios
 
 - [ ] API client attaches bearer token.
+- [ ] `BankingApiClient` returns shared success/error results.
 - [ ] Mutating requests include correlation id.
-- [ ] Transfer creation includes idempotency key.
+- [ ] Transfer creation reuses the same idempotency key for the current retry attempt.
 - [ ] Backend error response maps to UI error model.
 - [ ] Validation errors render under fields.
 - [ ] `401` clears session and routes to login.
@@ -205,6 +232,7 @@ Goal: Connect the Compose clients to the backend with consistent request, auth, 
 - [ ] Network integration is centralized and testable.
 - [ ] Auth state is available to customer and admin flows.
 - [ ] Financial mutations use correlation and idempotency consistently.
+- [ ] Local persistence follows the ADR token/DataStore split.
 - [ ] Shared error handling gives clear UI states on every target platform.
 
 ## Phase 4: Customer Mobile App For Android And iOS
@@ -220,6 +248,7 @@ Goal: Provide customer-facing account, transaction, and transfer workflows on An
     - [ ] Recent transfers.
     - [ ] Quick action to create transfer.
     - [ ] Empty state for new customer.
+    - [ ] Load data from backend on demand rather than an offline financial cache.
 - [ ] Build account list:
     - [ ] Show masked account number or identifier.
     - [ ] Show account type.
@@ -281,6 +310,7 @@ Goal: Provide customer-facing account, transaction, and transfer workflows on An
 - [ ] Customer can inspect account transactions.
 - [ ] Customer can create a transfer.
 - [ ] Customer can inspect transfer results and errors.
+- [ ] Customer financial data is not cached offline in v1.
 - [ ] Customer mobile app is usable on common phone sizes.
 
 ## Phase 5: Desktop Admin Operations App
@@ -296,6 +326,7 @@ Goal: Provide desktop-first operational workflows for transfer reversal, adjustm
     - [ ] Recent adjustments.
     - [ ] Pending outbox count.
     - [ ] Reconciliation mismatch count.
+    - [ ] Load operational summaries from backend on demand rather than an offline cache.
 - [ ] Build admin transfer search:
     - [ ] Search by transfer id.
     - [ ] Search by external reference.
@@ -354,6 +385,7 @@ Goal: Provide desktop-first operational workflows for transfer reversal, adjustm
 - [ ] Ops admin can post balanced adjustments.
 - [ ] Admin operation errors are understandable.
 - [ ] Admin workflows clearly link operations to ledger investigation.
+- [ ] Admin financial and operational data is not cached offline in v1.
 
 ## Phase 6: Audit, Ledger Investigation, Outbox, Reconciliation, And Reports
 
@@ -494,10 +526,12 @@ Goal: Add enough confidence that the Compose clients are reliable, accessible, a
 
 - [ ] Add shared unit tests:
     - [ ] API client error parsing.
+    - [ ] Correlation id creation for mutating requests.
     - [ ] Money formatting.
     - [ ] Status badge mapping.
     - [ ] Role navigation mapping.
     - [ ] Idempotency key generation and reuse behavior.
+    - [ ] Token and session state transitions.
     - [ ] Transfer form validation.
     - [ ] Adjustment posting line balancing.
 - [ ] Add ViewModel tests:
@@ -535,6 +569,7 @@ Goal: Add enough confidence that the Compose clients are reliable, accessible, a
 - [ ] Desktop app build succeeds.
 - [ ] Demo-critical screens pass accessibility review.
 - [ ] No token or secret appears in logs.
+- [ ] Shared code compiles for Android, iOS, and desktop.
 
 ### Acceptance Criteria
 
@@ -559,6 +594,7 @@ Goal: Make the Compose Multiplatform clients easy to run, evaluate, and discuss.
     - [ ] Test commands.
     - [ ] Demo walkthrough.
 - [ ] Update root documentation:
+    - [ ] Link Compose architecture ADR.
     - [ ] Link Compose roadmap.
     - [ ] Clarify Compose app is optional.
     - [ ] Clarify backend remains source of truth.
@@ -591,6 +627,7 @@ Goal: Make the Compose Multiplatform clients easy to run, evaluate, and discuss.
 - [ ] Screenshot links resolve.
 - [ ] Demo script matches current UI.
 - [ ] Root documentation links to Compose roadmap.
+- [ ] Root documentation links to Compose architecture ADR.
 - [ ] No secrets are present in docs or screenshots.
 
 ### Acceptance Criteria
@@ -617,6 +654,7 @@ Goal: Make the Compose Multiplatform clients easy to run, evaluate, and discuss.
 ## Definition Of Done For Each Phase
 
 - [ ] Feature code is implemented.
+- [ ] Implementation follows `docs/ADR-ComposeMultiplatformArchitecture.md`.
 - [ ] Shared ViewModel or domain behavior has meaningful tests.
 - [ ] Android target builds when touched.
 - [ ] iOS target builds when touched.
@@ -628,9 +666,5 @@ Goal: Make the Compose Multiplatform clients easy to run, evaluate, and discuss.
 
 ## Open Questions
 
-- [ ] Should the Compose project live beside the backend or in a separate repository?
-- [ ] Should customer mobile and desktop admin share one Gradle project or separate app modules?
-- [ ] Should demo auth use backend-issued tokens or local fixtures?
 - [ ] Should admin desktop support polling for outbox and reconciliation status or manual refresh only?
-- [ ] Should customer mobile cache read-only account summaries for offline demo resilience?
 - [ ] Should the optional Next.js frontend remain the primary demo UI, or should Compose become the main demo experience?

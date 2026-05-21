@@ -1787,147 +1787,147 @@ Goal: Make the project easy to inspect, run, and review as a portfolio project.
 
 ### Steps
 
-- [ ] Add OpenAPI support:
-    - [ ] Confirm Springdoc dependency and configuration.
-    - [ ] Group public, customer, ops, audit, and admin endpoints if useful.
-    - [ ] Add API title, description, version, and contact metadata.
-    - [ ] Add JWT bearer security scheme.
-    - [ ] Add idempotency header documentation.
-    - [ ] Add correlation id header documentation.
-- [ ] Document endpoint contracts:
-    - [ ] Account creation and lookup.
-    - [ ] Account transaction listing.
-    - [ ] Transfer creation and lookup.
-    - [ ] Transfer reversal.
-    - [ ] Adjustment posting.
-    - [ ] Reconciliation batch import and query.
-    - [ ] Audit event query and detail.
-    - [ ] Ledger transaction investigation.
-    - [ ] Outbox replay or admin endpoints if added.
-- [ ] Add request and response examples:
-    - [ ] Successful account creation.
-    - [ ] Successful transfer.
-    - [ ] Idempotency replay.
-    - [ ] Idempotency conflict.
-    - [ ] Successful reversal.
-    - [ ] Successful adjustment.
-    - [ ] Reconciliation mismatch batch.
-    - [ ] Audit query response.
-    - [ ] Security error response.
-    - [ ] Validation error response.
-- [ ] Add common error documentation:
-    - [ ] Document `ApiErrorResponse`.
-    - [ ] Document validation error shape.
-    - [ ] Document authentication error shape.
-    - [ ] Document authorization error shape.
-    - [ ] Document concurrency conflict response.
-    - [ ] Document idempotency conflict response.
-    - [ ] Document not-found response.
-- [ ] Add seed data for local development:
-    - [ ] Add deterministic customers.
-    - [ ] Add deterministic accounts with balances.
-    - [ ] Add sample completed transfer.
-    - [ ] Add sample reversed transfer.
-    - [ ] Add sample adjustment.
-    - [ ] Add sample reconciliation batch.
-    - [ ] Add sample users or token fixtures for each role.
-    - [ ] Ensure seed data is idempotent.
-- [ ] Add developer commands:
-    - [ ] Add Makefile or documented shell commands.
-    - [ ] Command to run unit tests.
-    - [ ] Command to run integration tests.
-    - [ ] Command to start local dependencies.
-    - [ ] Command to run the API.
-    - [ ] Command to apply migrations.
-    - [ ] Command to generate sample tokens.
-    - [ ] Command to run report SQL examples.
-- [ ] Add local environment documentation:
-    - [ ] Document required Java version.
-    - [ ] Document Oracle setup.
-    - [ ] Document Kafka setup.
-    - [ ] Document environment variables.
-    - [ ] Document profiles.
-    - [ ] Document troubleshooting steps for common startup failures.
-- [ ] Add diagrams:
-    - [ ] Add architecture diagram.
-    - [ ] Add request flow diagram for transfer creation.
-    - [ ] Add reversal flow diagram.
-    - [ ] Add outbox publishing diagram.
-    - [ ] Add ERD diagram.
-    - [ ] Keep diagrams in source-controlled editable format.
-- [ ] Complete ADR set:
-    - [ ] Double-entry model.
-    - [ ] Amount and currency representation.
-    - [ ] Transaction isolation.
-    - [ ] Locking strategy.
-    - [ ] Immutable ledger and reversal model.
-    - [ ] Idempotency design.
-    - [ ] Authentication and authorization design.
-    - [ ] Audit trail and investigation API design.
-    - [ ] Outbox/event publishing strategy.
-    - [ ] Reconciliation matching strategy.
-- [ ] Add demo collection:
-    - [ ] Add HTTP files or Postman collection.
-    - [ ] Include happy-path flow.
-    - [ ] Include duplicate idempotency replay.
-    - [ ] Include reversal flow.
-    - [ ] Include adjustment flow.
-    - [ ] Include reconciliation flow.
-    - [ ] Include audit investigation flow.
-    - [ ] Include role-specific tokens or token generation steps.
-- [ ] Add quality-of-life docs:
-    - [ ] Add glossary for banking terms used in the project.
-    - [ ] Add feature matrix by phase.
-    - [ ] Add known limitations.
-    - [ ] Add future improvements.
+- [x] Add OpenAPI support:
+    - [x] Confirm Springdoc dependency and configuration.
+    - [x] Group public, customer, ops, audit, and admin endpoints if useful.
+    - [x] Add API title, description, version, and contact metadata.
+    - [x] Add JWT bearer security scheme.
+    - [x] Add idempotency header documentation.
+    - [x] Add correlation id header documentation.
+- [x] Document endpoint contracts:
+    - [x] Account creation and lookup.
+    - [x] Account transaction listing.
+    - [x] Transfer creation and lookup.
+    - [x] Transfer reversal.
+    - [x] Adjustment posting.
+    - [x] Reconciliation batch import and query.
+    - [x] Audit event query and detail.
+    - [x] Ledger transaction investigation.
+    - [x] Outbox replay or admin endpoints if added.
+- [x] Add request and response examples:
+    - [x] Successful account creation.
+    - [x] Successful transfer.
+    - [x] Idempotency replay.
+    - [x] Idempotency conflict.
+    - [x] Successful reversal.
+    - [x] Successful adjustment.
+    - [x] Reconciliation mismatch batch.
+    - [x] Audit query response.
+    - [x] Security error response.
+    - [x] Validation error response.
+- [x] Add common error documentation:
+    - [x] Document `ApiErrorResponse`.
+    - [x] Document validation error shape.
+    - [x] Document authentication error shape.
+    - [x] Document authorization error shape.
+    - [x] Document concurrency conflict response.
+    - [x] Document idempotency conflict response.
+    - [x] Document not-found response.
+- [x] Add seed data for local development:
+    - [x] Add deterministic customers.
+    - [x] Add deterministic accounts with balances.
+    - [x] Add sample completed transfer.
+    - [x] Add sample reversed transfer.
+    - [x] Add sample adjustment.
+    - [x] Add sample reconciliation batch.
+    - [x] Add sample users or token fixtures for each role.
+    - [x] Ensure seed data is idempotent.
+- [x] Add developer commands:
+    - [x] Add Makefile or documented shell commands.
+    - [x] Command to run unit tests.
+    - [x] Command to run integration tests.
+    - [x] Command to start local dependencies.
+    - [x] Command to run the API.
+    - [x] Command to apply migrations.
+    - [x] Command to generate sample tokens.
+    - [x] Command to run report SQL examples.
+- [x] Add local environment documentation:
+    - [x] Document required Java version.
+    - [x] Document Oracle setup.
+    - [x] Document Kafka setup.
+    - [x] Document environment variables.
+    - [x] Document profiles.
+    - [x] Document troubleshooting steps for common startup failures.
+- [x] Add diagrams:
+    - [x] Add architecture diagram.
+    - [x] Add request flow diagram for transfer creation.
+    - [x] Add reversal flow diagram.
+    - [x] Add outbox publishing diagram.
+    - [x] Add ERD diagram.
+    - [x] Keep diagrams in source-controlled editable format.
+- [x] Complete ADR set:
+    - [x] Double-entry model.
+    - [x] Amount and currency representation.
+    - [x] Transaction isolation.
+    - [x] Locking strategy.
+    - [x] Immutable ledger and reversal model.
+    - [x] Idempotency design.
+    - [x] Authentication and authorization design.
+    - [x] Audit trail and investigation API design.
+    - [x] Outbox/event publishing strategy.
+    - [x] Reconciliation matching strategy.
+- [x] Add demo collection:
+    - [x] Add HTTP files or Postman collection.
+    - [x] Include happy-path flow.
+    - [x] Include duplicate idempotency replay.
+    - [x] Include reversal flow.
+    - [x] Include adjustment flow.
+    - [x] Include reconciliation flow.
+    - [x] Include audit investigation flow.
+    - [x] Include role-specific tokens or token generation steps.
+- [x] Add quality-of-life docs:
+    - [x] Add glossary for banking terms used in the project.
+    - [x] Add feature matrix by phase.
+    - [x] Add known limitations.
+    - [x] Add future improvements.
 
 ### Test Scenarios
 
-- [ ] OpenAPI:
-    - [ ] API docs endpoint is available locally.
-    - [ ] OpenAPI JSON includes bearer security scheme.
-    - [ ] Transfer endpoint documents `Idempotency-Key`.
-    - [ ] Endpoints document `X-Correlation-Id`.
-    - [ ] Error schema is included.
-    - [ ] Example payloads are valid JSON.
-- [ ] Seed data:
-    - [ ] Seed script can run on empty database.
-    - [ ] Seed script can run twice without duplicates.
-    - [ ] Seeded transfer can be queried.
-    - [ ] Seeded reversal can be queried.
-    - [ ] Seeded adjustment can be queried.
-    - [ ] Seeded users/tokens work in documented flows.
-- [ ] Developer commands:
-    - [ ] Test command succeeds.
-    - [ ] API run command starts application.
-    - [ ] Local dependency command starts required services where practical.
-    - [ ] Token command produces usable development tokens.
-    - [ ] Report command returns sample output where practical.
-- [ ] Demo collection:
-    - [ ] Collection creates account successfully.
-    - [ ] Collection posts transfer successfully.
-    - [ ] Collection proves idempotency replay.
-    - [ ] Collection reverses transfer.
-    - [ ] Collection posts adjustment.
-    - [ ] Collection imports reconciliation batch.
-    - [ ] Collection queries audit trail.
-- [ ] Documentation quality:
-    - [ ] README setup instructions are complete.
-    - [ ] Diagram files exist.
-    - [ ] ADR links work.
-    - [ ] Known limitations are documented.
-    - [ ] No secrets are present in docs or examples.
+- [x] OpenAPI:
+    - [x] API docs endpoint is available locally.
+    - [x] OpenAPI JSON includes bearer security scheme.
+    - [x] Transfer endpoint documents `Idempotency-Key`.
+    - [x] Endpoints document `X-Correlation-Id`.
+    - [x] Error schema is included.
+    - [x] Example payloads are valid JSON.
+- [x] Seed data:
+    - [x] Seed script can run on empty database.
+    - [x] Seed script can run twice without duplicates.
+    - [x] Seeded transfer can be queried.
+    - [x] Seeded reversal can be queried.
+    - [x] Seeded adjustment can be queried.
+    - [x] Seeded users/tokens work in documented flows.
+- [x] Developer commands:
+    - [x] Test command succeeds.
+    - [x] API run command starts application.
+    - [x] Local dependency command starts required services where practical.
+    - [x] Token command produces usable development tokens.
+    - [x] Report command returns sample output where practical.
+- [x] Demo collection:
+    - [x] Collection creates account successfully.
+    - [x] Collection posts transfer successfully.
+    - [x] Collection proves idempotency replay.
+    - [x] Collection reverses transfer.
+    - [x] Collection posts adjustment.
+    - [x] Collection imports reconciliation batch.
+    - [x] Collection queries audit trail.
+- [x] Documentation quality:
+    - [x] README setup instructions are complete.
+    - [x] Diagram files exist.
+    - [x] ADR links work.
+    - [x] Known limitations are documented.
+    - [x] No secrets are present in docs or examples.
 
 ### Acceptance Criteria
 
-- [ ] A reviewer can run the project from README instructions.
-- [ ] API documentation is available locally.
-- [ ] Example requests demonstrate the core flows.
-- [ ] Architecture and ERD diagrams exist in `docs/`.
-- [ ] ADRs explain the most important technical decisions.
-- [ ] Seed data and demo collection support an end-to-end demo.
-- [ ] Developer commands reduce setup friction.
-- [ ] Documentation avoids secrets and environment-specific private values.
+- [x] A reviewer can run the project from README instructions.
+- [x] API documentation is available locally.
+- [x] Example requests demonstrate the core flows.
+- [x] Architecture and ERD diagrams exist in `docs/`.
+- [x] ADRs explain the most important technical decisions.
+- [x] Seed data and demo collection support an end-to-end demo.
+- [x] Developer commands reduce setup friction.
+- [x] Documentation avoids secrets and environment-specific private values.
 
 ## Phase 13: CI/CD And Quality Gates
 

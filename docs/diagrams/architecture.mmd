@@ -1,0 +1,30 @@
+flowchart TB
+    client["API clients"]
+    security["JWT security and role/ownership checks"]
+    api["REST controllers"]
+    services["Application use cases"]
+    policies["Domain policies"]
+    ledger["Ledger posting engine"]
+    repositories["Spring Data JPA repositories"]
+    oracle[("Oracle database")]
+    audit["Audit writer"]
+    outbox["Transactional outbox"]
+    publisher["Outbox publisher"]
+    kafka[("Kafka topics")]
+    reports["SQL reports and investigation APIs"]
+
+    client --> security
+    security --> api
+    api --> services
+    services --> policies
+    services --> ledger
+    services --> repositories
+    ledger --> repositories
+    repositories --> oracle
+    services --> audit
+    audit --> oracle
+    services --> outbox
+    outbox --> oracle
+    publisher --> outbox
+    publisher --> kafka
+    reports --> oracle

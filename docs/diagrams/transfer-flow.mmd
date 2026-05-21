@@ -1,0 +1,30 @@
+sequenceDiagram
+    participant Client
+    participant API as TransferController
+    participant Idempotency as IdempotencyService
+    participant Accounts as LockedAccountLoader
+    participant Ledger as LedgerPostingUseCase
+    participant Audit as AuditEventWriter
+    participant Outbox as OutboxWriterService
+    participant DB as Oracle
+
+    Client->>API: POST /api/v1/transfers with Idempotency-Key
+    API->>Idempotency: validate key and request hash
+    Idempotency->>DB: read existing idempotency record
+    alt same key and same body exists
+        DB-->>Idempotency: stored response
+        Idempotency-->>API: replay response
+        API-->>Client: 200 stored response
+    else new request
+        API->>Accounts: lock source and destination accounts
+        Accounts->>DB: SELECT FOR UPDATE in stable account order
+        API->>Ledger: post balanced transfer journal
+        Ledger->>DB: insert transaction, journal, postings, update cached balances
+        API->>Audit: write transfer audit event
+        Audit->>DB: insert audit event
+        API->>Outbox: write ledger/account events
+        Outbox->>DB: insert pending outbox events
+        API->>Idempotency: store response
+        Idempotency->>DB: insert idempotency record
+        API-->>Client: 201 transfer response
+    end

@@ -1,0 +1,19 @@
+flowchart LR
+    tx["Business transaction"]
+    db[("Oracle")]
+    pending["Pending outbox rows"]
+    worker["OutboxPublisherWorker"]
+    kafka[("Kafka")]
+    failed["Failed row with retry metadata"]
+    dead["Dead-letter row"]
+    admin["Requeue API"]
+
+    tx -->|"commit business data and event rows atomically"| db
+    db --> pending
+    pending --> worker
+    worker -->|"publish succeeds"| kafka
+    worker -->|"mark PUBLISHED"| db
+    worker -->|"publish fails"| failed
+    failed -->|"retry until max attempts"| worker
+    failed -->|"max attempts reached"| dead
+    admin -->|"force or reset retry count"| failed
