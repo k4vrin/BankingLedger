@@ -62,6 +62,7 @@ public class CreateSettlementBatchUseCase {
                 .matchedCount(0)
                 .mismatchCount(0)
                 .build());
+        batchRepository.flush();
 
         var items = request.items().stream()
                 .map(item -> itemFactory.fromRequest(batch, item))

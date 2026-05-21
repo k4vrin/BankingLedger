@@ -49,6 +49,11 @@ JWTs are mapped to an `AuthenticatedPrincipal` containing subject, actor id, aud
 | `GET /api/v1/transfers/{id}` | `CUSTOMER`, `TELLER`, `AUDITOR`, `OPS_ADMIN`, `SERVICE` | `CUSTOMER` must own source or destination account. |
 | `POST /api/v1/transfers/{id}/reverse` | `OPS_ADMIN`, `SERVICE` | Actor fields are derived from JWT. |
 | `POST /api/v1/ops/adjustments` | `OPS_ADMIN`, `SERVICE` | Actor fields are derived from JWT. |
+| `POST /api/v1/ops/reconciliation/batches` | `OPS_ADMIN`, `SERVICE` | Imports are mutating operations and require `X-Correlation-Id`. |
+| Reconciliation batch and result queries | `AUDITOR`, `OPS_ADMIN` | `SERVICE` cannot query review reports through these read APIs. |
+| Outbox event queries | `AUDITOR`, `OPS_ADMIN` | Read-only operational inspection. |
+| `POST /api/v1/ops/outbox/events/{eventId}/requeue` | `OPS_ADMIN`, `SERVICE` | Manual recovery path requiring `X-Correlation-Id`. |
+| Ledger investigation lookup | `AUDITOR`, `OPS_ADMIN`, `SERVICE` | Internal/service read access for transaction diagnostics. |
 | Development token issuance | Public in `dev` profile | Controller is disabled outside `dev`. |
 
 Unclassified business endpoints require authentication by default.

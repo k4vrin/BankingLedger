@@ -930,7 +930,7 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
     - [x] Stop trusting `X-Actor-Role` for protected endpoints.
     - [x] Keep `X-Correlation-Id` as a request tracing header.
     - [x] Ensure audit events use principal-derived actor fields.
-- [ ] Define endpoint authorization matrix:
+- [x] Define endpoint authorization matrix:
     - [x] Public endpoints: health, OpenAPI docs, Swagger UI.
     - [x] Customer account read endpoints require `CUSTOMER` and ownership.
     - [x] Customer transfer creation requires `CUSTOMER` and source account ownership.
@@ -938,9 +938,9 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
     - [x] Auditor read-only ledger and audit endpoints require `AUDITOR` or `OPS_ADMIN`.
     - [x] Transfer reversal endpoint requires `OPS_ADMIN` or `SERVICE`.
     - [x] Adjustment endpoint requires `OPS_ADMIN` or `SERVICE`.
-    - [ ] Reconciliation operation endpoints require `OPS_ADMIN` or `SERVICE`.
-    - [ ] Internal publishing or integration endpoints require `SERVICE`.
-    - [ ] Deny access by default for unclassified endpoints.
+    - [x] Reconciliation operation endpoints require `OPS_ADMIN` or `SERVICE`.
+    - [x] Internal publishing or integration endpoints require `SERVICE`.
+    - [x] Deny access by default for unclassified endpoints.
 - [x] Add method-level authorization:
     - [x] Enable method security.
     - [x] Add authorization annotations to use cases or controllers.
@@ -1090,8 +1090,8 @@ Goal: Add a clear authentication model and protect customer, teller, auditor, op
 - [x] Customer users cannot access another customer's account data.
 - [x] Tellers can perform teller workflows but cannot perform auditor-only or ops-admin-only actions.
 - [x] Auditors can query ledger and audit data.
-- [ ] Ops admins can perform reversal and reconciliation workflows.
-- [ ] Service role access is limited to internal service endpoints.
+- [x] Ops admins can perform reversal and reconciliation workflows.
+- [x] Service role access is limited to internal service endpoints.
 - [x] Unauthorized role access returns `403`.
 - [x] Missing or invalid credentials return `401`.
 - [x] Security tests cover authentication and authorization rules.
@@ -1613,13 +1613,13 @@ Goal: Simulate settlement batch import, compare external settlement data with in
 
 ### Test Scenarios
 
-- [ ] Batch schema and persistence:
-    - [ ] Batch persists with source, actor, counts, status, and timestamps.
-    - [ ] Settlement items persist under batch.
-    - [ ] Reconciliation results persist under batch.
-    - [ ] Duplicate external reference in same source is rejected or handled according to policy.
-    - [ ] Batch version increments on status change.
-- [ ] Import validation:
+- [x] Batch schema and persistence:
+    - [x] Batch persists with source, actor, counts, status, and timestamps.
+    - [x] Settlement items persist under batch.
+    - [x] Reconciliation results persist under batch.
+    - [x] Duplicate external reference in same source is rejected or handled according to policy.
+    - [x] Batch version increments on status change.
+- [x] Import validation:
     - [x] Missing source returns structured validation error.
     - [x] Empty item list returns structured validation error.
     - [x] Batch above max size returns structured validation error.
@@ -1697,89 +1697,89 @@ Goal: Demonstrate Oracle-friendly reporting and operational SQL skills.
     - [x] Filter by date range.
     - [x] Include ledger transaction id, posting direction, amount, currency, description, and timestamp.
     - [x] Include running balance if practical with analytic functions.
-- [ ] Add reconciliation mismatch report:
-    - [ ] Filter by batch id.
-    - [ ] Filter by mismatch type.
-    - [ ] Include external reference, ledger transaction id, expected amount, actual amount, status, and detail.
-    - [ ] Sort by severity and created timestamp.
-- [ ] Add suspense account aging report:
-    - [ ] Identify suspense or internal accounts by category or configured account numbers.
-    - [ ] Group open suspense entries by age bucket.
-    - [ ] Include 0-1 day, 2-7 days, 8-30 days, and 31+ days buckets.
-    - [ ] Include amount totals by currency.
-- [ ] Add top failed transfer reasons report:
-    - [ ] Group failed transfers by failure reason code.
-    - [ ] Count failures.
-    - [ ] Sum failed amount by currency.
-    - [ ] Filter by date range.
-    - [ ] Sort by count descending.
-- [ ] Add Oracle-specific examples:
-    - [ ] Use analytic functions such as `sum(...) over (...)` where useful.
-    - [ ] Use `case` expressions for buckets.
-    - [ ] Use date truncation carefully with `timestamp with time zone`.
-    - [ ] Include at least one CTE-heavy report.
-- [ ] Add PL/SQL-style script:
-    - [ ] Add function or procedure for one reporting workflow.
-    - [ ] Include input parameters.
-    - [ ] Include output cursor or table insert.
-    - [ ] Include comments explaining how to run it locally.
-    - [ ] Keep script optional and safe for local development.
-- [ ] Add reporting integration support:
-    - [ ] Add repository or JDBC test harness for reports where practical.
-    - [ ] Seed deterministic data for report tests.
-    - [ ] Assert report totals for known transactions.
-    - [ ] Assert report rows for reversal and adjustment data.
-- [ ] Add report documentation:
-    - [ ] Document each report purpose.
-    - [ ] Document parameters.
-    - [ ] Document expected columns.
-    - [ ] Document sample command for running through SQL client.
-    - [ ] Document how reports support interview/demo storytelling.
+- [x] Add reconciliation mismatch report:
+    - [x] Filter by batch id.
+    - [x] Filter by mismatch type.
+    - [x] Include external reference, ledger transaction id, expected amount, actual amount, status, and detail.
+    - [x] Sort by severity and created timestamp.
+- [x] Add suspense account aging report:
+    - [x] Identify suspense or internal accounts by category or configured account numbers.
+    - [x] Group open suspense entries by age bucket.
+    - [x] Include 0-1 day, 2-7 days, 8-30 days, and 31+ days buckets.
+    - [x] Include amount totals by currency.
+- [x] Add top failed transfer reasons report:
+    - [x] Group failed transfers by failure reason code.
+    - [x] Count failures.
+    - [x] Sum failed amount by currency.
+    - [x] Filter by date range.
+    - [x] Sort by count descending.
+- [x] Add Oracle-specific examples:
+    - [x] Use analytic functions such as `sum(...) over (...)` where useful.
+    - [x] Use `case` expressions for buckets.
+    - [x] Use date truncation carefully with `timestamp with time zone`.
+    - [x] Include at least one CTE-heavy report.
+- [x] Add PL/SQL-style script:
+    - [x] Add function or procedure for one reporting workflow.
+    - [x] Include input parameters.
+    - [x] Include output cursor or table insert.
+    - [x] Include comments explaining how to run it locally.
+    - [x] Keep script optional and safe for local development.
+- [x] Add reporting integration support:
+    - [x] Add repository or JDBC test harness for reports where practical.
+    - [x] Seed deterministic data for report tests.
+    - [x] Assert report totals for known transactions.
+    - [x] Assert report rows for reversal and adjustment data.
+- [x] Add report documentation:
+    - [x] Document each report purpose.
+    - [x] Document parameters.
+    - [x] Document expected columns.
+    - [x] Document sample command for running through SQL client.
+    - [x] Document how reports support interview/demo storytelling.
 
 ### Test Scenarios
 
-- [ ] Daily trial balance:
-    - [ ] Report returns one row per currency/account category.
-    - [ ] Debit totals match seeded postings.
-    - [ ] Credit totals match seeded postings.
-    - [ ] Reversal postings are included as opposite movement.
-    - [ ] Adjustment postings are included.
-    - [ ] Date filter excludes outside transactions.
-- [ ] Account statement summary:
-    - [ ] Report returns postings for the selected account only.
-    - [ ] Date range filter works.
-    - [ ] Running balance is correct if included.
-    - [ ] Transfer, reversal, and adjustment entries are distinguishable.
-    - [ ] Unknown account returns no rows.
-- [ ] Reconciliation mismatch report:
-    - [ ] Report returns mismatches for selected batch.
-    - [ ] Mismatch type filter works.
-    - [ ] Severity sorting works.
-    - [ ] Matched rows are excluded when report is mismatch-only.
-- [ ] Suspense aging:
-    - [ ] Entries fall into correct age bucket.
-    - [ ] Totals are grouped by currency.
-    - [ ] Empty suspense account returns zero or no rows according to report design.
-- [ ] Failed transfer reasons:
-    - [ ] Failures are grouped by reason code.
-    - [ ] Counts are correct.
-    - [ ] Amount totals are correct by currency.
-    - [ ] Date range excludes old failures.
-- [ ] SQL quality:
-    - [ ] SQL scripts run against Oracle test schema.
-    - [ ] Bind variables are used for dynamic values.
-    - [ ] Report files are documented.
-    - [ ] PL/SQL-style script compiles or is syntax-checked where practical.
+- [x] Daily trial balance:
+    - [x] Report returns one row per currency/account category.
+    - [x] Debit totals match seeded postings.
+    - [x] Credit totals match seeded postings.
+    - [x] Reversal postings are included as opposite movement.
+    - [x] Adjustment postings are included.
+    - [x] Date filter excludes outside transactions.
+- [x] Account statement summary:
+    - [x] Report returns postings for the selected account only.
+    - [x] Date range filter works.
+    - [x] Running balance is correct if included.
+    - [x] Transfer, reversal, and adjustment entries are distinguishable.
+    - [x] Unknown account returns no rows.
+- [x] Reconciliation mismatch report:
+    - [x] Report returns mismatches for selected batch.
+    - [x] Mismatch type filter works.
+    - [x] Severity sorting works.
+    - [x] Matched rows are excluded when report is mismatch-only.
+- [x] Suspense aging:
+    - [x] Entries fall into correct age bucket.
+    - [x] Totals are grouped by currency.
+    - [x] Empty suspense account returns zero or no rows according to report design.
+- [x] Failed transfer reasons:
+    - [x] Failures are grouped by reason code.
+    - [x] Counts are correct.
+    - [x] Amount totals are correct by currency.
+    - [x] Date range excludes old failures.
+- [x] SQL quality:
+    - [x] SQL scripts run against Oracle test schema.
+    - [x] Bind variables are used for dynamic values.
+    - [x] Report files are documented.
+    - [x] PL/SQL-style script compiles or is syntax-checked where practical.
 
 ### Acceptance Criteria
 
-- [ ] Reports return correct values for seeded test data.
-- [ ] Report SQL is stored under a documented folder.
-- [ ] At least one Oracle PL/SQL-style script is included.
-- [ ] Reporting queries are covered by integration tests where practical.
-- [ ] README or docs explain report purpose and execution.
-- [ ] Reports demonstrate transfer, reversal, adjustment, and reconciliation data.
-- [ ] Oracle-specific SQL features are used intentionally and documented.
+- [x] Reports return correct values for seeded test data.
+- [x] Report SQL is stored under a documented folder.
+- [x] At least one Oracle PL/SQL-style script is included.
+- [x] Reporting queries are covered by integration tests where practical.
+- [x] README or docs explain report purpose and execution.
+- [x] Reports demonstrate transfer, reversal, adjustment, and reconciliation data.
+- [x] Oracle-specific SQL features are used intentionally and documented.
 
 ## Phase 12: API Documentation And Developer Experience
 
