@@ -11,8 +11,8 @@ Recommended GitHub branch protection for `main`:
 Required checks:
 
 - `Build, Test, Package`
-- `Dependency Review`
 - `Secret Scan`
+- `Dependency Review` after GitHub dependency graph is enabled.
 
 Local parity commands from `banking-ledger-api/`:
 

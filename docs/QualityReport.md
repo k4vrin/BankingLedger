@@ -14,7 +14,7 @@ CI jobs cover:
 - JaCoCo coverage report generation.
 - Spring Boot jar packaging.
 - Docker image build with OCI labels.
-- Dependency review for pull requests.
+- Dependency review for pull requests when GitHub dependency graph is enabled.
 - OWASP dependency-check scan with a critical-only build failure threshold.
 - Gitleaks secret scan.
 - Trivy container image scan for high and critical findings.
@@ -81,14 +81,14 @@ Current source-level test inventory:
 When the repository is public, protect `main` and require:
 
 - `Backend CI / Build, Test, Package`
-- `Backend CI / Dependency Review`
 - `Backend CI / Secret Scan`
+- `Backend CI / Dependency Review` once GitHub dependency graph is enabled for the repository.
 
 Rerun failed checks from the GitHub Actions run page. For infrastructure failures, inspect uploaded test reports and the `Show dependency status` step before rerunning.
 
 ## Vulnerability Handling
 
-- Dependency review fails pull requests with high or critical newly introduced vulnerabilities.
+- Dependency review reports high or critical newly introduced vulnerabilities when GitHub dependency graph is enabled. It is non-blocking until that repository feature is available.
 - OWASP dependency-check fails on CVSS `9.0` or higher.
 - Trivy fails on high or critical fixed vulnerabilities in the built image.
 - False positives must be documented in `dependency-check-suppressions.xml` or a Trivy ignore file with a reason and review date.
