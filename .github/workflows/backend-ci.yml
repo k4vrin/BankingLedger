@@ -109,13 +109,31 @@ jobs:
       - name: Inspect Docker image metadata
         run: docker image inspect banking-ledger-api:${GITHUB_SHA}
 
-      - name: Scan container image with Trivy
+      - name: Report container image vulnerabilities with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: banking-ledger-api:${{ github.sha }}
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "0"
+
+      - name: Generate Trivy SARIF
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: banking-ledger-api:${{ github.sha }}
           format: sarif
           output: trivy-results.sarif
           severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "0"
+
+      - name: Enforce critical container vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: banking-ledger-api:${{ github.sha }}
+          format: table
+          severity: CRITICAL
           ignore-unfixed: true
           exit-code: "1"
 

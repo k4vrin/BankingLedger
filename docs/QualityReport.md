@@ -98,5 +98,5 @@ Rerun failed checks from the GitHub Actions run page. For infrastructure failure
 
 - Dependency review reports high or critical newly introduced vulnerabilities when GitHub dependency graph is enabled. It is non-blocking until that repository feature is available.
 - OWASP dependency-check runs outside the PR build path and fails its own workflow on CVSS `9.0` or higher.
-- Trivy fails on high or critical fixed vulnerabilities in the built image.
+- Trivy reports high and critical fixed vulnerabilities in logs and SARIF, but only fails PR CI on critical fixed vulnerabilities. High findings remain visible without blocking every base-image patch cycle.
 - False positives must be documented in `dependency-check-suppressions.xml` or a Trivy ignore file with a reason and review date.
