@@ -1,0 +1,29 @@
+flowchart TB
+    request["Financial mutation request"]
+    auth["Authenticate and authorize"]
+    tx["Begin database transaction"]
+    idem["Validate idempotency key and request hash"]
+    locks["Load accounts with pessimistic locks"]
+    policy["Run domain validation"]
+    ledger["Insert ledger transaction, journal entry, and postings"]
+    balances["Update cached account balances"]
+    audit["Insert audit event"]
+    outbox["Insert pending outbox events"]
+    idemStore["Store idempotency response"]
+    commit["Commit transaction"]
+    publisher["Async outbox publisher"]
+    kafka[("Kafka")]
+
+    request --> auth
+    auth --> tx
+    tx --> idem
+    idem --> locks
+    locks --> policy
+    policy --> ledger
+    ledger --> balances
+    balances --> audit
+    audit --> outbox
+    outbox --> idemStore
+    idemStore --> commit
+    commit --> publisher
+    publisher --> kafka

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!--
+    Add narrowly scoped suppressions here after confirming a finding is a false positive
+    or not exploitable in this application. Include a short reason and review date.
+    -->
+</suppressions>
