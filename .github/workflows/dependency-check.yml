@@ -1,0 +1,55 @@
+name: Dependency Check
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "20 3 * * 1"
+
+concurrency:
+  group: dependency-check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  API_DIR: banking-ledger-api
+
+jobs:
+  owasp-dependency-check:
+    name: OWASP Dependency-Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: ${{ env.API_DIR }}/pom.xml
+
+      - name: Run OWASP dependency check
+        working-directory: ${{ env.API_DIR }}
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          if [ -n "${NVD_API_KEY:-}" ]; then
+            ./mvnw org.owasp:dependency-check-maven:check -DnvdApiKey="${NVD_API_KEY}"
+          else
+            echo "NVD_API_KEY is not configured; running without it may be slow because NVD rate-limits anonymous updates."
+            ./mvnw org.owasp:dependency-check-maven:check
+          fi
+
+      - name: Upload dependency-check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-dependency-check-report
+          path: |
+            ${{ env.API_DIR }}/target/dependency-check-report.*
+          if-no-files-found: ignore

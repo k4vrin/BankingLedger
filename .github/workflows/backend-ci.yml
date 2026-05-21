@@ -85,10 +85,6 @@ jobs:
             echo "JaCoCo CSV report not found"
           fi
 
-      - name: Run OWASP dependency check
-        working-directory: ${{ env.API_DIR }}
-        run: ./mvnw org.owasp:dependency-check-maven:check
-
       - name: Package Spring Boot jar
         working-directory: ${{ env.API_DIR }}
         run: ./mvnw -DskipTests package
@@ -138,15 +134,6 @@ jobs:
             ${{ env.API_DIR }}/target/surefire-reports/**
             ${{ env.API_DIR }}/target/failsafe-reports/**
             ${{ env.API_DIR }}/target/site/jacoco/**
-          if-no-files-found: ignore
-
-      - name: Upload dependency-check report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-dependency-check-report
-          path: |
-            ${{ env.API_DIR }}/target/dependency-check-report.*
           if-no-files-found: ignore
 
       - name: Stop CI dependencies

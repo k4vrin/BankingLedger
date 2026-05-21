@@ -2,7 +2,7 @@
 
 ## CI Strategy
 
-The backend CI workflow is [Backend CI](../.github/workflows/backend-ci.yml). It runs on pull requests and pushes to `main`.
+The backend CI workflow is [Backend CI](../.github/workflows/backend-ci.yml). It runs on pull requests and pushes to `main`. The slower OWASP dependency vulnerability scan runs separately in [Dependency Check](../.github/workflows/dependency-check.yml) on a weekly schedule or manual dispatch.
 
 CI uses Oracle Free and Kafka through `banking-ledger-api/compose.ci.yaml` with the `ci` Spring profile. This keeps migration validation and integration tests close to the local and production database assumptions instead of swapping in an in-memory database.
 
@@ -17,9 +17,14 @@ CI jobs cover:
 - Spring Boot jar packaging.
 - Docker image build with OCI labels.
 - Dependency review for pull requests when GitHub dependency graph is enabled.
-- OWASP dependency-check scan with a critical-only build failure threshold.
 - Gitleaks secret scan.
 - Trivy container image scan for high and critical findings.
+
+The scheduled/manual Dependency Check workflow covers:
+
+- OWASP dependency-check scan with a critical-only build failure threshold.
+- Dependency-check report artifact upload.
+- Optional `NVD_API_KEY` usage through a repository secret to avoid slow anonymous NVD updates.
 
 ## Local Commands Matching CI
 
@@ -30,10 +35,11 @@ make ci-deps-up
 ./mvnw -DskipTests validate
 ./mvnw test
 ./mvnw verify
-make dependency-check
 make docker-build
 make ci-deps-down
 ```
+
+Run `make dependency-check` separately for local parity with the scheduled Dependency Check workflow.
 
 For a narrower smoke check:
 
@@ -91,6 +97,6 @@ Rerun failed checks from the GitHub Actions run page. For infrastructure failure
 ## Vulnerability Handling
 
 - Dependency review reports high or critical newly introduced vulnerabilities when GitHub dependency graph is enabled. It is non-blocking until that repository feature is available.
-- OWASP dependency-check fails on CVSS `9.0` or higher.
+- OWASP dependency-check runs outside the PR build path and fails its own workflow on CVSS `9.0` or higher.
 - Trivy fails on high or critical fixed vulnerabilities in the built image.
 - False positives must be documented in `dependency-check-suppressions.xml` or a Trivy ignore file with a reason and review date.

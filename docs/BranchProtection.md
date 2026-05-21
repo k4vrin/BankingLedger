@@ -21,10 +21,11 @@ make ci-deps-up
 ./mvnw -DskipTests validate
 ./mvnw test
 ./mvnw verify
-make dependency-check
 make docker-build
 make ci-deps-down
 ```
+
+Run `make dependency-check` separately when validating the scheduled/manual Dependency Check workflow. It is not part of required PR branch protection because anonymous NVD updates can be slow.
 
 If a check fails:
 

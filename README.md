@@ -288,8 +288,10 @@ The workflow:
 - Runs Maven validation, tests, verification, and jar packaging.
 - Generates JaCoCo coverage reports.
 - Builds the Docker image with OCI labels.
-- Runs dependency review, OWASP dependency-check, Gitleaks, and Trivy.
-- Uploads test, coverage, dependency, and scan artifacts where useful.
+- Runs dependency review, Gitleaks, and Trivy.
+- Uploads test, coverage, and scan artifacts where useful.
+
+OWASP dependency-check runs in [Dependency Check](.github/workflows/dependency-check.yml) on a weekly schedule or manual dispatch. Configure an `NVD_API_KEY` repository secret to avoid slow anonymous NVD updates.
 
 Local CI parity commands:
 
@@ -299,7 +301,6 @@ make ci-deps-up
 ./mvnw -DskipTests validate
 ./mvnw test
 ./mvnw verify
-make dependency-check
 make docker-build
 make ci-deps-down
 ```

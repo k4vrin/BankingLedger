@@ -71,10 +71,11 @@ make ci-deps-up
 ./mvnw -DskipTests validate
 ./mvnw test
 ./mvnw verify
-make dependency-check
 make docker-build
 make ci-deps-down
 ```
+
+OWASP dependency-check is intentionally outside the default PR CI path because NVD updates can be slow without an API key. Run `make dependency-check` locally when you want the deeper dependency vulnerability scan.
 
 CI environment values:
 
