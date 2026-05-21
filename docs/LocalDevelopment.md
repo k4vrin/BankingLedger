@@ -40,11 +40,15 @@ Run these from `banking-ledger-api/`.
 | `make deps-up` | Start Oracle, Kafka, and CloudBeaver. |
 | `make deps-down` | Stop local dependencies. |
 | `make deps-reset` | Stop dependencies and remove local volumes. |
+| `make ci-deps-up` | Start Oracle and Kafka with the CI compose file. |
+| `make ci-deps-down` | Stop CI dependencies and remove volumes. |
 | `make run` | Run the API with the `dev` profile. |
 | `make test` | Run the Maven test phase. |
 | `make integration-test` | Run the Maven verify phase. |
 | `make validate` | Validate the Maven project without tests. |
 | `make package` | Build the application jar. |
+| `make docker-build` | Build the API Docker image with local OCI labels. |
+| `make dependency-check` | Run OWASP dependency-check. |
 | `make token-customer` | Issue a dev JWT for the seeded customer. |
 | `make token-teller` | Issue a dev JWT for teller flows. |
 | `make token-auditor` | Issue a dev JWT for audit/read-only flows. |
@@ -53,6 +57,36 @@ Run these from `banking-ledger-api/`.
 | `make reports` | List report SQL examples. |
 
 Flyway migrations run automatically on application startup. The `dev` profile loads repeatable seed data from `src/main/resources/db/dev-migration`.
+
+## CI Parity
+
+The GitHub Actions workflow uses `compose.ci.yaml` instead of the development compose file. It starts Oracle Free and Kafka only, disables Spring Boot Docker Compose integration, and runs with the `ci` Spring profile.
+
+The `ci` profile runs the core Oracle-compatible Flyway migrations from `src/main/resources/db/migration` but intentionally excludes repeatable development seed data from `src/main/resources/db/dev-migration`. This keeps integration tests deterministic because each test controls its own fixture data.
+
+Run a local CI-style check from `banking-ledger-api/`:
+
+```bash
+make ci-deps-up
+./mvnw -DskipTests validate
+./mvnw test
+./mvnw verify
+make docker-build
+make ci-deps-down
+```
+
+OWASP dependency-check is intentionally outside the default PR CI path because NVD updates can be slow without an API key. Run `make dependency-check` locally when you want the deeper dependency vulnerability scan.
+
+CI environment values:
+
+```text
+SPRING_PROFILES_ACTIVE=ci
+SPRING_DOCKER_COMPOSE_ENABLED=false
+DB_URL=jdbc:oracle:thin:@localhost:1521/FREEPDB1
+DB_USERNAME=ledger_dev
+DB_PASSWORD=ledger_dev_password
+KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+```
 
 ## Seed Data
 

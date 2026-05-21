@@ -1,8 +1,34 @@
 # Mini Core Banking Ledger
 
+[![Backend CI](https://github.com/kavrin/BankingLedger/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/kavrin/BankingLedger/actions/workflows/backend-ci.yml)
+
 A Spring Boot portfolio project for a compact banking-style ledger with double-entry accounting, ACID transaction handling, auditability, Oracle-oriented persistence, reconciliation, and event publishing.
 
 The backend API lives in `banking-ledger-api`.
+
+## Table Of Contents
+
+- [Tech Stack](#tech-stack)
+- [Feature Highlights](#feature-highlights)
+- [Quickstart](#quickstart)
+- [Project Structure](#project-structure)
+- [End-State Architecture](#end-state-architecture)
+- [Prerequisites](#prerequisites)
+- [Environment Setup](#environment-setup)
+- [Run Development Infrastructure](#run-development-infrastructure)
+- [Run The API Locally](#run-the-api-locally)
+- [CI And Quality Gates](#ci-and-quality-gates)
+- [Developer Commands](#developer-commands)
+- [Demo Flow](#demo-flow)
+- [Spring Profiles](#spring-profiles)
+- [Oracle Database](#oracle-database)
+- [CloudBeaver Database Manager](#cloudbeaver-database-manager)
+- [Kafka](#kafka)
+- [Production Compose](#production-compose)
+- [Build And Test](#build-and-test)
+- [Database Migrations](#database-migrations)
+- [Documentation](#documentation)
+- [Development Notes](#development-notes)
 
 ## Tech Stack
 
@@ -15,14 +41,53 @@ The backend API lives in `banking-ledger-api`.
 - Flyway
 - Kafka
 - Docker Compose
-- Testcontainers
+- GitHub Actions
 - CloudBeaver browser database manager
+
+## Feature Highlights
+
+- Double-entry ledger posting with balanced journal entries and append-only financial history.
+- Account, transfer, reversal, adjustment, reconciliation, audit, ledger investigation, and outbox APIs.
+- ACID transaction boundaries for ledger records, cached balances, audit rows, idempotency records, and outbox events.
+- Pessimistic account locking and idempotency keys to protect money movement under retries and concurrency.
+- JWT bearer authentication, role authorization, account ownership checks, and structured security errors.
+- Transactional outbox publishing to Kafka with retry, dead-letter handling, and protected requeue operations.
+- Oracle-oriented Flyway schema, SQL reports, deterministic dev seed data, OpenAPI docs, and runnable HTTP demo flow.
+- GitHub Actions quality gates for Maven verification, Oracle-backed integration checks, coverage, dependency review, secret scanning, and container scanning.
+
+## Quickstart
+
+Run the backend locally from a clean checkout:
+
+```bash
+cd banking-ledger-api
+cp .env.example .env
+make deps-up
+make run
+```
+
+Then open:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+Run the guided API demo from [banking-ledger-api/http/demo-flow.http](banking-ledger-api/http/demo-flow.http), or issue sample tokens manually:
+
+```bash
+make token-customer
+make token-ops
+```
 
 ## Project Structure
 
 ```text
 .
+├── .github/
+│   └── workflows/
+│       └── backend-ci.yml
 ├── banking-ledger-api/
+│   ├── compose.ci.yaml
 │   ├── compose.dev.yaml
 │   ├── compose.prod.yaml
 │   ├── compose.yaml
@@ -213,6 +278,35 @@ http://localhost:8080/v3/api-docs
 
 The local demo collection is [banking-ledger-api/http/demo-flow.http](banking-ledger-api/http/demo-flow.http).
 
+## CI And Quality Gates
+
+Backend CI runs through [Backend CI](.github/workflows/backend-ci.yml) on pull requests and pushes to `main`.
+
+The workflow:
+
+- Starts Oracle Free and Kafka with [compose.ci.yaml](banking-ledger-api/compose.ci.yaml).
+- Runs Maven validation, tests, verification, and jar packaging.
+- Generates JaCoCo coverage reports.
+- Builds the Docker image with OCI labels.
+- Runs dependency review, Gitleaks, and Trivy.
+- Uploads test, coverage, and scan artifacts where useful.
+
+OWASP dependency-check runs in [Dependency Check](.github/workflows/dependency-check.yml) on a weekly schedule or manual dispatch. Configure an `NVD_API_KEY` repository secret to avoid slow anonymous NVD updates.
+
+Local CI parity commands:
+
+```bash
+cd banking-ledger-api
+make ci-deps-up
+./mvnw -DskipTests validate
+./mvnw test
+./mvnw verify
+make docker-build
+make ci-deps-down
+```
+
+See [docs/QualityReport.md](docs/QualityReport.md) and [docs/BranchProtection.md](docs/BranchProtection.md) for coverage artifacts, known test gaps, vulnerability thresholds, and recommended required checks.
+
 ## Developer Commands
 
 Convenience commands are available from `banking-ledger-api/`:
@@ -227,6 +321,47 @@ make token-ops
 
 See [docs/LocalDevelopment.md](docs/LocalDevelopment.md) for the full command list, environment variables, seed data, and troubleshooting.
 
+## Demo Flow
+
+The fastest way to review the backend is to run the local services, start the API, then execute [banking-ledger-api/http/demo-flow.http](banking-ledger-api/http/demo-flow.http) from an IDE REST client such as IntelliJ HTTP Client or VS Code REST Client.
+
+From `banking-ledger-api/`, start dependencies and the API:
+
+```bash
+make deps-up
+make run
+```
+
+In another terminal, confirm the API is healthy and issue sample role tokens if you want to test with `curl` manually:
+
+```bash
+curl http://localhost:8080/actuator/health
+make token-customer
+make token-teller
+make token-ops
+make token-auditor
+```
+
+For the full guided flow, open `http/demo-flow.http` and run the requests from top to bottom. The file first issues dev JWTs, then demonstrates:
+
+- Seeded account lookup.
+- Account creation as a teller.
+- Transfer creation with `Idempotency-Key`.
+- Idempotent replay using the same request.
+- Idempotency conflict using the same key with a different body.
+- Transfer lookup and reversal.
+- Operational adjustment posting.
+- Reconciliation batch import with a mismatch.
+- Reconciliation result, ledger investigation, audit, and outbox queries.
+
+The demo uses deterministic seed data loaded by the `dev` profile, including customer `00000000-0000-0000-0000-000000000001`, account `00000000-0000-0000-0000-000000001001`, and seeded transfer `00000000-0000-0000-0000-000000005001`. If the database state becomes stale during repeated demos, reset it and start again:
+
+```bash
+make deps-reset
+make deps-up
+make run
+```
+
 ## Spring Profiles
 
 The default profile is `dev`.
@@ -235,6 +370,7 @@ Profile config files:
 
 - `src/main/resources/application.yaml`
 - `src/main/resources/application-dev.yaml`
+- `src/main/resources/application-ci.yaml`
 - `src/main/resources/application-prod.yaml`
 
 Run with an explicit profile:
@@ -250,6 +386,8 @@ SPRING_PROFILES_ACTIVE=prod ./mvnw spring-boot:run
 ```
 
 The `prod` profile requires real environment variables for database and Kafka configuration.
+
+CI runs with `SPRING_PROFILES_ACTIVE=ci`. That profile uses Oracle Free and Kafka like development, but it only runs the core Flyway migrations and does not load the repeatable demo seed data from `db/dev-migration`.
 
 ## Oracle Database
 
@@ -397,6 +535,10 @@ See `docs/CoreBusinessLogic.md` for the business and accounting flow, and `docs/
 
 - [API contracts and examples](docs/API.md)
 - [Local development guide](docs/LocalDevelopment.md)
+- [Portfolio narrative](docs/Portfolio.md)
+- [Incident write-ups](docs/Incidents.md)
+- [Quality report](docs/QualityReport.md)
+- [Branch protection](docs/BranchProtection.md)
 - [Backend roadmap](docs/Roadmap.md)
 - [Feature matrix](docs/FeatureMatrix.md)
 - [Known limitations](docs/KnownLimitations.md)
@@ -406,6 +548,7 @@ See `docs/CoreBusinessLogic.md` for the business and accounting flow, and `docs/
 - [Transfer flow diagram](docs/diagrams/transfer-flow.mmd)
 - [Reversal flow diagram](docs/diagrams/reversal-flow.mmd)
 - [Outbox publishing diagram](docs/diagrams/outbox-publishing.mmd)
+- [Transaction boundaries diagram](docs/diagrams/transaction-boundaries.mmd)
 - [ERD](docs/diagrams/erd.mmd)
 
 Key ADRs:

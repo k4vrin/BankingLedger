@@ -1,15 +1,19 @@
 SHELL := /bin/bash
 
-.PHONY: help deps-up deps-down deps-reset run test integration-test validate package migrate token-customer token-teller token-auditor token-ops token-service reports
+.PHONY: help deps-up deps-down deps-reset ci-deps-up ci-deps-down run test integration-test validate package docker-build dependency-check migrate token-customer token-teller token-auditor token-ops token-service reports
 
 help:
 	@printf "Targets:\n"
 	@printf "  deps-up            Start Oracle, Kafka, and CloudBeaver\n"
 	@printf "  deps-down          Stop local dependencies\n"
 	@printf "  deps-reset         Stop dependencies and remove development volumes\n"
+	@printf "  ci-deps-up         Start Oracle and Kafka with the CI compose file\n"
+	@printf "  ci-deps-down       Stop CI dependencies and remove volumes\n"
 	@printf "  run                Run the API with the dev profile\n"
 	@printf "  test               Run unit and slice tests\n"
 	@printf "  integration-test   Run the Maven verify phase\n"
+	@printf "  dependency-check   Run OWASP dependency vulnerability scan\n"
+	@printf "  docker-build       Build the API Docker image\n"
 	@printf "  migrate            Apply Flyway migrations through Spring Boot startup validation\n"
 	@printf "  token-*            Issue a dev JWT for a sample role\n"
 	@printf "  reports            List report SQL files\n"
@@ -22,6 +26,12 @@ deps-down:
 
 deps-reset:
 	docker compose -f compose.dev.yaml down -v
+
+ci-deps-up:
+	docker compose -f compose.ci.yaml up -d
+
+ci-deps-down:
+	docker compose -f compose.ci.yaml down -v
 
 run:
 	SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
@@ -37,6 +47,12 @@ validate:
 
 package:
 	./mvnw clean package
+
+docker-build:
+	docker build --build-arg APP_VERSION=local --build-arg VCS_REF=$$(git rev-parse --short HEAD 2>/dev/null || echo local) --build-arg BUILD_DATE=$$(date -u +%Y-%m-%dT%H:%M:%SZ) --build-arg SOURCE_REPOSITORY=local -t banking-ledger-api:local .
+
+dependency-check:
+	./mvnw org.owasp:dependency-check-maven:check
 
 migrate:
 	SPRING_PROFILES_ACTIVE=dev ./mvnw -DskipTests spring-boot:run

@@ -1,0 +1,191 @@
+name: Backend CI
+
+on:
+  pull_request:
+    paths:
+      - "banking-ledger-api/**"
+      - "docs/**"
+      - "reports/**"
+      - "README.md"
+      - ".github/workflows/backend-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "banking-ledger-api/**"
+      - "docs/**"
+      - "reports/**"
+      - "README.md"
+      - ".github/workflows/backend-ci.yml"
+
+concurrency:
+  group: backend-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  API_DIR: banking-ledger-api
+  SPRING_PROFILES_ACTIVE: ci
+  SPRING_DOCKER_COMPOSE_ENABLED: "false"
+  DB_URL: jdbc:oracle:thin:@localhost:1521/FREEPDB1
+  DB_USERNAME: ledger_dev
+  DB_PASSWORD: ledger_dev_password
+  KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+
+jobs:
+  backend:
+    name: Build, Test, Package
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: ${{ env.API_DIR }}/pom.xml
+
+      - name: Validate Maven project
+        working-directory: ${{ env.API_DIR }}
+        run: ./mvnw -DskipTests validate
+
+      - name: Start CI dependencies
+        working-directory: ${{ env.API_DIR }}
+        run: docker compose -f compose.ci.yaml up -d
+
+      - name: Show dependency status
+        if: always()
+        working-directory: ${{ env.API_DIR }}
+        run: docker compose -f compose.ci.yaml ps
+
+      - name: Run tests with coverage
+        working-directory: ${{ env.API_DIR }}
+        run: ./mvnw test
+
+      - name: Run full verification
+        working-directory: ${{ env.API_DIR }}
+        run: ./mvnw verify
+
+      - name: Print coverage summary
+        if: always()
+        working-directory: ${{ env.API_DIR }}
+        run: |
+          if [ -f target/site/jacoco/jacoco.csv ]; then
+            awk -F, 'NR > 1 { missed += $4; covered += $5 } END { total = missed + covered; if (total > 0) printf "Instruction coverage: %.2f%%\n", (covered / total) * 100; else print "Instruction coverage: unavailable" }' target/site/jacoco/jacoco.csv
+          else
+            echo "JaCoCo CSV report not found"
+          fi
+
+      - name: Package Spring Boot jar
+        working-directory: ${{ env.API_DIR }}
+        run: ./mvnw -DskipTests package
+
+      - name: Upload Spring Boot jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: banking-ledger-api-jar
+          path: ${{ env.API_DIR }}/target/*.jar
+          if-no-files-found: error
+
+      - name: Build Docker image
+        working-directory: ${{ env.API_DIR }}
+        run: |
+          docker build \
+            --build-arg APP_VERSION="${GITHUB_SHA}" \
+            --build-arg VCS_REF="${GITHUB_SHA}" \
+            --build-arg BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --build-arg SOURCE_REPOSITORY="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
+            -t banking-ledger-api:${GITHUB_SHA} .
+
+      - name: Inspect Docker image metadata
+        run: docker image inspect banking-ledger-api:${GITHUB_SHA}
+
+      - name: Report container image vulnerabilities with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: banking-ledger-api:${{ github.sha }}
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "0"
+
+      - name: Generate Trivy SARIF
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: banking-ledger-api:${{ github.sha }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "0"
+
+      - name: Enforce critical container vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: banking-ledger-api:${{ github.sha }}
+          format: table
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Upload Trivy SARIF
+        if: hashFiles('trivy-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Upload test and coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-and-coverage-reports
+          path: |
+            ${{ env.API_DIR }}/target/surefire-reports/**
+            ${{ env.API_DIR }}/target/failsafe-reports/**
+            ${{ env.API_DIR }}/target/site/jacoco/**
+          if-no-files-found: ignore
+
+      - name: Stop CI dependencies
+        if: always()
+        working-directory: ${{ env.API_DIR }}
+        run: docker compose -f compose.ci.yaml down -v
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@v4
+        continue-on-error: true
+        with:
+          fail-on-severity: high
+
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

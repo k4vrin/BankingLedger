@@ -53,6 +53,11 @@ class CreateSettlementBatchUseCaseIntegrationTest {
         jdbc.getJdbcTemplate().execute("delete from reconciliation_results");
         jdbc.getJdbcTemplate().execute("delete from settlement_items");
         jdbc.getJdbcTemplate().execute("delete from settlement_batches");
+        jdbc.getJdbcTemplate().execute("delete from reversals");
+        jdbc.getJdbcTemplate().execute("delete from adjustment_requests");
+        jdbc.getJdbcTemplate().execute("delete from transfer_requests");
+        jdbc.getJdbcTemplate().execute("delete from postings");
+        jdbc.getJdbcTemplate().execute("delete from journal_entries");
         jdbc.getJdbcTemplate().execute("delete from ledger_transactions");
     }
 

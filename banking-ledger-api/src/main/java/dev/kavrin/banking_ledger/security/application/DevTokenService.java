@@ -7,6 +7,8 @@ import dev.kavrin.banking_ledger.shared.error.ApiErrorCode;
 import dev.kavrin.banking_ledger.shared.error.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -55,7 +57,12 @@ public class DevTokenService {
             claims.claim("customerId", customerId.toString());
         }
 
-        return new DevTokenResponse("Bearer", jwtEncoder.encode(JwtEncoderParameters.from(claims.build())).getTokenValue(), ttl.toSeconds());
+        var header = JwsHeader.with(MacAlgorithm.HS256).build();
+        return new DevTokenResponse(
+                "Bearer",
+                jwtEncoder.encode(JwtEncoderParameters.from(header, claims.build())).getTokenValue(),
+                ttl.toSeconds()
+        );
     }
 
     public List<SampleDevUser> sampleUsers() {

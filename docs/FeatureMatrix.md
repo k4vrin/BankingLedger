@@ -15,5 +15,5 @@
 | 10 | Reconciliation | Complete | Settlement batch import and mismatch query APIs |
 | 11 | Reporting and Oracle SQL | Complete | SQL and PL/SQL report examples |
 | 12 | API documentation and developer experience | Complete | OpenAPI config, demo data, Makefile, HTTP collection, diagrams, docs |
-| 13 | CI/CD and quality gates | Planned | GitHub Actions, quality reports |
-| 14 | Portfolio polish | Planned | Final README and demo polish |
+| 13 | CI/CD and quality gates | Complete | GitHub Actions, Oracle CI compose, JaCoCo, dependency review, Gitleaks, Trivy, quality report |
+| 14 | Portfolio polish | Complete | Final README, portfolio narrative, incident write-ups, demo flow, branch protection guidance |
