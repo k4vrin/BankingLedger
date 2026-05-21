@@ -60,7 +60,9 @@ Flyway migrations run automatically on application startup. The `dev` profile lo
 
 ## CI Parity
 
-The GitHub Actions workflow uses `compose.ci.yaml` instead of the development compose file. It starts Oracle Free and Kafka only, disables Spring Boot Docker Compose integration, and runs against the same Oracle-compatible migrations used locally.
+The GitHub Actions workflow uses `compose.ci.yaml` instead of the development compose file. It starts Oracle Free and Kafka only, disables Spring Boot Docker Compose integration, and runs with the `ci` Spring profile.
+
+The `ci` profile runs the core Oracle-compatible Flyway migrations from `src/main/resources/db/migration` but intentionally excludes repeatable development seed data from `src/main/resources/db/dev-migration`. This keeps integration tests deterministic because each test controls its own fixture data.
 
 Run a local CI-style check from `banking-ledger-api/`:
 
@@ -77,7 +79,7 @@ make ci-deps-down
 CI environment values:
 
 ```text
-SPRING_PROFILES_ACTIVE=dev
+SPRING_PROFILES_ACTIVE=ci
 SPRING_DOCKER_COMPOSE_ENABLED=false
 DB_URL=jdbc:oracle:thin:@localhost:1521/FREEPDB1
 DB_USERNAME=ledger_dev

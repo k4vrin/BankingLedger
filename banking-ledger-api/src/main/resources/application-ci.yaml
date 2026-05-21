@@ -1,0 +1,35 @@
+spring:
+  config:
+    activate:
+      on-profile: ci
+  datasource:
+    url: ${DB_URL:jdbc:oracle:thin:@localhost:1521/FREEPDB1}
+    username: ${DB_USERNAME:ledger_dev}
+    password: ${DB_PASSWORD:ledger_dev_password}
+    driver-class-name: oracle.jdbc.OracleDriver
+  docker:
+    compose:
+      enabled: false
+  jpa:
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: false
+  flyway:
+    user: ${DB_USERNAME:ledger_dev}
+    password: ${DB_PASSWORD:ledger_dev_password}
+    locations:
+      - classpath:db/migration
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+banking-ledger:
+  outbox:
+    publisher:
+      enabled: false
+
+logging:
+  level:
+    dev.kavrin.banking_ledger: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN

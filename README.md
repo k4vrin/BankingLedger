@@ -369,6 +369,7 @@ Profile config files:
 
 - `src/main/resources/application.yaml`
 - `src/main/resources/application-dev.yaml`
+- `src/main/resources/application-ci.yaml`
 - `src/main/resources/application-prod.yaml`
 
 Run with an explicit profile:
@@ -384,6 +385,8 @@ SPRING_PROFILES_ACTIVE=prod ./mvnw spring-boot:run
 ```
 
 The `prod` profile requires real environment variables for database and Kafka configuration.
+
+CI runs with `SPRING_PROFILES_ACTIVE=ci`. That profile uses Oracle Free and Kafka like development, but it only runs the core Flyway migrations and does not load the repeatable demo seed data from `db/dev-migration`.
 
 ## Oracle Database
 

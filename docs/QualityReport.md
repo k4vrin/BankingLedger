@@ -4,7 +4,9 @@
 
 The backend CI workflow is [Backend CI](../.github/workflows/backend-ci.yml). It runs on pull requests and pushes to `main`.
 
-CI uses Oracle Free and Kafka through `banking-ledger-api/compose.ci.yaml`. This keeps migration validation and integration tests close to the local and production database assumptions instead of swapping in an in-memory database.
+CI uses Oracle Free and Kafka through `banking-ledger-api/compose.ci.yaml` with the `ci` Spring profile. This keeps migration validation and integration tests close to the local and production database assumptions instead of swapping in an in-memory database.
+
+The `ci` profile runs the core Flyway migrations and intentionally excludes development repeatable seed data. Demo fixtures remain available through the `dev` profile, while CI integration tests create their own data and are not affected by seeded reversals, journal entries, or postings.
 
 CI jobs cover:
 

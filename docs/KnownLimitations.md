@@ -9,6 +9,7 @@
 - The outbox requeue endpoint is operational and role-protected, but it does not include a full approval workflow.
 - The API uses cached account balances maintained inside ledger transactions; periodic balance recomputation is not implemented yet.
 - CI uses Oracle Free through Docker Compose rather than Testcontainers; this keeps database behavior close to production but makes CI heavier than an in-memory database strategy.
+- CI uses a dedicated `ci` profile that excludes repeatable demo seed data so integration tests can manage their own fixtures.
 - CI generates JaCoCo coverage artifacts but does not enforce a percentage threshold yet.
 - GitHub dependency review is non-blocking until dependency graph is enabled for the repository; OWASP dependency-check remains the enforced dependency vulnerability gate.
 - Formatter and Checkstyle gates are intentionally deferred until a concrete team style profile is chosen.
