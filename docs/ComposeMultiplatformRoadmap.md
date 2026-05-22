@@ -12,24 +12,24 @@ Goal: Create a reliable Kotlin Multiplatform foundation that can target Android,
 
 ### Steps
 
-- [ ] Create repository layout:
-    - [ ] Add the Compose app root at `banking-ledger-compose/`.
-    - [ ] Keep `banking-ledger-api/` as the Spring Boot backend.
-    - [ ] Keep architecture, roadmap, and demo documentation in `docs/`.
-    - [ ] Document backend API base URL configuration per platform.
-    - [ ] Document required JDK, Kotlin, Gradle, Android Studio, and Xcode versions.
-- [ ] Scaffold the Compose Multiplatform app:
-    - [ ] Add Android target for the customer app.
-    - [ ] Add iOS target for the customer app.
-    - [ ] Add desktop target for the admin app.
-    - [ ] Add shared `commonMain` source set for business, networking, state, and reusable UI.
-    - [ ] Add platform source sets only for platform bridges and launchers.
-- [ ] Configure build conventions:
-    - [ ] Add version catalog entries for Kotlin, Compose Multiplatform, Compose Material 3, Compose Resources, Ktor Client, Kotlinx Serialization, coroutines, Koin, AndroidX/KMP ViewModel, AndroidX Navigation 3, DataStore, and testing libraries.
-    - [ ] Do not pin dependency versions from the ADR; verify current coordinates during implementation.
-    - [ ] Verify every dependency added to `commonMain` supports Android, iOS, and desktop.
-    - [ ] Keep Android-only and desktop-only dependencies out of `commonMain`.
-    - [ ] Add Gradle tasks for Android build, iOS framework build, desktop run, and shared tests.
+- [x] Create repository layout:
+    - [x] Add the Compose app root at `banking-ledger-compose/`.
+    - [x] Keep `banking-ledger-api/` as the Spring Boot backend.
+    - [x] Keep architecture, roadmap, and demo documentation in `docs/`.
+    - [x] Document backend API base URL configuration per platform.
+    - [x] Document required JDK, Kotlin, Gradle, Android Studio, and Xcode versions.
+- [x] Scaffold the Compose Multiplatform app:
+    - [x] Add Android target for the customer app.
+    - [x] Add iOS target for the customer app.
+    - [x] Add desktop target for the admin app.
+    - [x] Add shared `commonMain` source set for business, networking, state, and reusable UI.
+    - [x] Add platform source sets only for platform bridges and launchers.
+- [x] Configure build conventions:
+    - [x] Add version catalog entries for Kotlin, Compose Multiplatform, Compose Material 3, Compose Resources, Ktor Client, Kotlinx Serialization, coroutines, Koin, AndroidX/KMP ViewModel, AndroidX Navigation 3, DataStore, and testing libraries.
+    - [x] Do not pin dependency versions from the ADR; verify current coordinates during implementation.
+    - [x] Verify every dependency added to `commonMain` supports Android, iOS, and desktop.
+    - [x] Keep Android-only and desktop-only dependencies out of `commonMain`.
+    - [x] Add Gradle tasks for Android build, iOS framework build, desktop run, and shared tests.
 - [ ] Add base module structure:
     - [ ] `shared:core:model` for domain-facing models and value objects.
     - [ ] `shared:core:network` for API client infrastructure.
@@ -53,16 +53,24 @@ Goal: Create a reliable Kotlin Multiplatform foundation that can target Android,
 - [ ] Android app launches locally.
 - [ ] iOS app launches in simulator.
 - [ ] Desktop admin app launches locally.
-- [ ] Shared unit test task succeeds.
+- [x] Shared unit test task succeeds.
 - [ ] Platform launchers can read backend base URL configuration.
 
 ### Acceptance Criteria
 
 - [ ] Compose Multiplatform project exists and builds for all planned targets.
-- [ ] Project layout follows `banking-ledger-compose/` as required by the CMP architecture ADR.
-- [ ] Shared source sets are clearly separated from platform source sets.
-- [ ] Dependency target support is documented before libraries are used in `commonMain`.
-- [ ] Local setup commands are documented.
+- [x] Project layout follows `banking-ledger-compose/` as required by the CMP architecture ADR.
+- [x] Shared source sets are clearly separated from platform source sets.
+- [x] Dependency target support is documented before libraries are used in `commonMain`.
+- [x] Local setup commands are documented.
+
+### Foundation Notes
+
+- Current scaffold uses `shared`, `androidApp`, `iosApp`, and `desktopApp` modules.
+- Dependency versions were checked against official release pages, Maven Central, Google Maven, and Gradle resolution on May 22, 2026.
+- `commonMain` dependency resolution, shared JVM tests, desktop Kotlin compilation, and Android debug assembly were verified by `./gradlew :shared:compileKotlinMetadata :shared:jvmTest :desktopApp:compileKotlin :androidApp:assembleDebug`.
+- iOS simulator framework linking reached Kotlin/Native compilation but is blocked locally by Xcode command line tool configuration: `/usr/bin/xcrun -f ld` exits with code 69.
+- AndroidX Navigation 3 uses the JetBrains-published multiplatform `org.jetbrains.androidx.navigation3:navigation3-ui` artifact because Google `androidx.navigation3:navigation3-ui` does not currently resolve iOS variants for this project.
 
 ## Phase 1: Shared Architecture, MVI, And Navigation
 
@@ -638,6 +646,61 @@ Goal: Make the Compose Multiplatform clients easy to run, evaluate, and discuss.
 - [ ] Compose demo path is documented.
 - [ ] Optional nature of the Compose apps is clear.
 
+## Phase 10: Senior Android Role Alignment
+
+Goal: Make the Android customer app clearly demonstrate the expectations of a Senior Android role while preserving the Compose Multiplatform architecture.
+
+### Steps
+
+- [ ] Add Android-first adaptive UI coverage:
+    - [ ] Validate customer screens on compact phone, large phone, tablet, and foldable-like widths.
+    - [ ] Add adaptive list-detail behavior for account and transfer detail where useful.
+    - [ ] Ensure touch targets, typography, spacing, and bottom navigation work across Android screen sizes.
+    - [ ] Add realistic previews for loading, empty, success, error, and permission states.
+- [ ] Add Android observability:
+    - [ ] Add Android-only Firebase Crashlytics integration if the app moves beyond local-only demo mode.
+    - [ ] Add non-sensitive crash context such as app version, active role, screen name, and correlation id.
+    - [ ] Do not log bearer tokens, account identifiers beyond demo-safe values, or sensitive backend payloads.
+    - [ ] Document how Android crashes and non-fatal errors are triaged.
+- [ ] Add Android performance profiling:
+    - [ ] Profile startup time for the Android customer app.
+    - [ ] Inspect recomposition behavior on dashboard, account list, transaction list, and transfer form.
+    - [ ] Check memory behavior during long transaction lists and repeated navigation.
+    - [ ] Add Baseline Profile or Macrobenchmark only when the app has enough implemented UI to justify it.
+    - [ ] Document profiling findings and fixes.
+- [ ] Add lifecycle and process-death resilience:
+    - [ ] Preserve transfer form draft state through ViewModel state and saved state where appropriate.
+    - [ ] Handle app background/foreground transitions without duplicate financial submissions.
+    - [ ] Expire or refresh session state cleanly after token expiration.
+    - [ ] Cancel in-flight requests when the owning ViewModel is cleared.
+- [ ] Add senior-level Android quality checks:
+    - [ ] Add Android lint to the documented quality gate.
+    - [ ] Add Android UI smoke tests for login, dashboard, account detail, transfer creation, and transfer result.
+    - [ ] Add screenshot checks for Android customer demo-critical screens where practical.
+    - [ ] Add CI documentation for Android build, shared tests, lint, and UI smoke tests.
+- [ ] Add optional finance-oriented UI proof points:
+    - [ ] Add balance trend or transfer volume chart if backend/report data supports it.
+    - [ ] Add portfolio-style summary panels that map to account balances and transfer history.
+    - [ ] Keep chart code isolated behind reusable design-system components.
+    - [ ] Avoid crypto-specific claims unless the backend actually supports crypto assets.
+
+### Test Scenarios
+
+- [ ] Android customer screens render correctly on compact and expanded widths.
+- [ ] Transfer form survives rotation or process recreation strategy selected for the app.
+- [ ] Duplicate transfer submit is still prevented after lifecycle transitions.
+- [ ] Dashboard and transaction list avoid obvious recomposition hotspots.
+- [ ] Long transaction lists remain scrollable without excessive memory growth.
+- [ ] Crash/error logging excludes bearer tokens and sensitive payloads.
+- [ ] Android lint and Android customer smoke tests pass.
+
+### Acceptance Criteria
+
+- [ ] The Android customer app can be presented as the flagship target for a Senior Android portfolio discussion.
+- [ ] The project demonstrates Compose, MVI, Clean Architecture, REST integration, lifecycle handling, performance awareness, and Android quality gates.
+- [ ] Android-specific tooling does not leak into shared `commonMain` code.
+- [ ] Role-alignment documentation explains why CMP uses Koin and Ktor instead of Android-only Hilt and Retrofit.
+
 ## Suggested Build Order
 
 1. Compose Multiplatform foundation
@@ -650,6 +713,7 @@ Goal: Make the Compose Multiplatform clients easy to run, evaluate, and discuss.
 8. Demo mode and guided flow
 9. Testing, accessibility, performance, and quality
 10. Packaging, distribution, and documentation
+11. Senior Android role alignment
 
 ## Definition Of Done For Each Phase
 

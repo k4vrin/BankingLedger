@@ -4,18 +4,12 @@ on:
   pull_request:
     paths:
       - "banking-ledger-api/**"
-      - "docs/**"
-      - "reports/**"
-      - "README.md"
       - ".github/workflows/backend-ci.yml"
   push:
     branches:
       - main
     paths:
       - "banking-ledger-api/**"
-      - "docs/**"
-      - "reports/**"
-      - "README.md"
       - ".github/workflows/backend-ci.yml"
 
 concurrency:

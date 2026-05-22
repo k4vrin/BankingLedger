@@ -1,2 +1,30 @@
 .sdkmanrc
 /.sdkmanrc
+
+# macOS
+.DS_Store
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+
+# Gradle / Kotlin
+.gradle/
+.kotlin/
+**/build/
+!src/**/build/
+
+# Android local files
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Xcode user state and generated data
+xcuserdata/
+DerivedData/
+*.xcuserstate
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+# Node-based tooling
+node_modules/
