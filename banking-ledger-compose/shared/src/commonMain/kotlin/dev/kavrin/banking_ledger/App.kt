@@ -1,48 +1,64 @@
 package dev.kavrin.banking_ledger
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
-
-import bankingledger.shared.generated.resources.Res
-import bankingledger.shared.generated.resources.compose_multiplatform
+import androidx.compose.ui.unit.dp
+import dev.kavrin.banking_ledger.core.designsystem.AccountCard
+import dev.kavrin.banking_ledger.core.designsystem.BalanceSummaryCard
+import dev.kavrin.banking_ledger.core.designsystem.BankingLedgerTheme
+import dev.kavrin.banking_ledger.core.designsystem.LedgerMobileTopBar
+import dev.kavrin.banking_ledger.core.designsystem.LedgerStatusKind
+import dev.kavrin.banking_ledger.core.designsystem.MobilePrimaryActionButton
+import dev.kavrin.banking_ledger.core.designsystem.StatusBadge
+import dev.kavrin.banking_ledger.core.designsystem.bankingColors
 
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
+    BankingLedgerTheme {
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(MaterialTheme.bankingColors.backgroundApp)
                 .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .fillMaxSize()
+                .padding(vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+            LedgerMobileTopBar(title = "Banking Ledger")
+            Column(
+                modifier = Modifier.padding(horizontal = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                BalanceSummaryCard(
+                    label = "Available balance",
+                    amount = "$12,458.75",
+                    trend = "+$1,234.50 (9.85%)",
+                )
+                AccountCard(
+                    title = "Checking",
+                    maskedIdentifier = ".... 4578",
+                    amount = "$7,256.34",
+                    selected = true,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    StatusBadge(status = LedgerStatusKind.Completed)
+                    StatusBadge(status = LedgerStatusKind.Pending)
+                    StatusBadge(status = LedgerStatusKind.Failed)
                 }
+                MobilePrimaryActionButton(
+                    text = "New transfer",
+                    onClick = {},
+                )
             }
         }
     }

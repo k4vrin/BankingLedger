@@ -18,9 +18,20 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
 
 - Android app: `./gradlew :androidApp:assembleDebug`
 - Desktop app:
-  - Hot reload: `./gradlew :desktopApp:hotRun --auto`
+  - Hot reload: `./gradlew :desktopApp:hotRun`
+  - Apply changes to a running hot reload session: `./gradlew :desktopApp:reload`
   - Standard run: `./gradlew :desktopApp:run`
 - iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+
+Convenience scripts are available from the project root:
+
+- Android debug build: `./scripts/build-android-debug.sh`
+- Desktop run: `./scripts/run-desktop.sh`
+- Desktop hot reload run: `./scripts/run-desktop-hot.sh`
+- Shared JVM tests: `./scripts/test-shared.sh`
+- Android lint: `./scripts/lint.sh`
+- iOS simulator framework build: `./scripts/build-ios-framework.sh`
+- Phase 0 local check: `./scripts/check-phase0.sh`
 
 ### Running tests
 
@@ -48,9 +59,9 @@ Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
 
 The Compose client should read the Banking Ledger API base URL from platform configuration when API integration starts:
 
-- Android: `local.properties`, BuildConfig, or a debug-only manifest placeholder.
-- iOS: `iosApp/Configuration/Config.xcconfig`.
-- Desktop: a Gradle run argument, environment variable, or local properties file.
+- Android: defaults to `http://10.0.2.2:8080` for emulator-to-host development.
+- iOS: `BANKING_LEDGER_API_BASE_URL` in `iosApp/Configuration/Config.xcconfig`, exposed through `Info.plist`.
+- Desktop: `-Dbanking.ledger.apiBaseUrl=...` or the `BANKING_LEDGER_API_BASE_URL` environment variable.
 
 Do not commit developer-specific base URLs or credentials. Tokens must use platform secure storage, while non-sensitive demo preferences can use DataStore.
 

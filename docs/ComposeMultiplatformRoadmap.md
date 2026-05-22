@@ -30,22 +30,22 @@ Goal: Create a reliable Kotlin Multiplatform foundation that can target Android,
     - [x] Verify every dependency added to `commonMain` supports Android, iOS, and desktop.
     - [x] Keep Android-only and desktop-only dependencies out of `commonMain`.
     - [x] Add Gradle tasks for Android build, iOS framework build, desktop run, and shared tests.
-- [ ] Add base module structure:
-    - [ ] `shared:core:model` for domain-facing models and value objects.
-    - [ ] `shared:core:network` for API client infrastructure.
-    - [ ] `shared:core:security` for token, role, and request context models.
-    - [ ] `shared:core:persistence` for DataStore preferences and token-store abstractions.
-    - [ ] `shared:core:designsystem` for theme, typography, dimensions, and reusable components.
-    - [ ] `shared:core:navigation` for type-safe route objects.
-    - [ ] `shared:feature:customer` for customer presentation state and screens.
-    - [ ] `shared:feature:admin` for admin presentation state and screens.
-    - [ ] Platform app modules for Android, iOS, and desktop launchers.
-- [ ] Add developer scripts:
-    - [ ] Build Android debug app.
-    - [ ] Run desktop app.
-    - [ ] Build shared tests.
-    - [ ] Run formatting or linting.
-    - [ ] Build iOS framework or Xcode project integration.
+- [x] Add base module structure:
+    - [x] `shared:core:model` for domain-facing models and value objects.
+    - [x] `shared:core:network` for API client infrastructure.
+    - [x] `shared:core:security` for token, role, and request context models.
+    - [x] `shared:core:persistence` for DataStore preferences and token-store abstractions.
+    - [x] `shared:core:designsystem` for theme, typography, dimensions, and reusable components.
+    - [x] `shared:core:navigation` for type-safe route objects.
+    - [x] `shared:feature:customer` for customer presentation state and screens.
+    - [x] `shared:feature:admin` for admin presentation state and screens.
+    - [x] Platform app modules for Android, iOS, and desktop launchers.
+- [x] Add developer scripts:
+    - [x] Build Android debug app.
+    - [x] Run desktop app.
+    - [x] Build shared tests.
+    - [x] Run formatting or linting.
+    - [x] Build iOS framework or Xcode project integration.
 
 ### Test Scenarios
 
@@ -54,7 +54,7 @@ Goal: Create a reliable Kotlin Multiplatform foundation that can target Android,
 - [ ] iOS app launches in simulator.
 - [ ] Desktop admin app launches locally.
 - [x] Shared unit test task succeeds.
-- [ ] Platform launchers can read backend base URL configuration.
+- [x] Platform launchers can read backend base URL configuration.
 
 ### Acceptance Criteria
 
@@ -67,8 +67,11 @@ Goal: Create a reliable Kotlin Multiplatform foundation that can target Android,
 ### Foundation Notes
 
 - Current scaffold uses `shared`, `androidApp`, `iosApp`, and `desktopApp` modules.
+- Phase 0 base structure is represented as package boundaries inside the `shared` KMP module; split Gradle modules can be introduced later if package boundaries become too coarse.
+- Developer scripts live under `banking-ledger-compose/scripts/`.
 - Dependency versions were checked against official release pages, Maven Central, Google Maven, and Gradle resolution on May 22, 2026.
 - `commonMain` dependency resolution, shared JVM tests, desktop Kotlin compilation, and Android debug assembly were verified by `./gradlew :shared:compileKotlinMetadata :shared:jvmTest :desktopApp:compileKotlin :androidApp:assembleDebug`.
+- Phase 0 local check was verified by `./scripts/check-phase0.sh`, covering shared metadata, shared JVM tests, desktop Kotlin compilation, Android lint, and Android debug assembly.
 - iOS simulator framework linking reached Kotlin/Native compilation but is blocked locally by Xcode command line tool configuration: `/usr/bin/xcrun -f ld` exits with code 69.
 - AndroidX Navigation 3 uses the JetBrains-published multiplatform `org.jetbrains.androidx.navigation3:navigation3-ui` artifact because Google `androidx.navigation3:navigation3-ui` does not currently resolve iOS variants for this project.
 
