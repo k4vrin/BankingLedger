@@ -2174,4 +2174,4 @@ Follow this order unless a dependency forces a small adjustment:
 - [ ] The application starts locally.
 - [ ] Relevant README or docs are updated.
 - [ ] No secrets are committed.
-- [ ] The implementation follows the banking correctness rules in `docs/Project.md`.
+- [ ] The implementation follows the banking correctness rules in `docs/backend/Project.md`.

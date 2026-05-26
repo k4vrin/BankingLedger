@@ -540,9 +540,9 @@ The journal balances because total debits are `2500` and total credits are `2500
 
 ## What To Read Next
 
-- `docs/Project.md` for the project goals, scope, user stories, and end-state requirements.
-- `docs/DatabaseDesign.md` for schema details, constraints, indexes, and transaction isolation notes.
-- `docs/Roadmap.md` for completed and planned implementation phases.
+- `docs/backend/Project.md` for the project goals, scope, user stories, and end-state requirements.
+- `docs/backend/DatabaseDesign.md` for schema details, constraints, indexes, and transaction isolation notes.
+- `docs/operations/Roadmap.md` for completed and planned implementation phases.
 - `banking-ledger-api/src/main/java/dev/kavrin/banking_ledger/ledger/domain/policy/DoubleEntryPostingPolicy.java` for the core double-entry validation rules.
 - `banking-ledger-api/src/main/java/dev/kavrin/banking_ledger/ledger/application/service/PostLedgerTransactionUseCase.java` for the implemented posting workflow.
 - `banking-ledger-api/src/main/java/dev/kavrin/banking_ledger/ledger/application/service/AccountBalanceUpdater.java` for cached balance updates.

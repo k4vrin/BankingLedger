@@ -2,7 +2,7 @@
 
 ## CI Strategy
 
-The backend CI workflow is [Backend CI](../.github/workflows/backend-ci.yml). It runs on pull requests and pushes to `main`. The slower OWASP dependency vulnerability scan runs separately in [Dependency Check](../.github/workflows/dependency-check.yml) on a weekly schedule or manual dispatch.
+The backend CI workflow is [Backend CI](../../.github/workflows/backend-ci.yml). It runs on pull requests and pushes to `main`. The slower OWASP dependency vulnerability scan runs separately in [Dependency Check](../../.github/workflows/dependency-check.yml) on a weekly schedule or manual dispatch.
 
 CI uses Oracle Free and Kafka through `banking-ledger-api/compose.ci.yaml` with the `ci` Spring profile. This keeps migration validation and integration tests close to the local and production database assumptions instead of swapping in an in-memory database.
 

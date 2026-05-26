@@ -102,10 +102,12 @@ make token-ops
 │   ├── pom.xml
 │   └── src/
 └── docs/
-    ├── CoreBusinessLogic.md
-    ├── DatabaseDesign.md
-    ├── Roadmap.md
-    └── Project.md
+    ├── adr/
+    ├── backend/
+    ├── design/
+    ├── diagrams/
+    ├── frontend/
+    └── operations/
 ```
 
 ## End-State Architecture
@@ -311,7 +313,7 @@ make docker-build
 make ci-deps-down
 ```
 
-See [docs/QualityReport.md](docs/QualityReport.md) and [docs/BranchProtection.md](docs/BranchProtection.md) for coverage artifacts, known test gaps, vulnerability thresholds, and recommended required checks.
+See [docs/operations/QualityReport.md](docs/operations/QualityReport.md) and [docs/operations/BranchProtection.md](docs/operations/BranchProtection.md) for coverage artifacts, known test gaps, vulnerability thresholds, and recommended required checks.
 
 ## Developer Commands
 
@@ -325,7 +327,7 @@ make token-customer
 make token-ops
 ```
 
-See [docs/LocalDevelopment.md](docs/LocalDevelopment.md) for the full command list, environment variables, seed data, and troubleshooting.
+See [docs/operations/LocalDevelopment.md](docs/operations/LocalDevelopment.md) for the full command list, environment variables, seed data, and troubleshooting.
 
 ## Demo Flow
 
@@ -535,20 +537,15 @@ V2__create_idempotency_and_outbox_tables.sql
 
 Keep migrations Oracle-compatible because the project is designed around Oracle and PL/SQL-style reporting.
 
-See `docs/CoreBusinessLogic.md` for the business and accounting flow, and `docs/DatabaseDesign.md` for schema rationale, transaction isolation choices, locking strategy, and database best practices.
+See `docs/backend/CoreBusinessLogic.md` for the business and accounting flow, and `docs/backend/DatabaseDesign.md` for schema rationale, transaction isolation choices, locking strategy, and database best practices.
 
 ## Documentation
 
-- [API contracts and examples](docs/API.md)
-- [Local development guide](docs/LocalDevelopment.md)
-- [Portfolio narrative](docs/Portfolio.md)
-- [Incident write-ups](docs/Incidents.md)
-- [Quality report](docs/QualityReport.md)
-- [Branch protection](docs/BranchProtection.md)
-- [Backend roadmap](docs/Roadmap.md)
-- [Feature matrix](docs/FeatureMatrix.md)
-- [Known limitations](docs/KnownLimitations.md)
-- [Glossary](docs/Glossary.md)
+- [Documentation index](docs/README.md)
+- [API contracts and examples](docs/backend/API.md)
+- [Backend roadmap](docs/operations/Roadmap.md)
+- [Quality report](docs/operations/QualityReport.md)
+- [Local development guide](docs/operations/LocalDevelopment.md)
 - [Reports](reports/README.md)
 - [Architecture diagram](docs/diagrams/architecture.mmd)
 - [Transfer flow diagram](docs/diagrams/transfer-flow.mmd)
@@ -559,14 +556,14 @@ See `docs/CoreBusinessLogic.md` for the business and accounting flow, and `docs/
 
 Key ADRs:
 
-- [Double-entry, amounts, and idempotency](docs/ADR-DoubleEntryAmountIdempotency.md)
-- [Transaction isolation and account locking](docs/ADR-Phase5-TransactionIsolationAndLocking.md)
-- [Immutable reversals and adjustments](docs/ADR-Phase6-ImmutableLedgerReversalsAndAdjustments.md)
-- [JWT authentication and authorization](docs/ADR-Phase7-JWTAuthenticationAndAuthorization.md)
-- [Audit trail and investigation APIs](docs/ADR-Phase8-AuditTrailAndInvestigationApis.md)
-- [Outbox and Kafka publishing](docs/ADR-Phase9-OutboxKafkaPublishing.md)
-- [Reconciliation design](docs/ADR-Phase10-Reconciliation.md)
-- [Developer experience](docs/ADR-Phase12-DeveloperExperience.md)
+- [Double-entry, amounts, and idempotency](docs/adr/ADR-DoubleEntryAmountIdempotency.md)
+- [Transaction isolation and account locking](docs/adr/ADR-Phase5-TransactionIsolationAndLocking.md)
+- [Immutable reversals and adjustments](docs/adr/ADR-Phase6-ImmutableLedgerReversalsAndAdjustments.md)
+- [JWT authentication and authorization](docs/adr/ADR-Phase7-JWTAuthenticationAndAuthorization.md)
+- [Audit trail and investigation APIs](docs/adr/ADR-Phase8-AuditTrailAndInvestigationApis.md)
+- [Outbox and Kafka publishing](docs/adr/ADR-Phase9-OutboxKafkaPublishing.md)
+- [Reconciliation design](docs/adr/ADR-Phase10-Reconciliation.md)
+- [Developer experience](docs/adr/ADR-Phase12-DeveloperExperience.md)
 
 ## Development Notes
 

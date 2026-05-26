@@ -76,7 +76,7 @@ Common error families:
 
 ## Examples
 
-The executable demo collection is in [demo-flow.http](../banking-ledger-api/http/demo-flow.http). It covers:
+The executable demo collection is in [demo-flow.http](../../banking-ledger-api/http/demo-flow.http). It covers:
 
 - Role-specific dev token generation.
 - Account lookup and creation.

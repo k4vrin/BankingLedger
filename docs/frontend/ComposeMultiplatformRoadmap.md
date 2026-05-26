@@ -2,7 +2,7 @@
 
 This roadmap is optional and separate from the backend roadmap. Its purpose is to create a polished Compose Multiplatform demo client for the Banking Ledger API with Android and iOS customer apps plus a desktop admin app.
 
-Architectural decisions for this roadmap are locked in [ADR: Compose Multiplatform Client Architecture](ADR-ComposeMultiplatformArchitecture.md). The Compose client lives in this monorepo at `banking-ledger-compose/`, uses shared Compose Multiplatform UI, treats customer mobile and desktop admin as equal first-class targets, and does not implement offline financial data caching in v1.
+Architectural decisions for this roadmap are locked in [ADR: Compose Multiplatform Client Architecture](../adr/ADR-ComposeMultiplatformArchitecture.md). The Compose client lives in this monorepo at `banking-ledger-compose/`, uses shared Compose Multiplatform UI, treats customer mobile and desktop admin as equal first-class targets, and does not implement offline financial data caching in v1.
 
 Use the checkboxes as the implementation tracker.
 
@@ -721,7 +721,7 @@ Goal: Make the Android customer app clearly demonstrate the expectations of a Se
 ## Definition Of Done For Each Phase
 
 - [ ] Feature code is implemented.
-- [ ] Implementation follows `docs/ADR-ComposeMultiplatformArchitecture.md`.
+- [ ] Implementation follows `docs/adr/ADR-ComposeMultiplatformArchitecture.md`.
 - [ ] Shared ViewModel or domain behavior has meaningful tests.
 - [ ] Android target builds when touched.
 - [ ] iOS target builds when touched.

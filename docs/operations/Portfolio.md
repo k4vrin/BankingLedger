@@ -105,7 +105,7 @@ make run
 http://localhost:8080/swagger-ui/index.html
 ```
 
-3. Run [demo-flow.http](../banking-ledger-api/http/demo-flow.http) from top to bottom.
+3. Run [demo-flow.http](../../banking-ledger-api/http/demo-flow.http) from top to bottom.
 
 4. Highlight these checkpoints:
 
