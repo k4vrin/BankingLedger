@@ -1,6 +1,12 @@
 # Mini Core Banking Ledger
 
 [![Backend CI](https://github.com/k4vrin/BankingLedger/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/k4vrin/BankingLedger/actions/workflows/backend-ci.yml)
+[![Dependency Check](https://github.com/k4vrin/BankingLedger/actions/workflows/dependency-check.yml/badge.svg)](https://github.com/k4vrin/BankingLedger/actions/workflows/dependency-check.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![Java](https://img.shields.io/badge/Java-21-orange.svg)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.14-6DB33F.svg)
+![Maven](https://img.shields.io/badge/Build-Maven-C71A36.svg)
+![Docker](https://img.shields.io/badge/Runtime-Docker-2496ED.svg)
 
 A Spring Boot portfolio project for a compact banking-style ledger with double-entry accounting, ACID transaction handling, auditability, Oracle-oriented persistence, reconciliation, and event publishing.
 
