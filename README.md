@@ -1,6 +1,6 @@
 # Mini Core Banking Ledger
 
-[![Backend CI](https://github.com/kavrin/BankingLedger/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/kavrin/BankingLedger/actions/workflows/backend-ci.yml)
+[![Backend CI](https://github.com/k4vrin/BankingLedger/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/k4vrin/BankingLedger/actions/workflows/backend-ci.yml)
 
 A Spring Boot portfolio project for a compact banking-style ledger with double-entry accounting, ACID transaction handling, auditability, Oracle-oriented persistence, reconciliation, and event publishing.
 
